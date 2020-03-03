@@ -166,7 +166,7 @@ class App extends Component {
             <Tab eventKey="info" title="Information" >
               {this.state.precinctInfo}
             </Tab>
-            <Tab eventKey="err" title={<div>Errors <Badge variant="primary">{this.state.errorsCount}</Badge></div>}>
+            <Tab eventKey="err" title={<div>Errors <Badge variant="danger">{this.state.errorsCount}</Badge></div>}>
               <div>
                 <ListGroup>
                   {this.state.precinctErrors}
@@ -174,10 +174,9 @@ class App extends Component {
               </div>
             </Tab>
             <Tab eventKey="comment" title="Comments">
-
-              <Form.Group controlId="exampleForm.ControlTextarea1">
+              <Form.Group controlId="exampleForm.ControlTextarea1" className="p-2">
                 <Form.Label>Add Comment</Form.Label>
-                <Form.Control as="textarea" rows="2" />
+                <Form.Control as="textarea" rows="2" className="mb-2"/>
                 <Button variant="primary" type="submit">
                   Submit
                 </Button>
@@ -203,14 +202,14 @@ class App extends Component {
 
             </Tab>
             <Tab eventKey="edit" title="Tools">
-              <div className="mb-2">
-                <Button onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>Add Edge</Button> Add an edge between two precincts.
+            <div className="mb-4 text-center">
+                <Button block onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>Add Edge</Button> Add an edge between two precincts.
                 </div>
-              <div className="mb-2">
-                <Button >Combine Precinct</Button> Combine two existing precincts into one.
+                <div className="mb-4 text-center">
+                <Button block>Combine Precinct</Button> Combine two existing precincts into one.
                 </div>
-              <div className="mb-2">
-                <Button>Generate Ghost Precinct</Button> Create a ghost precinct
+              <div className="mb-4 text-center">
+                <Button block onClick={e => new L.Draw.Polygon(this.refs.map.leafletElement).enable()}>Generate Ghost Precinct</Button> Create a ghost precinct in case an area where the geographic union of precincts does not fully cover the area of the state
                 </div>
             </Tab>
           </Tabs>
