@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import { Map, GeoJSON, TileLayer } from "react-leaflet";
-import 'materialize-css/dist/css/materialize.min.css'
-import 'materialize-css/dist/js/materialize.min.js'
-import { Tab, Tabs, Select, Button, Textarea, Row } from "react-materialize"
+import { Map, GeoJSON, TileLayer, FeatureGroup, Circle } from "react-leaflet";
+import { EditControl } from "react-leaflet-draw"
 import "./App.css";
 import { DummyData } from "./DummyData.js"
 import { DummyPrecincts } from "./DummyPrecincts"
+import { Row, Col, Form, Button, Tabs, Tab, Table, ListGroup, Accordion, Card, Badge } from "react-bootstrap"
+import L from "leaflet"
 
 class App extends Component {
 
@@ -16,18 +16,26 @@ class App extends Component {
     electionValue: "",
     jsonData: DummyData,
     commentsDisabled: "red lighten-4 disabled",
-    resetDisabled: "red lighten-4 disabled",
+    resetDisabled: "",
     dataKey: "DummyData",
     precinctInfo: "Please Click a Precinct",
     precinctErrors: "Please Select A State",
+    key: 'info',
+    comments: [],
+    errorsCount: 0
   }
 
-  checkIfError(r){
-    if(r.properties.NAME.startsWith("Precinct")){
-      if(r.properties.ERRORS.length != 0){
-        return {color: "red"};
+  checkIfError(r) {
+    if (r.properties.NAME.startsWith("Precinct")) {
+      if (r.properties.ERRORS.length !== 0) {
+        return { color: "red" };
+      }
     }
   }
+  highlightFeature(e) {
+    var layer = e.target;
+    if (layer.feature.information)
+      this.createInformation(layer.feature.properties, layer.feature.information);
   }
 
   onEachFeature(feature, layer) {
@@ -47,21 +55,49 @@ class App extends Component {
     } else {
       this.setCenter(name);
     }
+    console.log(this.refs)
+    this.setState({key: "info"})
+    // Assumming you have a Leaflet map accessible
   }
 
   createInformation(precinct, information) {
-    var infoName = "NAME: " + precinct.NAME;
-    var infoPop = "POPULATION: " + information.population;
-    var infoVotesD = "Democratic Votes: " + information.votes.Democratic
-    var infoVotesR = "Republican Votes: " + information.votes.Republican
-    var infoDem = "Demographic Data:";
-    var infoString = <div>{infoName}<br></br>{infoPop}<br></br>{infoVotesD}<br></br>{infoVotesR}<br></br>{infoDem}<br></br><br></br>Data Sources:<br></br><br></br>Comments:</div>;
-    this.setState({ precinctInfo: infoString });
+    var temp =
+      <div>
+        <Table striped hover>
+          <tbody>
+            <tr>
+              <td><strong>Name:</strong></td>
+              <td>{precinct.NAME}</td>
+            </tr>
+            <tr>
+              <td><strong>Population</strong></td>
+              <td>{information.population}</td>
+            </tr>
+            <tr>
+              <td><strong>Democratic Votes:</strong></td>
+              <td>{information.votes.Democratic}</td>
+            </tr>
+            <tr>
+              <td><strong>Republican Votes:</strong></td>
+              <td>{information.votes.Republican}</td>
+            </tr>
+            <tr>
+              <td><strong>Demographic Data:</strong></td>
+              <td>N/A</td>
+            </tr>
+            <tr>
+              <td>Sources: </td>
+              <td><a href="https://www.census.gov/quickfacts/CA">https://www.census.gov/quickfacts/CA</a></td>
+            </tr>
+          </tbody>
+        </Table>
+      </div>
+    this.setState({ precinctInfo: temp });
   }
 
   setCenter(name) {
-    if (name === null) {
-      this.setState({ center: [39.8283, -98.5795], zoom: 4, stateValue: "", electionValue: "", jsonData: DummyData, dataKey: "DummyData", commentsDisabled: "red lighten-4 disabled", precinctInfo: "Please Select A Precinct", resetDisabled: "red lighten-4 disabled", precinctErrors: "Please Select A State" });
+    if (name == null) {
+      this.setState({ center: [39.8283, -98.5795], zoom: 4, stateValue: "", electionValue: "", jsonData: DummyData, dataKey: "DummyData", precinctInfo: "Please Click a Precinct", precinctErrors: "Please Select A State", errorsCount: 0 });
     } else if (name === "California") {
       this.loadErrors(name);
       this.setState({ center: [37.0958, -119.2658], zoom: 6, stateValue: 1, electionValue: 1, jsonData: DummyPrecincts, dataKey: "DummyPrecincts", commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
@@ -70,26 +106,35 @@ class App extends Component {
       this.setState({ center: [39.2302, -111.4101], zoom: 7, stateValue: 2, electionValue: 1, jsonData: DummyPrecincts, dataKey: "DummyPrecincts", commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
     } else if (name === "West Virginia") {
       this.loadErrors(name);
-      this.setState({ center: [38.8509, -80.4202], zoom: 8, stateValue: 3, electionValue: 1, jsonData: DummyPrecincts, dataKey: "DummyPrecincts", commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
+      this.setState({ center: [38.8509, -80.4202], zoom: 7, stateValue: 3, electionValue: 1, jsonData: DummyPrecincts, dataKey: "DummyPrecincts", commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
     }
+  }
+  setCenterError(center, zoom) {
+    let x = [center[0][1], center[0][0]]
+    this.setState({ center: x, zoom })
   }
 
   loadErrors(name) {
     let ErrorsString = [];
     for (let i = 0; i < DummyPrecincts.features.length; i++) {
-      if (DummyPrecincts.features[i].properties.ERRORS.length != 0) {
+      if (DummyPrecincts.features[i].properties.ERRORS.length !== 0) {
         for (let y = 0; y < DummyPrecincts.features[i].properties.ERRORS.length; y++) {
-          ErrorsString.push(<div>{DummyPrecincts.features[i].properties.ERRORS[y].PROBLEM}</div>);
+          let func = e => {
+            this.setCenterError(DummyPrecincts.features[i].geometry.coordinates[0], 8);
+            this.createInformation(DummyPrecincts.features[i].properties, DummyPrecincts.features[i].information)
+          }
+          ErrorsString.push(
+            <ListGroup.Item action onClick={func}>
+              {DummyPrecincts.features[i].properties.ERRORS[y].PROBLEM}
+            </ListGroup.Item>);
         }
       }
     }
-    console.log(ErrorsString);
-    this.setState({ precinctErrors: ErrorsString })
+    this.setState({ precinctErrors: ErrorsString, errorsCount: ErrorsString.length })
   }
 
   changeOfState(e) {
     var state = e.target.value;
-    console.log(state);
     if (state === "1") {
       this.setCenter("California");
     } else if (state === "2") {
@@ -103,8 +148,9 @@ class App extends Component {
     this.setCenter(null)
   }
 
-  changeOfElection() {
-
+  changeOfElection(e) {
+    let electionValue = e.target.value;
+    this.setState({ electionValue });
   }
 
   submitComment() {
@@ -112,159 +158,110 @@ class App extends Component {
   }
 
   render() {
+
     return (
-      <div style={{ height: "100%" }}>
-        <div className="edit-div">
-          <div id="edit-modules" className="row">
-            <div className="col s4">
-              <div id="selector-row" className="row">
-                <div className="col s5">
-                  <Select
-                    onChange={this.changeOfState.bind(this)}
-                    options={{
-                      classes: '',
-                      dropdownOptions: {
-                        alignment: 'left',
-                        autoTrigger: true,
-                        closeOnClick: true,
-                        constrainWidth: true,
-                        container: null,
-                        coverTrigger: true,
-                        hover: false,
-                        inDuration: 150,
-                        onCloseEnd: null,
-                        onCloseStart: null,
-                        onOpenEnd: null,
-                        onOpenStart: null,
-                        outDuration: 250
-                      }
-                    }}
-                    value={this.state.stateValue}
-                  >
-                    <option
-                      disabled
-                      value=""
-                    >
-                      Choose Your State</option>
-                    <option value="1">
-                      California</option>
-                    <option value="2">
-                      Utah</option>
-                    <option value="3">
-                      West Virginia</option>
-                  </Select></div>
-                <div className="col s5">
-                  <Select
-                    onChange={this.changeOfElection.bind(this)}
-                    options={{
-                      classes: '',
-                      dropdownOptions: {
-                        alignment: 'left',
-                        autoTrigger: true,
-                        closeOnClick: true,
-                        constrainWidth: true,
-                        container: null,
-                        coverTrigger: true,
-                        hover: false,
-                        inDuration: 150,
-                        onCloseEnd: null,
-                        onCloseStart: null,
-                        onOpenEnd: null,
-                        onOpenStart: null,
-                        outDuration: 250
-                      }
-                    }}
-                    value=""
-                  >
-                    <option
-                      disabled
-                      value={this.state.electionValue}
-                    >
-                      Choose Your Election</option>
-                    <option value="1">
-                      2016 Presidential</option>
-                    <option value="2">
-                      2016 Congressional</option>
-                    <option value="3">
-                      2018 Congressional</option>
-                  </Select></div>
-                <div className="col s2">
-                  <Button
-                    onClick={this.resetClicked.bind(this)}
-                    className={this.state.resetDisabled}
-                    node="button"
-                    style={{
-                      marginRight: '5px'
-                    }}
-                    waves="light"
-                  >
-                    Reset</Button></div>
-              </div>
-              <Tabs
-                className="tab-demo z-depth-1"
-                options={{
-                  swipeable: true
-                }}
-              >
-                <Tab
-                  active
-                  options={{
-                    duration: 300,
-                    onShow: null,
-                    responsiveThreshold: Infinity,
-                    swipeable: false
-                  }}
-                  title="Information"
-                >
-                  {this.state.precinctInfo}
-                </Tab>
-                <Tab
-                  options={{
-                    duration: 300,
-                    onShow: null,
-                    responsiveThreshold: Infinity,
-                    swipeable: false
-                  }}
-                  title="Errors"
-                >
+      <Row className="h-100" noGutters={true}>
+        <Col xs={4} className="p-1" id="sidebar" >
+          <Tabs activeKey={this.state.key} onSelect={key => this.setState({ key })} transition={false} className="mb-2">
+            <Tab eventKey="info" title="Information" >
+              {this.state.precinctInfo}
+            </Tab>
+            <Tab eventKey="err" title={<div>Errors <Badge variant="primary">{this.state.errorsCount}</Badge></div>}>
+              <div>
+                <ListGroup>
                   {this.state.precinctErrors}
-                </Tab>
-              </Tabs>
-              <div className="row">
-                <div className="col s9">
-                  <Row>
-                    <Textarea
-                      l={12}
-                      m={12}
-                      s={4}
-                      xl={12}
-                      label="Comments"
-                    />
-                  </Row>
-                </div>
-                <div className="col s3">
-                  <Button
-                    onClick={this.submitComment.bind(this)}
-                    className={this.state.commentsDisabled}
-                    node="button"
-                    style={{
-                      marginRight: '5px'
-                    }}
-                    waves="light"
-                  >
-                    Submit</Button></div>
+                </ListGroup>
               </div>
-            </div>
-            <Map className="col s8" center={this.state.center} zoom={this.state.zoom} ref={this.mapRef}>
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            </Tab>
+            <Tab eventKey="comment" title="Comments">
+
+              <Form.Group controlId="exampleForm.ControlTextarea1">
+                <Form.Label>Add Comment</Form.Label>
+                <Form.Control as="textarea" rows="2" />
+                <Button variant="primary" type="submit">
+                  Submit
+                </Button>
+              </Form.Group>
+              <Accordion defaultActiveKey="-1">
+                <Accordion.Toggle eventKey="0" as={Button} variant="link">Show Comments...</Accordion.Toggle>
+                <Accordion.Collapse eventKey="0">
+                  <div>
+                    <Card body>
+                      <h6>03/01/2020 3:29PM</h6>The precinct population data needs to be updated for 2020 census.
+                    </Card>
+                    <Card body>
+                      <h6>02/20/2019 11:02PM</h6>
+                      Congressional results are inaccurate for 2016 in West Virginia.
+                    </Card>
+                    <Card body>
+                      <h6>02/12/2019 06:45PM</h6>
+                      I like this application.
+                    </Card>
+                  </div>
+                </Accordion.Collapse>
+              </Accordion>
+
+            </Tab>
+            <Tab eventKey="edit" title="Tools">
+              <div className="mb-2">
+                <Button onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>Add Edge</Button> Add an edge between two precincts.
+                </div>
+              <div className="mb-2">
+                <Button >Combine Precinct</Button> Combine two existing precincts into one.
+                </div>
+              <div className="mb-2">
+                <Button>Generate Ghost Precinct</Button> Create a ghost precinct
+                </div>
+            </Tab>
+          </Tabs>
+        </Col>
+        <Col xs={8} className="h-100">
+          <Map id="leaflet-map" center={this.state.center} zoom={this.state.zoom} ref="map">
+            <FeatureGroup>
+              <EditControl
+                position='topleft'
+                onEdited={this._onEditPath}
+                onCreated={this._onCreate}
+                onDeleted={this._onDeleted}
+                draw={{
+                  rectangle: false,
+                  circle: false,
+                  circlemarker: false
+                }}
               />
-              <GeoJSON key={this.state.dataKey} data={this.state.jsonData} style={this.checkIfError.bind(this)} onEachFeature={this.onEachFeature.bind(this)}></GeoJSON>
-            </Map>
+              <Circle center={[51.51, -0.06]} radius={200} />
+            </FeatureGroup>
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            />
+            <GeoJSON key={this.state.dataKey} data={this.state.jsonData} style={this.checkIfError.bind(this)} onEachFeature={this.onEachFeature.bind(this)}></GeoJSON>
+          </Map>
+          <div className="leaflet-right leaflet-top" style={{ "pointerEvents": "auto" }}>
+            <Form inline className="m-2">
+              <Form.Control as="select" placeholder="Select one" className="mr-2"
+                value={this.state.stateValue}
+                onChange={this.changeOfState.bind(this)}>
+                <option value="" disabled> Select State</option>
+                <option value="1">California</option>
+                <option value="2">Utah</option>
+                <option value="3">West Virginia</option>
+              </Form.Control>
+              <Form.Control as="select" className="mr-2" onChange={this.changeOfElection.bind(this)} value={this.state.electionValue}>
+                <option value="" disabled>Select Election</option>
+                <option value="1">
+                  2016 Presidential</option>
+                <option value="2">
+                  2016 Congressional</option>
+                <option value="3">
+                  2018 Congressional</option>
+              </Form.Control>
+              <Button className="ml-auto"
+                onClick={this.resetClicked.bind(this)}>Reset</Button>
+            </Form>
           </div>
-        </div>
-      </div>
+        </Col>
+      </Row>
     );
   }
 }
