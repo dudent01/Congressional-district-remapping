@@ -56,7 +56,7 @@ class App extends Component {
       this.setCenter(name);
     }
     console.log(this.refs)
-    this.setState({key: "info"})
+    this.setState({ key: "info" })
     // Assumming you have a Leaflet map accessible
   }
 
@@ -153,6 +153,22 @@ class App extends Component {
     this.setState({ electionValue });
   }
 
+  checkBoxChange(e){
+    if(e.target.id==="nationalParks"){
+      if(e.target.checked === false){
+        console.log("National Parks Disabled");
+      } else {
+        console.log("National Parks Enabled");
+      }
+    } else if(e.target.id==="districtBounds"){
+      if(e.target.checked === false){
+        console.log("Congressional Bounds Disabled");
+      } else {
+        console.log("Congressional Bounds Enabled");
+      }
+    }
+  }
+
   submitComment() {
 
   }
@@ -176,7 +192,7 @@ class App extends Component {
             <Tab eventKey="comment" title="Comments">
               <Form.Group controlId="exampleForm.ControlTextarea1" className="p-2">
                 <Form.Label>Add Comment</Form.Label>
-                <Form.Control as="textarea" rows="2" className="mb-2"/>
+                <Form.Control as="textarea" rows="2" className="mb-2" />
                 <Button variant="primary" type="submit">
                   Submit
                 </Button>
@@ -202,10 +218,19 @@ class App extends Component {
 
             </Tab>
             <Tab eventKey="edit" title="Tools">
-            <div className="mb-4 text-center">
+              <div className="mb-4 text-center">
+                <h2>Map Control Tools</h2>
+                <div className="custom-control custom-checkbox">
+                  <input type="checkbox" className="custom-control-input" onChange={this.checkBoxChange} defaultChecked={false} id="nationalParks"></input>
+                  <label className="custom-control-label" htmlFor="nationalParks">Enable/Disable National Parks</label>
+                </div>
+                <div className="custom-control custom-checkbox">
+                  <input type="checkbox" className="custom-control-input" onChange={this.checkBoxChange} defaultChecked={false} id="districtBounds"></input>
+                  <label className="custom-control-label" htmlFor="districtBounds">Enable/Disable District Boundaries</label>
+                </div><h2>Data Correction Tools</h2>
                 <Button block onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>Add Edge</Button> Add an edge between two precincts.
                 </div>
-                <div className="mb-4 text-center">
+              <div className="mb-4 text-center">
                 <Button block>Combine Precinct</Button> Combine two existing precincts into one.
                 </div>
               <div className="mb-4 text-center">

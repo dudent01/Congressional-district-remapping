@@ -4,6 +4,7 @@ export const DummyPrecincts = {
 
         {
             "type": "Feature",
+            "state": "UT",
             "properties": {
                 "NAME": "Precinct 1",
                 "ERRORS": [
