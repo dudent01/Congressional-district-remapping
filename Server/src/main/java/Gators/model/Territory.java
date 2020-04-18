@@ -1,31 +1,48 @@
 package Gators.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.persistence.*;
 
-import javax.validation.constraints.NotBlank;
-
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Territory
 {
-    @NotBlank
-    private final String abbrName;
-    @NotBlank
-    private final String name;
-    @NotBlank
-    private final String geoJson;
+    @Id
+    @GeneratedValue
+    @Column(name = "ID")
+    private long id;
 
+    @Column(name = "geojson")
+    private String geojson;
 
-    public Territory(@JsonProperty("abbrName") String abbrName,
-                     @JsonProperty("name") String name,
-                     @JsonProperty("geoJson") String geoJson)
+    @Column(name = "tName")
+    private String name;
+
+    public Territory() {}
+
+    public Territory(String geojson, String name)
     {
-        this.abbrName = abbrName;
+        this.geojson = geojson;
         this.name = name;
-        this.geoJson = geoJson;
     }
 
-    public String getAbbrName()
+    public long getId()
     {
-        return abbrName;
+        return id;
+    }
+
+    public void setId(long id)
+    {
+        this.id = id;
+    }
+
+    public String getGeojson()
+    {
+        return geojson;
+    }
+
+    public void setGeojson(String geojson)
+    {
+        this.geojson = geojson;
     }
 
     public String getName()
@@ -33,8 +50,8 @@ public abstract class Territory
         return name;
     }
 
-    public String getGeoJson()
+    public void setName(String name)
     {
-        return geoJson;
+        this.name = name;
     }
 }

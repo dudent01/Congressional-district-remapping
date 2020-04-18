@@ -1,47 +1,36 @@
 package Gators.service;
 
-import Gators.dao.StateAccess;
 import Gators.model.State;
+import Gators.repository.StateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class StateService implements TerritoryService<State>
+public class StateService
 {
-    private final StateAccess stateAccess;
+    private final StateRepository stateRepository;
 
     @Autowired
-    public StateService(@Qualifier("FakeStateAccess") StateAccess stateAccess)
+    public StateService(StateRepository stateRepository)
     {
-        this.stateAccess = stateAccess;
+        this.stateRepository = stateRepository;
     }
 
-    public int add(State state)
+    public void addState(State state)
     {
-        return stateAccess.add(state);
+        stateRepository.save(state);
     }
 
-    public List<State> getAll()
+    public List<State> getAllStates()
     {
-        return stateAccess.getAll();
+        return (List<State>) stateRepository.findAll();
     }
 
-    public Optional<State> getByAbbrName(String abbrName)
+    public State getStateById(long id)
     {
-        return stateAccess.getByAbbrName(abbrName);
-    }
-
-    public int deleteByAbbrName(String abbrName)
-    {
-        return stateAccess.deleteByAbbrName(abbrName);
-    }
-
-    public int updateByAbbrName(String abbrName, State state)
-    {
-        return stateAccess.updateByAbbrName(abbrName, state);
+        return stateRepository.findById(id).orElse(null);
     }
 }
