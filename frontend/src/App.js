@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Map, GeoJSON, TileLayer, FeatureGroup, Circle } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import "./App.css";
-import { DummyData } from "./DummyData.js.js"
+import { DummyData } from "./DummyData.js"
 import { DummyPrecincts } from "./DummyPrecincts.js"
 import axios from "axios"
 import { Row, Col, Form, Button, Tabs, Tab, Table, ListGroup, Accordion, Card, Badge } from "react-bootstrap"
