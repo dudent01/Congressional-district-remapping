@@ -6,8 +6,6 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "State")
-@PrimaryKeyJoinColumn(name = "ID")
 public class State extends Territory
 {
     @Column
