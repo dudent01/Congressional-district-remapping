@@ -12,8 +12,8 @@ public abstract class Territory
 
     @Column(name = "geojson", columnDefinition = "TEXT")
     private String geojson;
-    // name is keyword in MYSQL. Come up with something else
-    @Column(name = "tName")
+
+    @Column
     private String name;
 
     public Territory() {}

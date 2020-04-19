@@ -8,14 +8,12 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "PRECINCT")
-@PrimaryKeyJoinColumn(name = "ID")
 public class Precinct extends Territory
 {
     @Column
     private String cName;
 
-    @ElementCollection
+    @ManyToMany
     private Set<Precinct> neighbors;
 
     @OneToOne
