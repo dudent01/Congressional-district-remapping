@@ -59,6 +59,10 @@ class App extends Component {
     } else {
       this.setCenter(name);
     }
+  } else{
+    let precinct = {NAME: "N/A"};
+    let information = {population: "N/A", votes: {Democratic: "N/A", Republican: "N/A"}};
+    this.createInformation(precinct, information);
   }
     console.log(this.refs)
     this.setState({ key: "info" })
