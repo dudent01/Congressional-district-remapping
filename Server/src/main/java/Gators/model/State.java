@@ -1,5 +1,6 @@
 package Gators.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class State extends Territory
     @Column
     private String abbr;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "state")
     private Set<Precinct> precincts;
 

@@ -5,6 +5,8 @@ import Gators.repository.Repositories;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
+
 @Service
 public class PrecinctService
 {
@@ -19,5 +21,10 @@ public class PrecinctService
 
         Repositories.precinctRepository.save(precinct1);
         Repositories.precinctRepository.save(precinct2);
+    }
+
+    public Set<Precinct> getPrecinctsByStateId(long stateId)
+    {
+        return Repositories.precinctRepository.findByStateId(stateId);
     }
 }
