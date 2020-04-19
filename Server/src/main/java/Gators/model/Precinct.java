@@ -2,7 +2,9 @@ package Gators.model;
 
 import Gators.model.Demographic.Demographic;
 import Gators.model.Election.Election;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,22 +21,23 @@ public class Precinct extends Territory
     @Column
     private String cName;
 
-    @ManyToMany
-    private Set<Precinct> neighbors;
+//    @ManyToMany
+//    @JsonIgnore
+//    private Set<Precinct> neighbors;
 
-    @OneToOne
+    @OneToOne(fetch =  FetchType.LAZY)
     private Election pres2016;
 
-    @OneToOne
+    @OneToOne(fetch =  FetchType.LAZY)
     private Election cong2016;
 
-    @OneToOne
+    @OneToOne(fetch =  FetchType.LAZY)
     private Election cong2018;
 
-    @OneToOne
+    @OneToOne(fetch =  FetchType.LAZY)
     private Demographic demographic;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY)
     private State state;
 
     public Precinct(@JsonProperty("geojson") String geojson,
@@ -45,7 +48,7 @@ public class Precinct extends Territory
     {
         super(geojson, name);
         this.cName = cName;
-        this.neighbors = neighbors;
+//        this.neighbors = neighbors;
 //      TODO   this.state = stateRepository.findStateById(stateId);
     }
 }

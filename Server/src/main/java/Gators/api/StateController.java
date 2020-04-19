@@ -25,7 +25,7 @@ public class StateController
         return stateService.getAllStates();
     }
 
-    @GetMapping(path = "/id/{id}")
+    @GetMapping(path = "/{id}")
     public State getStateById(@PathVariable long id)
     {
         return stateService.getStateById(id);
