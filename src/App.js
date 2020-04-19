@@ -3,7 +3,8 @@ import { Map, GeoJSON, TileLayer, FeatureGroup, Circle } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import "./App.css";
 import { DummyData } from "./DummyData.js"
-import { DummyPrecincts } from "./DummyPrecincts"
+import { DummyPrecincts } from "./DummyPrecincts.js"
+import axios from "axios"
 import { Row, Col, Form, Button, Tabs, Tab, Table, ListGroup, Accordion, Card, Badge } from "react-bootstrap"
 import L from "leaflet"
 
@@ -26,7 +27,8 @@ class App extends Component {
   }
 
   checkIfError(r) {
-    if (r.properties.NAME.startsWith("Precinct")) {
+    //console.log(r.properties.precinctID)
+    if (r.properties.NAME !== undefined && r.properties.NAME.startsWith("Precinct")) {
       if (r.properties.ERRORS.length !== 0) {
         return { color: "red" };
       }
@@ -50,14 +52,21 @@ class App extends Component {
     var layer = e.target;
     var name = layer.feature.properties.NAME;
     console.log("I clicked on " + name);
+    if(name !== undefined){
     if (name.startsWith("Precinct")) {
       this.createInformation(layer.feature.properties, layer.feature.information);
+      this.highlightNeighbors();
     } else {
       this.setCenter(name);
     }
+  }
     console.log(this.refs)
     this.setState({ key: "info" })
     // Assumming you have a Leaflet map accessible
+  }
+
+  highlightNeighbors(){
+    console.log("Highlight Neighbors Called");
   }
 
   createInformation(precinct, information) {
@@ -100,13 +109,14 @@ class App extends Component {
       this.setState({ center: [39.8283, -98.5795], zoom: 4, stateValue: "", electionValue: "", jsonData: DummyData, dataKey: "DummyData", precinctInfo: "Please Click a Precinct", precinctErrors: "Please Select A State", errorsCount: 0 });
     } else if (name === "California") {
       this.loadErrors(name);
-      this.setState({ center: [37.0958, -119.2658], zoom: 6, stateValue: 1, electionValue: 1, jsonData: DummyPrecincts, dataKey: "DummyPrecincts", commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
+      this.setState({ center: [37.0958, -119.2658], zoom: 6, stateValue: 1, electionValue: 1, jsonData: null, dataKey: null, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
     } else if (name === "Utah") {
       this.loadErrors(name);
-      this.setState({ center: [39.2302, -111.4101], zoom: 7, stateValue: 2, electionValue: 1, jsonData: DummyPrecincts, dataKey: "DummyPrecincts", commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
+      axios.get("/DummyPrecinctsUT.json").then( (response) => {
+      this.setState({ center: [39.2302, -111.4101], zoom: 7, stateValue: 2, electionValue: 1, jsonData: response.data, dataKey: "DummyPrecincts", commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", })});
     } else if (name === "West Virginia") {
       this.loadErrors(name);
-      this.setState({ center: [38.8509, -80.4202], zoom: 7, stateValue: 3, electionValue: 1, jsonData: DummyPrecincts, dataKey: "DummyPrecincts", commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
+      this.setState({ center: [38.8509, -80.4202], zoom: 7, stateValue: 3, electionValue: 1, jsonData: null, dataKey: null, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
     }
   }
   setCenterError(center, zoom) {
@@ -116,6 +126,7 @@ class App extends Component {
 
   loadErrors(name) {
     let ErrorsString = [];
+    if(this.state.jsonData === DummyPrecincts){
     for (let i = 0; i < DummyPrecincts.features.length; i++) {
       if (DummyPrecincts.features[i].properties.ERRORS.length !== 0) {
         for (let y = 0; y < DummyPrecincts.features[i].properties.ERRORS.length; y++) {
@@ -130,6 +141,7 @@ class App extends Component {
         }
       }
     }
+  }
     this.setState({ precinctErrors: ErrorsString, errorsCount: ErrorsString.length })
   }
 
@@ -218,7 +230,7 @@ class App extends Component {
 
             </Tab>
             <Tab eventKey="edit" title="Tools">
-              <div className="mb-4 text-center">
+              <div className="mb-4">
                 <h2>Map Control Tools</h2>
                 <div className="custom-control custom-checkbox">
                   <input type="checkbox" className="custom-control-input" onChange={this.checkBoxChange} defaultChecked={false} id="nationalParks"></input>
@@ -230,10 +242,10 @@ class App extends Component {
                 </div><h2>Data Correction Tools</h2>
                 <Button block onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>Add Edge</Button> Add an edge between two precincts.
                 </div>
-              <div className="mb-4 text-center">
+              <div className="mb-4">
                 <Button block>Combine Precinct</Button> Combine two existing precincts into one.
                 </div>
-              <div className="mb-4 text-center">
+              <div className="mb-4">
                 <Button block onClick={e => new L.Draw.Polygon(this.refs.map.leafletElement).enable()}>Generate Ghost Precinct</Button> Create a ghost precinct in case an area where the geographic union of precincts does not fully cover the area of the state
                 </div>
             </Tab>
