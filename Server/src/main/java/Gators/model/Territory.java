@@ -2,8 +2,7 @@ package Gators.model;
 
 import javax.persistence.*;
 //  TODO rename all database variables in sql convention
-@Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@MappedSuperclass
 public abstract class Territory
 {
     @Id
@@ -11,7 +10,7 @@ public abstract class Territory
     @Column
     private long id;
 
-    @Column
+    @Column(name = "geojson", columnDefinition = "TEXT")
     private String geojson;
 
     @Column
