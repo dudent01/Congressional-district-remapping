@@ -3,18 +3,21 @@ package Gators.service;
 import Gators.model.Precinct;
 import Gators.repository.Repositories;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PrecinctService
 {
-    public void addPrecinct(Precinct precinct)
+    @Transactional
+    public void addNeighborById(long id1, long id2)
     {
-        Repositories.precinctRepository.save(precinct);
-    }
+        Precinct precinct1 = Repositories.precinctRepository.findById(id1).orElse(null);
+        Precinct precinct2 = Repositories.precinctRepository.findById(id2).orElse(null);
 
-    public Precinct getPrecinctById(Long precinctId)
-    {
-        return Repositories.precinctRepository.findById(precinctId).orElse(null);
-    }
+        precinct1.getNeighbors().add(precinct2);
+        precinct2.getNeighbors().add(precinct1);
 
+        Repositories.precinctRepository.save(precinct1);
+        Repositories.precinctRepository.save(precinct2);
+    }
 }
