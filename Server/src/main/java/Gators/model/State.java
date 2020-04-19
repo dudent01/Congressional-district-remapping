@@ -20,7 +20,7 @@ public class State extends Territory
     @Column
     private String abbr;
 
-    @OneToMany(mappedBy = "state", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "state")
     private Set<Precinct> precincts;
 
     public State(@JsonProperty("geojson") String geojson,
