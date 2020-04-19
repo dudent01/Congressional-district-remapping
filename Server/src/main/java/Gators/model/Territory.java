@@ -19,7 +19,7 @@ public abstract class Territory
     @Column
     private long id;
 
-    @Column
+    @Column(name = "geojson", columnDefinition = "MEDIUMTEXT")
     private String geojson;
 
     @Column
