@@ -1,36 +1,27 @@
 package Gators.service;
 
 import Gators.model.State;
-import Gators.repository.StateRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import Gators.repository.Repositories;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class StateService
 {
-    private final StateRepository stateRepository;
-
-    @Autowired
-    public StateService(StateRepository stateRepository)
-    {
-        this.stateRepository = stateRepository;
-    }
-
     public void addState(State state)
     {
-        stateRepository.save(state);
+        Repositories.stateRepository.save(state);
     }
 
-    public List<State> getAllStates()
+    public Set<State> getAllStates()
     {
-        return (List<State>) stateRepository.findAll();
+        return new HashSet<>(Repositories.stateRepository.findAll());
     }
 
     public State getStateById(long id)
     {
-        return stateRepository.findById(id).orElse(null);
+        return Repositories.stateRepository.findById(id).orElse(null);
     }
 }

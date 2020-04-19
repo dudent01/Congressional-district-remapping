@@ -1,19 +1,19 @@
 package Gators.model;
 
 import javax.persistence.*;
-
+//  TODO rename all database variables in sql convention
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Territory
 {
     @Id
     @GeneratedValue
-    @Column(name = "ID")
+    @Column
     private long id;
 
     @Column(name = "geojson")
     private String geojson;
-
+    // name is keyword in MYSQL. Come up with something else
     @Column(name = "tName")
     private String name;
 

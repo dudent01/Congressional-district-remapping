@@ -2,20 +2,23 @@ package Gators.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "State")
 @PrimaryKeyJoinColumn(name = "ID")
 public class State extends Territory
 {
-    @Column()
+    @Column
     private String abbr;
 
-    public State() {}
+    @OneToMany(mappedBy = "state")
+    private Set<Precinct> precincts;
+
+    public State()
+    {
+    }
 
     public State(@JsonProperty("geojson") String geojson,
                  @JsonProperty("name") String name,
@@ -33,5 +36,15 @@ public class State extends Territory
     public void setAbbr(String abbr)
     {
         this.abbr = abbr;
+    }
+
+    public Set<Precinct> getPrecincts()
+    {
+        return precincts;
+    }
+
+    public void setPrecincts(Set<Precinct> precincts)
+    {
+        this.precincts = precincts;
     }
 }

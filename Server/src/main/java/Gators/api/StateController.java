@@ -4,8 +4,7 @@ import Gators.model.State;
 import Gators.service.StateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import java.util.Set;
 
 @RequestMapping("api/state")
 @RestController
@@ -26,7 +25,7 @@ public class StateController
     }
 
     @GetMapping
-    public List<State> getAllStates()
+    public Set<State> getAllStates()
     {
         return stateService.getAllStates();
     }
