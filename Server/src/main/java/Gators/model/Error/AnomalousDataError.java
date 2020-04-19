@@ -1,10 +1,13 @@
 package Gators.model.Error;
 
 import Gators.model.Precinct;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
+@Getter @Setter
 public class AnomalousDataError extends Error
 {
     @ManyToOne
@@ -15,34 +18,4 @@ public class AnomalousDataError extends Error
 
     @Column
     private String dataKey;
-
-    public Precinct getPrecinct()
-    {
-        return precinct;
-    }
-
-    public void setPrecinct(Precinct precinct)
-    {
-        this.precinct = precinct;
-    }
-
-    public DataCategory getDataCategory()
-    {
-        return dataCategory;
-    }
-
-    public void setDataCategory(DataCategory dataCategory)
-    {
-        this.dataCategory = dataCategory;
-    }
-
-    public String getDataKey()
-    {
-        return dataKey;
-    }
-
-    public void setDataKey(String dataKey)
-    {
-        this.dataKey = dataKey;
-    }
 }

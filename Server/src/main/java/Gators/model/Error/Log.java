@@ -1,11 +1,14 @@
 package Gators.model.Error;
 
 import Gators.model.Precinct;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Getter @Setter
 public class Log
 {
     @Id
@@ -27,64 +30,4 @@ public class Log
 
     @Enumerated(EnumType.STRING)
     private ErrorType type;
-
-    public long getId()
-    {
-        return id;
-    }
-
-    public void setId(long id)
-    {
-        this.id = id;
-    }
-
-    public Date getUtilDate()
-    {
-        return utilDate;
-    }
-
-    public void setUtilDate(Date utilDate)
-    {
-        this.utilDate = utilDate;
-    }
-
-    public String getPrev()
-    {
-        return prev;
-    }
-
-    public void setPrev(String prev)
-    {
-        this.prev = prev;
-    }
-
-    public String getNewString()
-    {
-        return newString;
-    }
-
-    public void setNewString(String newString)
-    {
-        this.newString = newString;
-    }
-
-    public Precinct getPrecinct()
-    {
-        return precinct;
-    }
-
-    public void setPrecinct(Precinct precinct)
-    {
-        this.precinct = precinct;
-    }
-
-    public ErrorType getType()
-    {
-        return type;
-    }
-
-    public void setType(ErrorType type)
-    {
-        this.type = type;
-    }
 }

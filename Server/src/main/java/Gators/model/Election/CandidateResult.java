@@ -1,10 +1,14 @@
 package Gators.model.Election;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
+@Getter @Setter @NoArgsConstructor
 public class CandidateResult
 {
     @Id
@@ -12,7 +16,7 @@ public class CandidateResult
     @Column
     private long id;
 
-    @Column(name = "CRNAME")
+    @Column
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -24,10 +28,6 @@ public class CandidateResult
     @ManyToOne
     private Election election;
 
-    public CandidateResult()
-    {
-    }
-
     public CandidateResult(@JsonProperty("id") int id,
                            @JsonProperty("name") String name,
                            @JsonProperty("party") ElectionParty party,
@@ -38,56 +38,6 @@ public class CandidateResult
         this.name = name;
         this.party = party;
         this.votes = votes;
-        this.election = election;
-    }
-
-    public long getId()
-    {
-        return id;
-    }
-
-    public void setId(long id)
-    {
-        this.id = id;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public ElectionParty getParty()
-    {
-        return party;
-    }
-
-    public void setParty(ElectionParty party)
-    {
-        this.party = party;
-    }
-
-    public int getVotes()
-    {
-        return votes;
-    }
-
-    public void setVotes(int votes)
-    {
-        this.votes = votes;
-    }
-
-    public Election getElection()
-    {
-        return election;
-    }
-
-    public void setElection(Election election)
-    {
         this.election = election;
     }
 }

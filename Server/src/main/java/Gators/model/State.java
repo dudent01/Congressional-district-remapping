@@ -1,11 +1,15 @@
 package Gators.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
+@Getter @Setter @NoArgsConstructor
 public class State extends Territory
 {
     @Column
@@ -14,35 +18,11 @@ public class State extends Territory
     @OneToMany(mappedBy = "state")
     private Set<Precinct> precincts;
 
-    public State()
-    {
-    }
-
     public State(@JsonProperty("geojson") String geojson,
                  @JsonProperty("name") String name,
                  @JsonProperty("abbr") String abbr)
     {
         super(geojson, name);
         this.abbr = abbr;
-    }
-
-    public String getAbbr()
-    {
-        return abbr;
-    }
-
-    public void setAbbr(String abbr)
-    {
-        this.abbr = abbr;
-    }
-
-    public Set<Precinct> getPrecincts()
-    {
-        return precincts;
-    }
-
-    public void setPrecincts(Set<Precinct> precincts)
-    {
-        this.precincts = precincts;
     }
 }
