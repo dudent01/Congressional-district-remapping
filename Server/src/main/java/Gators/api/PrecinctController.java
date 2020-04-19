@@ -3,9 +3,10 @@ package Gators.api;
 import Gators.model.Precinct;
 import Gators.service.PrecinctService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
+@RequestMapping("api/precinct")
+@RestController
 public class PrecinctController
 {
     private final PrecinctService precinctService;
@@ -16,17 +17,9 @@ public class PrecinctController
         this.precinctService = precinctService;
     }
 
-    @PostMapping
-    public void addPrecinct(@RequestBody Precinct precinct)
+    @PatchMapping(path = "/{id1}/{id2}")
+    public void addNeighborById(@PathVariable long id1, @PathVariable long id2)
     {
-        precinctService.addPrecinct(precinct);
+        precinctService.addNeighborById(id1, id2);
     }
-
-//    TODO create method in service
-//    @GetMapping(path = "{id}")
-//    public Set<Precinct> getPrecinctByState()
-//    {
-//        return precinctService.getPrecinctByState();
-//    }
-
 }

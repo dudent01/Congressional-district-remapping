@@ -19,21 +19,21 @@ public class StateController
         this.stateService = stateService;
     }
 
-    @PostMapping
-    public void addState(@RequestBody State state)
-    {
-        stateService.addState(state);
-    }
-
     @GetMapping
     public Set<State> getAllStates()
     {
         return stateService.getAllStates();
     }
 
-    @GetMapping(path = "{id}")
+    @GetMapping(path = "/id/{id}")
     public State getStateById(@PathVariable long id)
     {
         return stateService.getStateById(id);
+    }
+
+    @GetMapping(path = "/abbr/{abbr}")
+    public State getStateByAbbr(@PathVariable String abbr)
+    {
+        return stateService.getStateByAbbr(abbr);
     }
 }

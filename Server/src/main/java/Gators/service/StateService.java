@@ -10,11 +10,6 @@ import java.util.Set;
 @Service
 public class StateService
 {
-    public void addState(State state)
-    {
-        Repositories.stateRepository.save(state);
-    }
-
     public Set<State> getAllStates()
     {
         return new HashSet<>(Repositories.stateRepository.findAll());
@@ -23,5 +18,10 @@ public class StateService
     public State getStateById(long id)
     {
         return Repositories.stateRepository.findById(id).orElse(null);
+    }
+
+    public State getStateByAbbr(String abbr)
+    {
+        return Repositories.stateRepository.findByAbbr(abbr);
     }
 }
