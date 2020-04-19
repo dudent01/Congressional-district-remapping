@@ -8,7 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 public class OverlappingError extends Error
 {
     @ManyToOne

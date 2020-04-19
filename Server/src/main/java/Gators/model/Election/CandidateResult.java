@@ -8,7 +8,9 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
 public class CandidateResult
 {
     @Id

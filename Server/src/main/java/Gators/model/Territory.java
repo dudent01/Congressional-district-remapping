@@ -5,10 +5,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+
 //  TODO rename all database variables in sql convention
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
 public abstract class Territory
 {
     @Id

@@ -8,7 +8,8 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 public class Log
 {
     @Id

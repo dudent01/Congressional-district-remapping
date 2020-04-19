@@ -8,7 +8,8 @@ import javax.persistence.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Getter @Setter
+@Getter
+@Setter
 public abstract class Error
 {
     @Id

@@ -4,13 +4,14 @@ import Gators.model.State;
 import Gators.service.StateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Set;
 
 @RequestMapping("api/state")
 @RestController
 public class StateController
 {
-    private StateService stateService;
+    private final StateService stateService;
 
     @Autowired
     public StateController(StateService stateService)
