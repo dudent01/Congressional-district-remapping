@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Setter
 public class AnomalousDataError extends Error
 {
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY)
     private Precinct precinct;
 
     @Enumerated(EnumType.STRING)

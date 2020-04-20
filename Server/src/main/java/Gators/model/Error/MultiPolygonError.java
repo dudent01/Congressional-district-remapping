@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 
 @Entity
@@ -12,6 +13,6 @@ import javax.persistence.ManyToOne;
 @Setter
 public class MultiPolygonError extends Error
 {
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY)
     private Precinct precinct;
 }

@@ -26,6 +26,6 @@ public abstract class Error
     @Column
     private String interestPoints;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY)
     private State state;
 }

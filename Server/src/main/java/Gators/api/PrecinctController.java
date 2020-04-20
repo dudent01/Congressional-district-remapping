@@ -23,7 +23,6 @@ public class PrecinctController
     @GetMapping(path = "/state/{stateId}")
     public Set<Precinct> getPrecinctsByState(@PathVariable String stateId)
     {
-        System.out.println(stateId);
         return precinctService.getPrecinctsByStateId(Long.parseLong(stateId));
     }
 

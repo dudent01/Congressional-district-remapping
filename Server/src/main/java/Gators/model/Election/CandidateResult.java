@@ -27,7 +27,7 @@ public class CandidateResult
     @Column
     private int votes;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY)
     private Election election;
 
     public CandidateResult(@JsonProperty("id") int id,

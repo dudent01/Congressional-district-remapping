@@ -20,7 +20,7 @@ public class Election
     @Column
     private long id;
 
-    @OneToOne
+    @OneToOne(fetch =  FetchType.LAZY)
     private CandidateResult winner;
 
     @Enumerated(EnumType.STRING)
