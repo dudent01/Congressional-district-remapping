@@ -23,15 +23,19 @@ public class Precinct extends Territory
     @Getter(onMethod = @__(@JsonIgnore))
     private Set<Precinct> neighbors;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     private Election pres2016;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     private Election cong2016;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     private Election cong2018;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     private Demographic demographic;
 
