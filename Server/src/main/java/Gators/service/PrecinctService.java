@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class PrecinctService
@@ -74,5 +73,15 @@ public class PrecinctService
         set.stream().forEach(precinct -> precinct.setCName("Default"));
 
         return set;
+    }
+
+    public Demographic getDemographicById(long id)
+    {
+        return Repositories.precinctRepository.findById(id).orElse(null).getDemographic();
+    }
+
+    public Set<Precinct> getNeighborsById(long id)
+    {
+        return Repositories.precinctRepository.findAllByNeighborsId(id);
     }
 }

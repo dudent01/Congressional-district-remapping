@@ -13,9 +13,9 @@ import javax.persistence.ManyToOne;
 @Setter
 public class OverlappingError extends Error
 {
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Precinct precinct1;
 
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Precinct precinct2;
 }

@@ -1,7 +1,7 @@
 package Gators.api;
 
+import Gators.model.Demographic.Demographic;
 import Gators.model.Precinct;
-import Gators.model.State;
 import Gators.service.PrecinctService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -31,5 +31,17 @@ public class PrecinctController
     public void addNeighborById(@PathVariable long id1, @PathVariable long id2)
     {
         precinctService.addNeighborById(id1, id2);
+    }
+
+    @GetMapping(path = "/{id}/demographic")
+    public Demographic getDemographicById(@PathVariable long id)
+    {
+        return precinctService.getDemographicById(id);
+    }
+
+    @GetMapping(path = "/{id}/neighbors")
+    public Set<Precinct> getNeighborsById(@PathVariable long id)
+    {
+        return precinctService.getNeighborsById(id);
     }
 }

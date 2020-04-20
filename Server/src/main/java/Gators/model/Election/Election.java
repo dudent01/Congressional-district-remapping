@@ -1,14 +1,10 @@
 package Gators.model.Election;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -22,7 +18,7 @@ public class Election
     @Column
     private long id;
 
-    @OneToOne(fetch =  FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     private CandidateResult winner;
 
     @Enumerated(EnumType.STRING)

@@ -14,7 +14,7 @@ import javax.persistence.*;
 public abstract class Territory
 {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private long id;
 

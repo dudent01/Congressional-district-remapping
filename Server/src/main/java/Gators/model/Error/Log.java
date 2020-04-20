@@ -26,7 +26,7 @@ public class Log
     @Column
     private String newString;
 
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Precinct precinct;
 
     @Enumerated(EnumType.STRING)

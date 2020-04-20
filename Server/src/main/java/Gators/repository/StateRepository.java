@@ -10,5 +10,6 @@ import java.util.List;
 public interface StateRepository extends JpaRepository<State, Long>
 {
     State findByAbbr(String abbr);
+
     List<State> findAll();
 }

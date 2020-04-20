@@ -19,8 +19,8 @@ public class Precinct extends Territory
     @Column
     private String cName;
 
+    @JsonIgnore
     @ManyToMany
-    @Getter(onMethod = @__(@JsonIgnore))
     private Set<Precinct> neighbors;
 
     @JsonIgnore

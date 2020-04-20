@@ -13,6 +13,6 @@ import javax.persistence.ManyToOne;
 @Setter
 public class MultiPolygonError extends Error
 {
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Precinct precinct;
 }
