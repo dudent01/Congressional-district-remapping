@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import { Map, GeoJSON, TileLayer, FeatureGroup, Circle } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import "./App.css";
-import { DummyData } from "./DummyData.js"
-import { DummyPrecincts } from "./DummyPrecincts.js"
 import axios from "axios"
 import { Row, Col, Form, Button, Tabs, Tab, Table, ListGroup, Accordion, Card, Badge } from "react-bootstrap"
 import L from "leaflet"
@@ -15,15 +13,30 @@ class App extends Component {
     zoom: 4,
     stateValue: "",
     electionValue: "",
-    jsonData: DummyData,
+    USStates: [],
     commentsDisabled: "red lighten-4 disabled",
     resetDisabled: "",
-    dataKey: "DummyData",
+    dataKey: "",
+    dataKeyUT: "",
+    dataKeyCA: "",
+    dataKeyWV: "",
     precinctInfo: "Please Click a Precinct",
     precinctErrors: "Please Select A State",
     key: 'info',
     comments: [],
     errorsCount: 0
+  }
+
+  componentDidMount(){
+    this.loadStates();
+  }
+
+  loadStates(){
+    axios.get("http://localhost:8080/api/state").then( (response) => {
+      console.log(response.data)
+      response.data.forEach(state => state.geojson = JSON.parse(state.geojson))
+      this.setState({USStates: response.data});
+    });
   }
 
   checkIfError(r) {
@@ -49,6 +62,7 @@ class App extends Component {
   }
 
   clickToFeature(e) {
+    console.log(e)
     var layer = e.target;
     var name = layer.feature.properties.NAME;
     console.log("I clicked on " + name);
@@ -110,17 +124,16 @@ class App extends Component {
 
   setCenter(name) {
     if (name == null) {
-      this.setState({ center: [39.8283, -98.5795], zoom: 4, stateValue: "", electionValue: "", jsonData: DummyData, dataKey: "DummyData", precinctInfo: "Please Click a Precinct", precinctErrors: "Please Select A State", errorsCount: 0 });
+      this.setState({ center: [39.8283, -98.5795], zoom: 4, stateValue: "", electionValue: "", dataKey: "", precinctInfo: "Please Click a Precinct", precinctErrors: "Please Select A State", errorsCount: 0 });
     } else if (name === "California") {
       this.loadErrors(name);
-      this.setState({ center: [37.0958, -119.2658], zoom: 6, stateValue: 1, electionValue: 1, jsonData: null, dataKey: null, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
+      this.setState({ center: [37.0958, -119.2658], zoom: 6, stateValue: 1, electionValue: 1, dataKey: this.state.dataKeyCA, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
     } else if (name === "Utah") {
       this.loadErrors(name);
-      axios.get("/DummyPrecinctsUT.json").then( (response) => {
-      this.setState({ center: [39.2302, -111.4101], zoom: 7, stateValue: 2, electionValue: 1, jsonData: response.data, dataKey: "DummyPrecincts", commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", })});
+      this.setState({ center: [39.2302, -111.4101], zoom: 7, stateValue: 2, electionValue: 1, dataKey: this.state.dataKeyUT, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
     } else if (name === "West Virginia") {
       this.loadErrors(name);
-      this.setState({ center: [38.8509, -80.4202], zoom: 7, stateValue: 3, electionValue: 1, jsonData: null, dataKey: null, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
+      this.setState({ center: [38.8509, -80.4202], zoom: 7, stateValue: 3, electionValue: 1, dataKey: this.state.dataKeyWV, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
     }
   }
   setCenterError(center, zoom) {
@@ -129,7 +142,7 @@ class App extends Component {
   }
 
   loadErrors(name) {
-    let ErrorsString = [];
+    /*let ErrorsString = [];
     if(this.state.jsonData === DummyPrecincts){
     for (let i = 0; i < DummyPrecincts.features.length; i++) {
       if (DummyPrecincts.features[i].properties.ERRORS.length !== 0) {
@@ -146,7 +159,7 @@ class App extends Component {
       }
     }
   }
-    this.setState({ precinctErrors: ErrorsString, errorsCount: ErrorsString.length })
+    this.setState({ precinctErrors: ErrorsString, errorsCount: ErrorsString.length })*/
   }
 
   changeOfState(e) {
@@ -157,6 +170,12 @@ class App extends Component {
       this.setCenter("Utah");
     } else if (state === "3") {
       this.setCenter("West Virginia");
+    }
+  }
+
+  getData(){
+    if(this.state.dataKey === ""){
+      return this.state.USStates[0].geoJson;
     }
   }
 
@@ -275,7 +294,12 @@ class App extends Component {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             />
-            <GeoJSON key={this.state.dataKey} data={this.state.jsonData} style={this.checkIfError.bind(this)} onEachFeature={this.onEachFeature.bind(this)}></GeoJSON>
+            {/* <GeoJSON key={this.state.dataKey} data={this.getData()} style={this.checkIfError.bind(this)} onEachFeature={this.onEachFeature.bind(this)}></GeoJSON> */}
+            {this.state.USStates.map(state => {
+              const{id, geojson} = state;
+              return(
+                <GeoJSON key={id} data={geojson} onEachFeature={this.onEachFeature.bind(this)}></GeoJSON>
+              )})}
           </Map>
           <div className="leaflet-right leaflet-top" style={{ "pointerEvents": "auto" }}>
             <Form inline className="m-2">
