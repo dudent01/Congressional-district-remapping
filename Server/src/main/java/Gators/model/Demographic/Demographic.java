@@ -16,8 +16,20 @@ public class Demographic
     private long id;
 
     @Column
-    private int population;
+    private int totalPop;
 
-    @Enumerated(EnumType.STRING)
-    private Race race;
+    @Column
+    private int whitePop;
+
+    @Column
+    private int blackPop;
+
+    @Column
+    private int asianPop;
+
+    @Column
+    private int hispanicPop;
+
+    @Column
+    private int otherPop;
 }

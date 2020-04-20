@@ -1,5 +1,6 @@
 package Gators.model.Election;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,19 +28,7 @@ public class CandidateResult
     @Column
     private int votes;
 
+    @JsonIgnore
     @ManyToOne(fetch =  FetchType.LAZY)
     private Election election;
-
-    public CandidateResult(@JsonProperty("id") int id,
-                           @JsonProperty("name") String name,
-                           @JsonProperty("party") ElectionParty party,
-                           @JsonProperty("votes") int votes,
-                           @JsonProperty("election") Election election)
-    {
-        this.id = id;
-        this.name = name;
-        this.party = party;
-        this.votes = votes;
-        this.election = election;
-    }
 }
