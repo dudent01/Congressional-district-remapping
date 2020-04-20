@@ -11,15 +11,13 @@ class App extends Component {
   state = {
     center: [39.8283, -98.5795],
     zoom: 4,
-    stateValue: "",
     electionValue: "",
-    USStates: [],
+    isLoading: true,
+    geoJson: undefined,
+    USStates: undefined,
     commentsDisabled: "red lighten-4 disabled",
     resetDisabled: "",
     dataKey: "",
-    dataKeyUT: "",
-    dataKeyCA: "",
-    dataKeyWV: "",
     precinctInfo: "Please Click a Precinct",
     precinctErrors: "Please Select A State",
     key: 'info',
@@ -27,20 +25,19 @@ class App extends Component {
     errorsCount: 0
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.loadStates();
   }
 
-  loadStates(){
-    axios.get("http://localhost:8080/api/state").then( (response) => {
-      console.log(response.data)
+  loadStates() {
+    axios.get("http://localhost:8080/api/state").then((response) => {
       response.data.forEach(state => state.geojson = JSON.parse(state.geojson))
-      this.setState({USStates: response.data});
+      var x = {type: "FeatureCollection", features: response.data.map(state => state.geojson)};
+      this.setState({ USStates: x, geoJson: x, isLoading: false});
     });
   }
 
   checkIfError(r) {
-    //console.log(r.properties.precinctID)
     if (r.properties.NAME !== undefined && r.properties.NAME.startsWith("Precinct")) {
       if (r.properties.ERRORS.length !== 0) {
         return { color: "red" };
@@ -65,25 +62,26 @@ class App extends Component {
     console.log(e)
     var layer = e.target;
     var name = layer.feature.properties.NAME;
-    console.log("I clicked on " + name);
-    if(name !== undefined){
-    if (name.startsWith("Precinct")) {
-      this.createInformation(layer.feature.properties, layer.feature.information);
+    if (name === undefined) {
+      let precinct = {NAME: "Default"}
+      let info = {population: 800, votes: {winner: "John Doe", party: "OTHER", votes: 421}, demo: {white: 400, black: 200, asian: 50, hispanic: 100, other: 50}}
+      this.createInformation(precinct, info);
       this.highlightNeighbors();
-    } else {
+    } else{
       this.setCenter(name);
+      this.setState({isLoading: true})
+      axios.get("http://localhost:8080/api/precinct/state/" + layer.feature.properties.ABBR).then((response) => {
+        response.data.forEach(state => state.geojson = JSON.parse(state.geojson))
+        var x = {type: "FeatureCollection", features: response.data.map(state => state.geojson)};
+        this.setState({ geoJson: x, isLoading: false});
+      });
     }
-  } else{
-    let precinct = {NAME: "N/A"};
-    let information = {population: "N/A", votes: {Democratic: "N/A", Republican: "N/A"}};
-    this.createInformation(precinct, information);
-  }
     console.log(this.refs)
     this.setState({ key: "info" })
     // Assumming you have a Leaflet map accessible
   }
 
-  highlightNeighbors(){
+  highlightNeighbors() {
     console.log("Highlight Neighbors Called");
   }
 
@@ -97,20 +95,36 @@ class App extends Component {
               <td>{precinct.NAME}</td>
             </tr>
             <tr>
-              <td><strong>Population</strong></td>
+              <td><strong>Total Population:</strong></td>
               <td>{information.population}</td>
             </tr>
             <tr>
-              <td><strong>Democratic Votes:</strong></td>
-              <td>{information.votes.Democratic}</td>
+              <td><strong>Winner:</strong></td>
+              <td>{information.votes.winner}</td>
             </tr>
             <tr>
-              <td><strong>Republican Votes:</strong></td>
-              <td>{information.votes.Republican}</td>
+              <td><strong>Party:</strong></td>
+              <td>{information.votes.party}</td>
             </tr>
             <tr>
-              <td><strong>Demographic Data:</strong></td>
-              <td>N/A</td>
+              <td><strong>White Population:</strong></td>
+              <td>{information.demo.white}</td>
+            </tr>
+            <tr>
+              <td><strong>Black Population:</strong></td>
+              <td>{information.demo.black}</td>
+            </tr>
+            <tr>
+              <td><strong>Asian Population:</strong></td>
+              <td>{information.demo.asian}</td>
+            </tr>
+            <tr>
+              <td><strong>Hispanic Population:</strong></td>
+              <td>{information.demo.hispanic}</td>
+            </tr>
+            <tr>
+              <td><strong>Other Population:</strong></td>
+              <td>{information.demo.other}</td>
             </tr>
             <tr>
               <td>Sources: </td>
@@ -124,16 +138,16 @@ class App extends Component {
 
   setCenter(name) {
     if (name == null) {
-      this.setState({ center: [39.8283, -98.5795], zoom: 4, stateValue: "", electionValue: "", dataKey: "", precinctInfo: "Please Click a Precinct", precinctErrors: "Please Select A State", errorsCount: 0 });
+      this.setState({ center: [39.8283, -98.5795], zoom: 4, electionValue: "", precinctInfo: "Please Click a Precinct", precinctErrors: "Please Select A State", errorsCount: 0 });
     } else if (name === "California") {
       this.loadErrors(name);
-      this.setState({ center: [37.0958, -119.2658], zoom: 6, stateValue: 1, electionValue: 1, dataKey: this.state.dataKeyCA, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
+      this.setState({ center: [37.0958, -119.2658], zoom: 6, electionValue: 1, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
     } else if (name === "Utah") {
       this.loadErrors(name);
-      this.setState({ center: [39.2302, -111.4101], zoom: 7, stateValue: 2, electionValue: 1, dataKey: this.state.dataKeyUT, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
+      this.setState({ center: [39.2302, -111.4101], zoom: 7, electionValue: 1, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
     } else if (name === "West Virginia") {
       this.loadErrors(name);
-      this.setState({ center: [38.8509, -80.4202], zoom: 7, stateValue: 3, electionValue: 1, dataKey: this.state.dataKeyWV, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
+      this.setState({ center: [38.8509, -80.4202], zoom: 7, electionValue: 1, commentsDisabled: "red lighten-4", resetDisabled: "red lighten-4", });
     }
   }
   setCenterError(center, zoom) {
@@ -142,24 +156,8 @@ class App extends Component {
   }
 
   loadErrors(name) {
-    /*let ErrorsString = [];
-    if(this.state.jsonData === DummyPrecincts){
-    for (let i = 0; i < DummyPrecincts.features.length; i++) {
-      if (DummyPrecincts.features[i].properties.ERRORS.length !== 0) {
-        for (let y = 0; y < DummyPrecincts.features[i].properties.ERRORS.length; y++) {
-          let func = e => {
-            this.setCenterError(DummyPrecincts.features[i].geometry.coordinates[0], 8);
-            this.createInformation(DummyPrecincts.features[i].properties, DummyPrecincts.features[i].information)
-          }
-          ErrorsString.push(
-            <ListGroup.Item action onClick={func}>
-              {DummyPrecincts.features[i].properties.ERRORS[y].PROBLEM}
-            </ListGroup.Item>);
-        }
-      }
-    }
-  }
-    this.setState({ precinctErrors: ErrorsString, errorsCount: ErrorsString.length })*/
+    this.setState({precinctErrors: "No errors available for " + name + "."});
+    console.log("Load Errors Called");
   }
 
   changeOfState(e) {
@@ -173,14 +171,11 @@ class App extends Component {
     }
   }
 
-  getData(){
-    if(this.state.dataKey === ""){
-      return this.state.USStates[0].geoJson;
-    }
-  }
-
   resetClicked() {
-    this.setCenter(null)
+    this.setCenter(null);
+    this.setState({isLoading: true});
+    this.setState({geoJson: this.state.USStates, isLoading: false});
+
   }
 
   changeOfElection(e) {
@@ -188,15 +183,15 @@ class App extends Component {
     this.setState({ electionValue });
   }
 
-  checkBoxChange(e){
-    if(e.target.id==="nationalParks"){
-      if(e.target.checked === false){
+  checkBoxChange(e) {
+    if (e.target.id === "nationalParks") {
+      if (e.target.checked === false) {
         console.log("National Parks Disabled");
       } else {
         console.log("National Parks Enabled");
       }
-    } else if(e.target.id==="districtBounds"){
-      if(e.target.checked === false){
+    } else if (e.target.id === "districtBounds") {
+      if (e.target.checked === false) {
         console.log("Congressional Bounds Disabled");
       } else {
         console.log("Congressional Bounds Enabled");
@@ -205,7 +200,7 @@ class App extends Component {
   }
 
   submitComment() {
-
+    console.log("Submit Comment Called");
   }
 
   render() {
@@ -294,12 +289,7 @@ class App extends Component {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             />
-            {/* <GeoJSON key={this.state.dataKey} data={this.getData()} style={this.checkIfError.bind(this)} onEachFeature={this.onEachFeature.bind(this)}></GeoJSON> */}
-            {this.state.USStates.map(state => {
-              const{id, geojson} = state;
-              return(
-                <GeoJSON key={id} data={geojson} onEachFeature={this.onEachFeature.bind(this)}></GeoJSON>
-              )})}
+            {!this.state.isLoading ? (<GeoJSON key={this.state.dataKey} data={this.state.geoJson} style={this.checkIfError.bind(this)} onEachFeature={this.onEachFeature.bind(this)}></GeoJSON>): null}
           </Map>
           <div className="leaflet-right leaflet-top" style={{ "pointerEvents": "auto" }}>
             <Form inline className="m-2">
