@@ -30,12 +30,12 @@ public class PrecinctService
         Repositories.precinctRepository.save(precinct2);
     }
 
-    public Set<Precinct> getPrecinctsByStateId(long stateId)
+    public Set<Precinct> getPrecinctsByStateId(String stateAbbr)
     {
 //        return Repositories.precinctRepository.findByStateId(stateId);
 
         // TODO delete all after this later(dummy data)
-        Set<Precinct> set = Repositories.precinctRepository.findByStateId(stateId);
+        Set<Precinct> set = Repositories.precinctRepository.findByStateAbbr(stateAbbr);
         CandidateResult result = new CandidateResult();
         result.setName("John Doe");
         result.setParty(ElectionParty.OTHER);

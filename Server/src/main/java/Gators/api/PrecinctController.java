@@ -21,10 +21,10 @@ public class PrecinctController
         this.precinctService = precinctService;
     }
 
-    @GetMapping(path = "/state/{stateId}")
-    public Set<Precinct> getPrecinctsByState(@PathVariable String stateId)
+    @GetMapping(path = "/state/{stateAbbr}")
+    public Set<Precinct> getPrecinctsByState(@PathVariable String stateAbbr)
     {
-        return precinctService.getPrecinctsByStateId(Long.parseLong(stateId));
+        return precinctService.getPrecinctsByStateId(stateAbbr);
     }
 
     @PatchMapping(path = "/{id1}/{id2}")
