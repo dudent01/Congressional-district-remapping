@@ -23,10 +23,4 @@ public abstract class Territory
 
     @Column
     private String name;
-
-    public Territory(String geojson, String name)
-    {
-        this.geojson = geojson;
-        this.name = name;
-    }
 }

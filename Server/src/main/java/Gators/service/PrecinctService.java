@@ -1,11 +1,13 @@
 package Gators.service;
 
+import Gators.model.Election.Election;
 import Gators.model.Precinct;
 import Gators.repository.Repositories;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PrecinctService
@@ -25,6 +27,8 @@ public class PrecinctService
 
     public Set<Precinct> getPrecinctsByStateId(long stateId)
     {
-        return Repositories.precinctRepository.findByStateId(stateId);
+        Set<Precinct> set = Repositories.precinctRepository.findByStateId(stateId);
+        set.stream().forEach(precinct -> precinct.setCong2016(new Election()));
+        return set;
     }
 }

@@ -25,12 +25,4 @@ public class State extends Territory
     @JsonIgnore
     @OneToMany(mappedBy = "state")
     private Set<Precinct> precincts;
-
-    public State(@JsonProperty("geojson") String geojson,
-                 @JsonProperty("name") String name,
-                 @JsonProperty("abbr") String abbr)
-    {
-        super(geojson, name);
-        this.abbr = abbr;
-    }
 }
