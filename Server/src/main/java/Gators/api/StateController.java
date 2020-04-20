@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
+@CrossOrigin
 @RequestMapping("api/state")
 @RestController
 public class StateController
