@@ -12,8 +12,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-public class MapCoverageError extends Error
-{
+public class MapCoverageError extends Error {
     @Column
     private String geojson;
 

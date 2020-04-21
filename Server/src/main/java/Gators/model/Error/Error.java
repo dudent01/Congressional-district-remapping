@@ -10,8 +10,7 @@ import javax.persistence.*;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-public abstract class Error
-{
+public abstract class Error {
     @Id
     @GeneratedValue
     @Column

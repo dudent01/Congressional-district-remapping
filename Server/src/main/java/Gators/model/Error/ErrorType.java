@@ -1,7 +1,6 @@
 package Gators.model.Error;
 
-public enum ErrorType
-{
+public enum ErrorType {
     OVERLAPPING,
     MAP_COVERAGE,
     ENCLOSED,

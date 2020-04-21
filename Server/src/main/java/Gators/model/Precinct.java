@@ -14,8 +14,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Precinct extends Territory
-{
+public class Precinct extends Territory {
     @Column
     private String cName;
 

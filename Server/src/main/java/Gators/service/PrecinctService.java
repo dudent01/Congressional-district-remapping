@@ -14,11 +14,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Service
-public class PrecinctService
-{
+public class PrecinctService {
     @Transactional
-    public void addNeighborById(long id1, long id2)
-    {
+    public void addNeighborById(long id1, long id2) {
         Precinct precinct1 = Repositories.precinctRepository.findById(id1).orElse(null);
         Precinct precinct2 = Repositories.precinctRepository.findById(id2).orElse(null);
 
@@ -29,8 +27,7 @@ public class PrecinctService
         Repositories.precinctRepository.save(precinct2);
     }
 
-    public Set<Precinct> getPrecinctsByStateId(String stateAbbr)
-    {
+    public Set<Precinct> getPrecinctsByStateId(String stateAbbr) {
 //        return Repositories.precinctRepository.findByStateId(stateId);
 
         // TODO delete all after this later(dummy data)
@@ -75,13 +72,11 @@ public class PrecinctService
         return set;
     }
 
-    public Demographic getDemographicById(long id)
-    {
+    public Demographic getDemographicById(long id) {
         return Repositories.precinctRepository.findById(id).orElse(null).getDemographic();
     }
 
-    public Set<Precinct> getNeighborsById(long id)
-    {
+    public Set<Precinct> getNeighborsById(long id) {
         return Repositories.precinctRepository.findAllByNeighborsId(id);
     }
 }

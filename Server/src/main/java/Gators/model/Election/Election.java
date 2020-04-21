@@ -11,8 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Election
-{
+public class Election {
     @Id
     @GeneratedValue
     @Column

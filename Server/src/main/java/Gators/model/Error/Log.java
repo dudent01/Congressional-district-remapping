@@ -10,8 +10,7 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
-public class Log
-{
+public class Log {
     @Id
     @GeneratedValue
     @Column

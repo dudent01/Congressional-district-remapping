@@ -11,8 +11,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public abstract class Territory
-{
+public abstract class Territory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column

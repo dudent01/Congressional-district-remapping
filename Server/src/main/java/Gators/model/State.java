@@ -14,8 +14,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-public class State extends Territory
-{
+public class State extends Territory {
     @Column
     private String abbr;
 

@@ -11,8 +11,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CandidateResult
-{
+public class CandidateResult {
     @Id
     @GeneratedValue
     @Column

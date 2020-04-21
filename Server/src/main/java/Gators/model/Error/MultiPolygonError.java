@@ -11,8 +11,7 @@ import javax.persistence.ManyToOne;
 @Entity
 @Getter
 @Setter
-public class MultiPolygonError extends Error
-{
+public class MultiPolygonError extends Error {
     @ManyToOne(fetch = FetchType.LAZY)
     private Precinct precinct;
 }

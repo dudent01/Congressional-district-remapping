@@ -11,8 +11,7 @@ import javax.persistence.Id;
 @Entity
 @Getter
 @Setter
-public class Demographic
-{
+public class Demographic {
     @Id
     @GeneratedValue
     @Column

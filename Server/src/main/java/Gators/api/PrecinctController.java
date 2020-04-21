@@ -11,37 +11,31 @@ import java.util.Set;
 @CrossOrigin
 @RequestMapping("api/precinct")
 @RestController
-public class PrecinctController
-{
+public class PrecinctController {
     private final PrecinctService precinctService;
 
     @Autowired
-    public PrecinctController(PrecinctService precinctService)
-    {
+    public PrecinctController(PrecinctService precinctService) {
         this.precinctService = precinctService;
     }
 
     @GetMapping(path = "/state/{stateAbbr}")
-    public Set<Precinct> getPrecinctsByState(@PathVariable String stateAbbr)
-    {
+    public Set<Precinct> getPrecinctsByState(@PathVariable String stateAbbr) {
         return precinctService.getPrecinctsByStateId(stateAbbr);
     }
 
     @PatchMapping(path = "/{id1}/{id2}")
-    public void addNeighborById(@PathVariable long id1, @PathVariable long id2)
-    {
+    public void addNeighborById(@PathVariable long id1, @PathVariable long id2) {
         precinctService.addNeighborById(id1, id2);
     }
 
     @GetMapping(path = "/{id}/demographic")
-    public Demographic getDemographicById(@PathVariable long id)
-    {
+    public Demographic getDemographicById(@PathVariable long id) {
         return precinctService.getDemographicById(id);
     }
 
     @GetMapping(path = "/{id}/neighbors")
-    public Set<Precinct> getNeighborsById(@PathVariable long id)
-    {
+    public Set<Precinct> getNeighborsById(@PathVariable long id) {
         return precinctService.getNeighborsById(id);
     }
 }

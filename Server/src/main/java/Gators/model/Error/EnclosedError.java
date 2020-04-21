@@ -11,8 +11,7 @@ import javax.persistence.ManyToOne;
 @Entity
 @Getter
 @Setter
-public class EnclosedError extends Error
-{
+public class EnclosedError extends Error {
     @ManyToOne(fetch = FetchType.LAZY)
     private Precinct enclosedPrecinct;
 

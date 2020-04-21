@@ -1,7 +1,6 @@
 package Gators.model.Demographic;
 
-public enum Race
-{
+public enum Race {
     WHITE,
     BLACK,
     ASIAN,

@@ -9,8 +9,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-public class AnomalousDataError extends Error
-{
+public class AnomalousDataError extends Error {
     @ManyToOne(fetch = FetchType.LAZY)
     private Precinct precinct;
 

@@ -10,31 +10,26 @@ import java.util.Set;
 @CrossOrigin
 @RequestMapping("api/state")
 @RestController
-public class StateController
-{
+public class StateController {
     private final StateService stateService;
 
     @Autowired
-    public StateController(StateService stateService)
-    {
+    public StateController(StateService stateService) {
         this.stateService = stateService;
     }
 
     @GetMapping
-    public Set<State> getAllStates()
-    {
+    public Set<State> getAllStates() {
         return stateService.getAllStates();
     }
 
     @GetMapping(path = "/{id}")
-    public State getStateById(@PathVariable long id)
-    {
+    public State getStateById(@PathVariable long id) {
         return stateService.getStateById(id);
     }
 
     @GetMapping(path = "/abbr/{abbr}")
-    public State getStateByAbbr(@PathVariable String abbr)
-    {
+    public State getStateByAbbr(@PathVariable String abbr) {
         return stateService.getStateByAbbr(abbr);
     }
 }
