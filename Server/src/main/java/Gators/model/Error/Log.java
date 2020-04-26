@@ -17,17 +17,17 @@ public class Log {
     private long id;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date utilDate;
+    private Date logDate;
 
-    @Column
-    private String prev;
+    @Column(columnDefinition = "TEXT")
+    private String oldData;
 
-    @Column
-    private String newString;
+    @Column(columnDefinition = "TEXT")
+    private String newData;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Precinct precinct;
 
     @Enumerated(EnumType.STRING)
-    private ErrorType type;
+    private ErrorType errorType;
 }

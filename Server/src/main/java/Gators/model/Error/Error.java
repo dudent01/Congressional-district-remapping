@@ -22,7 +22,7 @@ public abstract class Error {
     @Column
     private boolean fixed;
 
-    @Column
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String interestPoints;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -14,8 +14,9 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Precinct extends Territory {
-    @Column
+public class Precinct extends Territory
+{
+    @Column(unique=true)
     private String cName;
 
     @JsonIgnore

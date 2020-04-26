@@ -17,8 +17,8 @@ public class Demographic {
     @Column
     private long id;
 
-    @Column
-    private int totalPop;
+//    @Column
+//    private int totalPop;
 
     @Column
     private int whitePop;
