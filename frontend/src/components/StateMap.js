@@ -2,24 +2,32 @@ import React from "react";
 import { Map, GeoJSON, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
-import { defaultMapCenter, defaultMapZoom, stateColor } from "../config"
+import { defaultMapCenter, defaultMapZoom, stateColor, precinctColor } from "../config"
 import { connect } from 'react-redux';
 import hash from 'object-hash';
 
-import { selectState } from '../actions';
+import { selectState, fetchPrecinctsByState, fetchAllStates, deleteAllPrecincts, deselectState } from '../actions';
 // Use hash for fixing rerendering bug in GeoJSON tag 
+// TODO: replace hashing object for key with something else because of slow performance 
 
 const mapStateToProps = s => {
 	return {
-		geojson: s.states.geojson,
+		statesGeojson: s.states.geojson,
 		states: s.states.states,
-		selectedState: s.states.selectedState
+		selectedState: s.states.selectedState,
+		precinctsGeojson: s.precincts.geojson,
+		precincts: s.precincts.precincts
 	}
 }
 const mapDispatchToProps = dispatch => {
 	return {
 		onSelectState: abbr => {
 			dispatch(selectState(abbr));
+			dispatch(fetchPrecinctsByState(abbr));
+		},
+		removePrecincts: () => {
+			dispatch(deleteAllPrecincts())
+			dispatch(deselectState(""))
 		}
 	};
 };
@@ -30,22 +38,25 @@ class StateMap extends React.Component {
 		this.state = {
 			center: defaultMapCenter,
 			zoom: defaultMapZoom,
-			geojson: props.geojson,
+			geojson: props.statesGeojson,
 			viewport: {}
 		}
 	}
 	componentWillReceiveProps(nextProps) {
-		if (nextProps.states) {
-			this.setState({ geojson: nextProps.geojson });
+		if (nextProps.statesGeojson) {
+			this.setState({ geojson: nextProps.statesGeojson });
+		}
+		if (nextProps.precincts) {
+			this.setState({ geojson: nextProps.precinctsGeojson });
 		}
 	}
 
 	resetClicked() {
-		// reset the viewport to center in on USA
+		this.props.removePrecincts() // remove precincts to reset map
 		this.setState({
 			center: defaultMapCenter,
 			zoom: defaultMapZoom,
-			viewport: {}
+			viewport: {} // reset the viewport to center in on USA
 		})
 	}
 	onEachFeature(feature, layer) {
@@ -78,8 +89,16 @@ class StateMap extends React.Component {
 		// Assumming you have a Leaflet map accessible
 	}
 	render() {
-		const stateSelectOptions = this.props.states.map(state => <option value={state.abbr}>{state.name}</option>);
-
+		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
+		const statesGeojson = this.props.precincts.length == 0 ? // check if there are precincts available, if not show states
+		<GeoJSON
+			key={hash(this.props.states)}
+			data={this.props.statesGeojson}
+			// style={this.checkIfError.bind(this)} 
+			onEachFeature={this.onEachFeature.bind(this)}
+			style={{ color: stateColor }}
+		>
+		</GeoJSON> : null
 		return (
 			<Map
 				id="leaflet-map"
@@ -129,14 +148,12 @@ class StateMap extends React.Component {
 					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 					attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 				/>
+				{statesGeojson}
 				<GeoJSON
-					key={hash(this.props.states)}
-					data={this.state.geojson}
-					// style={this.checkIfError.bind(this)} 
-					onEachFeature={this.onEachFeature.bind(this)}
-					style={{ color: stateColor }}
-				>
-				</GeoJSON>
+					key={hash(this.props.precincts[0] || {})}
+					data={this.props.precinctsGeojson}
+					style={{ color: precinctColor }}
+				/>
 			</Map>
 		)
 	}

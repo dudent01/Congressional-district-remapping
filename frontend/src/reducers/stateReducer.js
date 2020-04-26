@@ -1,4 +1,4 @@
-import { FETCH_STATE, SELECT_STATE } from '../actions/types';
+import { FETCH_STATE, SELECT_STATE, DESELECT_STATE } from '../actions/types';
 
 const intitialState = {
   geojson: null,
@@ -13,6 +13,10 @@ export default function stateReducer(state = intitialState, action) {
     case SELECT_STATE: 
       return Object.assign({}, state, {
         selectedState: action.selectedState
+      })
+    case DESELECT_STATE:
+      return Object.assign({}, state, {
+        selectedState: ""
       })
     default:
       return state;
