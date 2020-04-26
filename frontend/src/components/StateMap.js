@@ -86,23 +86,6 @@ class StateMap extends React.Component {
 		this.setState({
 			center, zoom
 		})
-		// if (name === undefined) {
-		//   let precinct = {NAME: "Default"}
-		//   let info = {population: 800, votes: {winner: "John Doe", party: "OTHER", votes: 421}, demo: {white: 400, black: 200, asian: 50, hispanic: 100, other: 50}}
-		//   this.createInformation(precinct, info);
-		//   this.highlightNeighbors();
-		// } else{
-		//   this.setCenter(name);
-		//   this.setState({isLoading: true})
-		//   axios.get("http://localhost:8080/api/precinct/state/" + layer.feature.properties.ABBR).then((response) => {
-		//     response.data.forEach(state => state.geojson = JSON.parse(state.geojson))
-		//     var x = {type: "FeatureCollection", features: response.data.map(state => state.geojson)};
-		//     this.setState({ geoJson: x, isLoading: false});
-		//   });
-		// }
-		// console.log(this.refs)
-		// this.setState({ key: "info" })
-		// Assumming you have a Leaflet map accessible
 	}
 	render() {
 		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
