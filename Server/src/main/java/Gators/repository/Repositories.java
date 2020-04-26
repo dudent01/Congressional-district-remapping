@@ -1,17 +1,21 @@
 package Gators.repository;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
+@Setter
 public class Repositories {
-    public static PrecinctRepository precinctRepository;
+    private PrecinctRepository precinctRepository;
 
-    public static StateRepository stateRepository;
+    private StateRepository stateRepository;
 
     @Autowired
     public Repositories(PrecinctRepository precinctRepository, StateRepository stateRepository) {
-        Repositories.precinctRepository = precinctRepository;
-        Repositories.stateRepository = stateRepository;
+        this.precinctRepository = precinctRepository;
+        this.stateRepository = stateRepository;
     }
 }

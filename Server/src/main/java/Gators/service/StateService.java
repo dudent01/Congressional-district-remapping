@@ -2,6 +2,7 @@ package Gators.service;
 
 import Gators.model.State;
 import Gators.repository.Repositories;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -9,15 +10,22 @@ import java.util.Set;
 
 @Service
 public class StateService {
+    private final Repositories repositories;
+
+    @Autowired
+    public StateService(Repositories repositories) {
+        this.repositories = repositories;
+    }
+
     public Set<State> getAllStates() {
-        return new HashSet<>(Repositories.stateRepository.findAll());
+        return new HashSet<>(repositories.getStateRepository().findAll());
     }
 
     public State getStateById(long id) {
-        return Repositories.stateRepository.findById(id).orElse(null);
+        return repositories.getStateRepository().findById(id).orElse(null);
     }
 
     public State getStateByAbbr(String abbr) {
-        return Repositories.stateRepository.findByAbbr(abbr);
+        return repositories.getStateRepository().findByAbbr(abbr);
     }
 }

@@ -6,7 +6,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-//  TODO rename all database variables in sql convention
 @MappedSuperclass
 @Getter
 @Setter

@@ -20,8 +20,8 @@ public class PrecinctController {
     }
 
     @GetMapping(path = "/state/{stateAbbr}")
-    public Set<Precinct> getPrecinctsByState(@PathVariable String stateAbbr) {
-        return precinctService.getPrecinctsByStateId(stateAbbr);
+    public Set<Precinct> getPrecinctsByStateAbbr(@PathVariable String stateAbbr) {
+        return precinctService.getPrecinctsByStateAbbr(stateAbbr);
     }
 
     @PatchMapping(path = "/{id1}/{id2}")
