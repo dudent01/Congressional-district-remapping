@@ -69,7 +69,13 @@ class StateMap extends React.Component {
 	clickToFeature(e) {
 		let layer = e.target;
 		let abbr = layer.feature.properties.ABBR;
+		let center = layer.feature.properties.CENTER;
+		let zoom = layer.feature.properties.ZOOM;
+
 		this.props.onSelectState(abbr);
+		this.setState({
+			center, zoom
+		})
 		// if (name === undefined) {
 		//   let precinct = {NAME: "Default"}
 		//   let info = {population: 800, votes: {winner: "John Doe", party: "OTHER", votes: 421}, demo: {white: 400, black: 200, asian: 50, hispanic: 100, other: 50}}
@@ -91,14 +97,14 @@ class StateMap extends React.Component {
 	render() {
 		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
 		const statesGeojson = this.props.precincts.length == 0 ? // check if there are precincts available, if not show states
-		<GeoJSON
-			key={hash(this.props.states)}
-			data={this.props.statesGeojson}
-			// style={this.checkIfError.bind(this)} 
-			onEachFeature={this.onEachFeature.bind(this)}
-			style={{ color: stateColor }}
-		>
-		</GeoJSON> : null
+			<GeoJSON
+				key={hash(this.props.states)}
+				data={this.props.statesGeojson}
+				// style={this.checkIfError.bind(this)} 
+				onEachFeature={this.onEachFeature.bind(this)}
+				style={{ color: stateColor }}
+			>
+			</GeoJSON> : null
 		return (
 			<Map
 				id="leaflet-map"
