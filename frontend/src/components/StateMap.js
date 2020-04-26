@@ -42,7 +42,7 @@ class StateMap extends React.Component {
 			viewport: {}
 		}
 	}
-	componentWillReceiveProps(nextProps) {
+	componentWillReceiveProps(nextProps) {  // whenever precincts geojson or states geojson is loaded, update the map
 		if (nextProps.statesGeojson) {
 			this.setState({ geojson: nextProps.statesGeojson });
 		}
@@ -50,7 +50,17 @@ class StateMap extends React.Component {
 			this.setState({ geojson: nextProps.precinctsGeojson });
 		}
 	}
-
+	handleSelectState(abbr) {
+		this.props.onSelectState(abbr);
+		let state;
+		for (let s of this.props.states) {
+			if (s.abbr === abbr)
+				state = s;
+		}
+		let center = state.geojson.properties.CENTER;
+		let zoom = state.geojson.properties.ZOOM;
+		this.setState({	center, zoom })
+	}
 	resetClicked() {
 		this.props.removePrecincts() // remove precincts to reset map
 		this.setState({
@@ -116,7 +126,7 @@ class StateMap extends React.Component {
 					<Form inline className="m-2">
 						<Form.Control as="select" placeholder="Select one" className="mr-2"
 							value={this.props.selectedState}
-							onChange={(e) => this.props.onSelectState(e.target.value)}
+							onChange={(e) => this.handleSelectState(e.target.value)}
 						>
 							<option value="" disabled>Select State</option>
 							{stateSelectOptions}

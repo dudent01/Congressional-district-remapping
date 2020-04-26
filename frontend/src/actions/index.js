@@ -37,9 +37,9 @@ export const fetchStates = (states) => {
 
 export const selectState = selectedState => {
   return function (dispatch) {
+    dispatch({ type: SELECT_STATE, selectedState })
     return dispatch(fetchPrecinctsByState(selectedState))
       .then(() => {
-        dispatch({ type: SELECT_STATE, selectedState })
       })
       .catch(error => {
         throw (error)
@@ -69,9 +69,7 @@ export const fetchAllStates = () => {
         data.forEach(state => state.geojson = JSON.parse(state.geojson))
         let states = {
           geojson: { type: "FeatureCollection", features: data.map(state => state.geojson) },
-          states: data.map(state => {
-            return { name: state.name, abbr: state.abbr, id: state.id }
-          })
+          states: data
         }
         dispatch(fetchStates(states))
       })
