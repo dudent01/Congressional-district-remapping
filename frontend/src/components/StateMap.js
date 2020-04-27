@@ -38,7 +38,6 @@ class StateMap extends React.Component {
 		this.state = {
 			center: defaultMapCenter,
 			zoom: defaultMapZoom,
-			geojson: props.statesGeojson,
 			viewport: {}
 		}
 	}
@@ -59,7 +58,7 @@ class StateMap extends React.Component {
 		}
 		let center = state.geojson.properties.CENTER;
 		let zoom = state.geojson.properties.ZOOM;
-		this.setState({	center, zoom })
+		this.setState({ center, zoom })
 	}
 	resetClicked() {
 		this.props.removePrecincts() // remove precincts to reset map
@@ -78,7 +77,7 @@ class StateMap extends React.Component {
 				let abbr = layer.feature.properties.ABBR;
 				let center = layer.feature.properties.CENTER;
 				let zoom = layer.feature.properties.ZOOM;
-		
+
 				this.props.onSelectState(abbr);
 				this.setState({
 					center, zoom
@@ -99,45 +98,35 @@ class StateMap extends React.Component {
 	}
 	render() {
 		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
-		const statesGeojson = this.props.precincts.length === 0 ? // check if there are precincts available, if not show states
-			<GeoJSON
-				key={hash(this.props.states)}
-				data={this.props.statesGeojson}
+		let geojson;
+		if (this.props.precincts.length === 0) // render either the states geojson or precincts geojson based on if there are precincts loaded
+			geojson = <GeoJSON key={hash(this.props.states)} data={this.props.statesGeojson}
 				// style={this.checkIfError.bind(this)} 
-				onEachFeature={this.onEachStateFeature.bind(this)}
-				style={{ color: stateColor }}
-			>
-			</GeoJSON> : null
+				onEachFeature={this.onEachStateFeature.bind(this)} style={{ color: stateColor }} />
+		else
+			geojson = <GeoJSON key={hash(this.props.precincts[0] || {})} data={this.props.precinctsGeojson} style={{ color: precinctColor }}
+				onEachFeature={this.onEachPrecinctFeature.bind(this)} />
+
 		return (
-			<Map
-				id="leaflet-map"
-				center={this.state.center}
-				zoom={this.state.zoom} ref="map"
-				viewport={this.state.viewport}
-			>
+			<Map id="leaflet-map" center={this.state.center} zoom={this.state.zoom} ref="map" viewport={this.state.viewport}>
 				<div id="map-controls" className="leaflet-right leaflet-top" style={{ "pointerEvents": "auto" }}>
 					<Form inline className="m-2">
-						<Form.Control as="select" placeholder="Select one" className="mr-2"
-							value={this.props.selectedState}
+						<Form.Control as="select" placeholder="Select one" className="mr-2" value={this.props.selectedState}
 							onChange={(e) => this.handleSelectState(e.target.value)}
 						>
 							<option value="" disabled>Select State</option>
 							{stateSelectOptions}
 						</Form.Control>
 						<Form.Control as="select" className="mr-2"
-							// onChange={this.changeOfElection.bind(this)} 
-							value={this.state.electionValue}>
+							onChange={e => this.setState({ electionValue: e.target.value })}
+							value={this.state.electionValue}
+						>
 							<option value="" disabled>Select Election</option>
-							<option value="presidential2016">
-								2016 Presidential</option>
-							<option value="congressional2016">
-								2016 Congressional</option>
-							<option value="congressional2018">
-								2018 Congressional</option>
+							<option value="presidential2016">2016 Presidential</option>
+							<option value="congressional2016">2016 Congressional</option>
+							<option value="congressional2018">2018 Congressional</option>
 						</Form.Control>
-						<Button className="ml-auto"
-							onClick={this.resetClicked.bind(this)}
-						>Reset</Button>
+						<Button className="ml-auto" onClick={this.resetClicked.bind(this)}>Reset</Button>
 					</Form>
 				</div>
 				<FeatureGroup>
@@ -157,13 +146,7 @@ class StateMap extends React.Component {
 					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 					attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 				/>
-				{statesGeojson}
-				<GeoJSON
-					key={hash(this.props.precincts[0] || {})}
-					data={this.props.precinctsGeojson}
-					style={{ color: precinctColor }}
-					onEachFeature={this.onEachPrecinctFeature.bind(this)}
-				/>
+				{geojson}
 			</Map>
 		)
 	}
