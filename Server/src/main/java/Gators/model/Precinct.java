@@ -22,7 +22,7 @@ public class Precinct extends Territory {
     @ManyToMany
     private Set<Precinct> neighbors;
 
-//    @JsonIgnore
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     private Election pres2016;
 
