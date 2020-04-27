@@ -16,9 +16,9 @@ public class Election {
     @GeneratedValue
     @Column
     private long id;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    private CandidateResult winner;
+//
+//    @OneToOne(fetch = FetchType.LAZY)
+//    private CandidateResult winner;
 
     @Enumerated(EnumType.STRING)
     private ElectionType type;
