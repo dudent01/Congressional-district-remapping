@@ -13,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class CandidateResult {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private long id;
 

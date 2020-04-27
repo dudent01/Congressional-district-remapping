@@ -10,12 +10,16 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-with open('utah_precincts.json') as f:
+with open('Utah.json') as f:
   data = json.load(f)
 
-for state in data['features']:
+for precinct in data['features']:
   sql = "INSERT INTO precinct (geojson, name, state_id) VALUES (%s,%s,%s)"
-  val = (json.dumps(state), state['properties']['precinctid'], 2)
+  val = (json.dumps(precinct), precinct['properties']['precinctid'], 2)
   mycursor.execute(sql, val)
+
+  sql = "INSERT INTO election ("
+
+  mycursor.lastrowid
 
 mydb.commit()

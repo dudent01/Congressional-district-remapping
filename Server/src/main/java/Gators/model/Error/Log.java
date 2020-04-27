@@ -12,7 +12,7 @@ import java.util.Date;
 @Setter
 public class Log {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private long id;
 

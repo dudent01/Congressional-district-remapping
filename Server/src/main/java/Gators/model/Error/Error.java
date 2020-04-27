@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Setter
 public abstract class Error {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private long id;
 

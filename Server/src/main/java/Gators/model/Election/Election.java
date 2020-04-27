@@ -13,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class Election {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private long id;
 //
