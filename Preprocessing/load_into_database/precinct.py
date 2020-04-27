@@ -28,8 +28,15 @@ for precinct in data['features']:
         del precinct["properties"]["presidential"]
     else:
         pres2016_id = None
-    sql = "INSERT INTO precinct (geojson, name, state_id, pres2016_id) VALUES (%s,%s,%s,%s)"
-    val = (json.dumps(precinct), precinct['properties']['precinctid'], 2, pres2016_id)
+    sql = "INSERT INTO precinct (name, state_id, pres2016_id) VALUES (%s,%s,%s)"
+    val = (precinct['properties']['precinctid'], 2, pres2016_id)
     mycursor.execute(sql, val)
+    precinct_id = mycursor.lastrowid
+
+    precinct["properties"]["id"] = precinct_id
+    sql = "UPDATE precinct SET geojson = %s WHERE id = %s"
+    val = (json.dumps(precinct), precinct_id)
+    mycursor.execute(sql, val)
+
 
 mydb.commit()

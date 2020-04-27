@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { Row, Col, Form, Button, Tabs, Tab, Table, ListGroup, Accordion, Card, Badge } from "react-bootstrap"
+import React from "react";
+import { Button, Tabs, Tab, Table, ListGroup, Badge } from "react-bootstrap"
 import L from "leaflet"
 
 class Sidebar extends React.Component {
@@ -74,10 +74,10 @@ class Sidebar extends React.Component {
 								<td><strong>Other Population:</strong></td>
 								<td>{information.demo.other}</td>
 							</tr> */}
-							<tr>
+							{/*<tr>
 								<td>Sources: </td>
 								<td><a href="https://www.census.gov/quickfacts/CA">https://www.census.gov/quickfacts/CA</a></td>
-							</tr>
+							</tr>*/}
 						</tbody>
 					</Table>
 				</Tab>
@@ -99,13 +99,13 @@ class Sidebar extends React.Component {
 							<input type="checkbox" className="custom-control-input" onChange={this.checkBoxChange} defaultChecked={false} id="districtBounds"></input>
 							<label className="custom-control-label" htmlFor="districtBounds">Enable/Disable District Boundaries</label>
 						</div><h2>Data Correction Tools</h2>
-						<Button block onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>Add Edge</Button> Add an edge between two precincts.
+						<Button block className="text-left" onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>Add Edge</Button> Add an edge between two precincts.
                 </div>
 					<div className="mb-4">
-						<Button block>Combine Precinct</Button> Combine two existing precincts into one.
+						<Button block className="text-left">Combine Precinct</Button> Combine two existing precincts into one.
 					</div>
 					<div className="mb-4">
-						<Button block onClick={e => new L.Draw.Polygon(this.refs.map.leafletElement).enable()}>Generate Ghost Precinct</Button> Create a ghost precinct in case an area where the geographic union of precincts does not fully cover the area of the state
+						<Button block className="text-left" onClick={e => new L.Draw.Polygon(this.refs.map.leafletElement).enable()}>Generate Ghost Precinct</Button> Create a ghost precinct in case an area where the geographic union of precincts does not fully cover the area of the state
 					</div>
 				</Tab>
 			</Tabs>
