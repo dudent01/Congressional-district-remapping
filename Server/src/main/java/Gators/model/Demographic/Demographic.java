@@ -1,5 +1,6 @@
 package Gators.model.Demographic;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,14 +9,12 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Demographic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private long id;
-
-//    @Column
-//    private int totalPop;
 
     @Column
     private int whitePop;

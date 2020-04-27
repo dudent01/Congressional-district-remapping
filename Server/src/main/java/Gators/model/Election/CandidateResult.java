@@ -2,7 +2,6 @@ package Gators.model.Election;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -10,7 +9,6 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 public class CandidateResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

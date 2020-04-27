@@ -3,8 +3,8 @@ package Gators.model;
 import Gators.model.Demographic.Demographic;
 import Gators.model.Election.Election;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -13,7 +13,6 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 public class Precinct extends Territory {
     @Column(unique = true)
     private String cName;

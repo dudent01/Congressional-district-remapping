@@ -1,6 +1,7 @@
 package Gators.service;
 
 import Gators.model.Demographic.Demographic;
+import Gators.model.Election.Election;
 import Gators.model.Precinct;
 import Gators.repository.Repositories;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +41,9 @@ public class PrecinctService {
 
     public Set<Precinct> getNeighborsById(long id) {
         return repositories.getPrecinctRepository().findAllByNeighborsId(id);
+    }
+
+    public Election getPres2016ById(long id) {
+        return repositories.getPrecinctRepository().findById(id).orElse(null).getPres2016();
     }
 }
