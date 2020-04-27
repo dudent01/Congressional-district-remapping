@@ -69,23 +69,33 @@ class StateMap extends React.Component {
 			viewport: {} // reset the viewport to center in on USA
 		})
 	}
-	onEachFeature(feature, layer) {
+	onEachStateFeature(feature, layer) {
 		layer.on({
 			// mouseover: this.highlightFeature.bind(this),
 			// mouseout: this.resetHighlight.bind(this),
-			click: this.clickToFeature.bind(this)
+			click: e => {
+				let layer = e.target;
+				let abbr = layer.feature.properties.ABBR;
+				let center = layer.feature.properties.CENTER;
+				let zoom = layer.feature.properties.ZOOM;
+		
+				this.props.onSelectState(abbr);
+				this.setState({
+					center, zoom
+				})
+			}
 		});
 	}
-	clickToFeature(e) {
-		let layer = e.target;
-		let abbr = layer.feature.properties.ABBR;
-		let center = layer.feature.properties.CENTER;
-		let zoom = layer.feature.properties.ZOOM;
-
-		this.props.onSelectState(abbr);
-		this.setState({
-			center, zoom
-		})
+	onEachPrecinctFeature(feature, layer) {
+		layer.on({
+			// mouseover: this.highlightFeature.bind(this),
+			// mouseout: this.resetHighlight.bind(this),
+			click: e => {
+				let layer = e.target;
+				let id = layer.feature.properties.id;
+				alert(id)
+			}
+		});
 	}
 	render() {
 		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
@@ -94,7 +104,7 @@ class StateMap extends React.Component {
 				key={hash(this.props.states)}
 				data={this.props.statesGeojson}
 				// style={this.checkIfError.bind(this)} 
-				onEachFeature={this.onEachFeature.bind(this)}
+				onEachFeature={this.onEachStateFeature.bind(this)}
 				style={{ color: stateColor }}
 			>
 			</GeoJSON> : null
@@ -152,6 +162,7 @@ class StateMap extends React.Component {
 					key={hash(this.props.precincts[0] || {})}
 					data={this.props.precinctsGeojson}
 					style={{ color: precinctColor }}
+					onEachFeature={this.onEachPrecinctFeature.bind(this)}
 				/>
 			</Map>
 		)
