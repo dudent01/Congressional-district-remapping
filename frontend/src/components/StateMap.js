@@ -89,7 +89,7 @@ class StateMap extends React.Component {
 	}
 	render() {
 		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
-		const statesGeojson = this.props.precincts.length == 0 ? // check if there are precincts available, if not show states
+		const statesGeojson = this.props.precincts.length === 0 ? // check if there are precincts available, if not show states
 			<GeoJSON
 				key={hash(this.props.states)}
 				data={this.props.statesGeojson}

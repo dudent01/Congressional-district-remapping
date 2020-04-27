@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./App.css";
-import { Row, Col, Form, Button, Tabs, Tab, Table, ListGroup, Accordion, Card, Badge } from "react-bootstrap"
+import { Row, Col } from "react-bootstrap"
 import StateMap from "./components/StateMap"
 import Sidebar from "./components/Sidebar"
 import { connect } from 'react-redux';
