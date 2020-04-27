@@ -2,11 +2,11 @@ import React from "react";
 import { Map, GeoJSON, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
-import { defaultMapCenter, defaultMapZoom, stateColor, precinctColor } from "../config"
+import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor } from "../config"
 import { connect } from 'react-redux';
 import hash from 'object-hash';
 
-import { selectState, fetchPrecinctsByState, fetchAllStates, deleteAllPrecincts, deselectState } from '../actions';
+import { selectState, fetchPrecinctsByState, fetchAllStates, deleteAllPrecincts, deselectState, fetchPrecinctElectionData } from '../actions';
 // Use hash for fixing rerendering bug in GeoJSON tag 
 // TODO: replace hashing object for key with something else because of slow performance 
 
@@ -15,8 +15,10 @@ const mapStateToProps = s => {
 		statesGeojson: s.states.geojson,
 		states: s.states.states,
 		selectedState: s.states.selectedState,
+
 		precinctsGeojson: s.precincts.geojson,
-		precincts: s.precincts.precincts
+		precincts: s.precincts.precincts,
+		selectedPrecinct: s.precincts.selectedPrecinct
 	}
 }
 const mapDispatchToProps = dispatch => {
@@ -28,6 +30,9 @@ const mapDispatchToProps = dispatch => {
 		removePrecincts: () => {
 			dispatch(deleteAllPrecincts())
 			dispatch(deselectState(""))
+		},
+		onSelectPrecinct: (id, election) => {
+			dispatch(fetchPrecinctElectionData(id, election))
 		}
 	};
 };
@@ -38,7 +43,8 @@ class StateMap extends React.Component {
 		this.state = {
 			center: defaultMapCenter,
 			zoom: defaultMapZoom,
-			viewport: {}
+			viewport: {},
+			election: defaultElection
 		}
 	}
 	componentWillReceiveProps(nextProps) {  // whenever precincts geojson or states geojson is loaded, update the map
@@ -92,7 +98,8 @@ class StateMap extends React.Component {
 			click: e => {
 				let layer = e.target;
 				let id = layer.feature.properties.id;
-				alert(id)
+				// alert(id)
+				this.props.onSelectPrecinct(id, this.state.election)
 			}
 		});
 	}
@@ -118,8 +125,8 @@ class StateMap extends React.Component {
 							{stateSelectOptions}
 						</Form.Control>
 						<Form.Control as="select" className="mr-2"
-							onChange={e => this.setState({ electionValue: e.target.value })}
-							value={this.state.electionValue}
+							onChange={e => this.setState({ election: e.target.value })}
+							value={this.state.election}
 						>
 							<option value="" disabled>Select Election</option>
 							<option value="presidential2016">2016 Presidential</option>
