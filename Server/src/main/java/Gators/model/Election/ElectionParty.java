@@ -1,7 +1,7 @@
 package Gators.model.Election;
 
 public enum ElectionParty {
-    DEMOCRAT,
+    DEMOCRATIC,
     REPUBLICAN,
     LIBERTARIAN,
     GREEN,
