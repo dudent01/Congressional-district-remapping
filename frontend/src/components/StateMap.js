@@ -1,13 +1,12 @@
+import hash from 'object-hash';
 import React from "react";
 import { Map, GeoJSON, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
 import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor } from "../config"
 import { connect } from 'react-redux';
-import hash from 'object-hash';
-
-import { selectState, fetchPrecinctsByState, fetchAllStates, deleteAllPrecincts, deselectState, fetchPrecinctElectionData } from '../actions';
-// Use hash for fixing rerendering bug in GeoJSON tag 
+import { selectState, deselectState } from '../actions/stateActions';
+import { fetchPrecinctsByState,  deletePrecincts,  fetchPrecinctData } from '../actions/precinctActions';
 // TODO: replace hashing object for key with something else because of slow performance 
 
 const mapStateToProps = s => {
@@ -18,7 +17,7 @@ const mapStateToProps = s => {
 
 		precinctsGeojson: s.precincts.geojson,
 		precincts: s.precincts.precincts,
-		selectedPrecinct: s.precincts.selectedPrecinct
+		selectedPrecinct: s.precincts.selectedPrecinct,
 	}
 }
 const mapDispatchToProps = dispatch => {
@@ -28,11 +27,11 @@ const mapDispatchToProps = dispatch => {
 			dispatch(fetchPrecinctsByState(abbr));
 		},
 		removePrecincts: () => {
-			dispatch(deleteAllPrecincts())
+			dispatch(deletePrecincts())
 			dispatch(deselectState(""))
 		},
-		onSelectPrecinct: (id, election) => {
-			dispatch(fetchPrecinctElectionData(id, election))
+		onSelectPrecinct: (id, election, precincts) => {
+			dispatch(fetchPrecinctData(id, election, precincts))
 		}
 	};
 };
@@ -66,7 +65,7 @@ class StateMap extends React.Component {
 		let zoom = state.geojson.properties.ZOOM;
 		this.setState({ center, zoom })
 	}
-	resetClicked() {
+	handleResetClicked() {
 		this.props.removePrecincts() // remove precincts to reset map
 		this.setState({
 			center: defaultMapCenter,
@@ -76,14 +75,11 @@ class StateMap extends React.Component {
 	}
 	onEachStateFeature(feature, layer) {
 		layer.on({
-			// mouseover: this.highlightFeature.bind(this),
-			// mouseout: this.resetHighlight.bind(this),
 			click: e => {
 				let layer = e.target;
 				let abbr = layer.feature.properties.ABBR;
 				let center = layer.feature.properties.CENTER;
 				let zoom = layer.feature.properties.ZOOM;
-
 				this.props.onSelectState(abbr);
 				this.setState({
 					center, zoom
@@ -93,26 +89,23 @@ class StateMap extends React.Component {
 	}
 	onEachPrecinctFeature(feature, layer) {
 		layer.on({
-			// mouseover: this.highlightFeature.bind(this),
-			// mouseout: this.resetHighlight.bind(this),
 			click: e => {
 				let layer = e.target;
 				let id = layer.feature.properties.id;
-				// alert(id)
-				this.props.onSelectPrecinct(id, this.state.election)
+				this.props.onSelectPrecinct(id, this.state.election, this.props.precincts)
 			}
 		});
 	}
 	render() {
 		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
 		let geojson;
-		if (this.props.precincts.length === 0) // render either the states geojson or precincts geojson based on if there are precincts loaded
+		// render either the states geojson or precincts geojson based on if there are precincts loaded
+		if (this.props.precincts.length === 0)
 			geojson = <GeoJSON key={hash(this.props.states)} data={this.props.statesGeojson}
-				// style={this.checkIfError.bind(this)} 
 				onEachFeature={this.onEachStateFeature.bind(this)} style={{ color: stateColor }} />
 		else
-			geojson = <GeoJSON key={hash(this.props.precincts[0] || {})} data={this.props.precinctsGeojson} style={{ color: precinctColor }}
-				onEachFeature={this.onEachPrecinctFeature.bind(this)} />
+			geojson = <GeoJSON key={hash(this.props.precincts[0] || {})} data={this.props.precinctsGeojson}
+				onEachFeature={this.onEachPrecinctFeature.bind(this)} style={{ color: precinctColor }} />
 
 		return (
 			<Map id="leaflet-map" center={this.state.center} zoom={this.state.zoom} ref="map" viewport={this.state.viewport}>
@@ -133,7 +126,7 @@ class StateMap extends React.Component {
 							<option value="congressional2016">2016 Congressional</option>
 							<option value="congressional2018">2018 Congressional</option>
 						</Form.Control>
-						<Button className="ml-auto" onClick={this.resetClicked.bind(this)}>Reset</Button>
+						<Button className="ml-auto" onClick={this.handleResetClicked.bind(this)}>Reset</Button>
 					</Form>
 				</div>
 				<FeatureGroup>
@@ -158,5 +151,4 @@ class StateMap extends React.Component {
 		)
 	}
 }
-
 export default connect(mapStateToProps, mapDispatchToProps)(StateMap);

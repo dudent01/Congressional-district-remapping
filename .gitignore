@@ -23,6 +23,8 @@ node_modules
 .project
 .vscode
 Server/target/
+Server/.settings/
+Server/.factorypath
 
 npm-debug.log*
 yarn-debug.log*

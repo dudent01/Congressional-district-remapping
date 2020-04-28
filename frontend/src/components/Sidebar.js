@@ -1,11 +1,12 @@
 import React from "react";
-import { Button, Tabs, Tab, Table, ListGroup, Badge } from "react-bootstrap"
+import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner } from "react-bootstrap"
 import L from "leaflet"
 import { connect } from 'react-redux';
 
 const mapStateToProps = s => {
 	return {
-		selectedPrecinct: s.precincts.selectedPrecinct
+		selectedPrecinct: s.precincts.selectedPrecinct,
+		isFetchingSelectedPrecinct: s.precincts.isFetchingSelectedPrecinct
 	}
 }
 
@@ -13,12 +14,6 @@ class Sidebar extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			// precinctInfo: {
-			// 	name: "N/A",
-			// 	population: "N/A",
-			// 	winner: "N/A",
-			// 	whitePop: "N/A"
-			// },
 			errorsCount: 0
 		}
 	}
@@ -41,46 +36,56 @@ class Sidebar extends React.Component {
 
 	render() {
 		let election = null;
-		if (this.props.selectedPrecinct && this.props.selectedPrecinct.election) {
-			election = <tr>
-				<th>Name</th>
-				<th>Party</th>
-				<th>Votes</th>
-			</tr>
-
-			election = <>
-				<tr>
-					<td></td>
+		if (this.props.selectedPrecinct) {
+			if (this.props.selectedPrecinct.election) {
+				election = <tr>
+					<th>Name</th>
+					<th>Politcal Party</th>
+					<th>Votes</th>
 				</tr>
-				{election}
-				{this.props.selectedPrecinct.election.results.map((candidate, index) => {
-					return (
-						<tr>
-							<td>{candidate.name}</td>
-							<td>{candidate.party}</td>
-							<td>{candidate.votes}</td>
-						</tr>
-					)
-				})}
-			</>
+
+				election = <>
+					<b className="text-center">{this.props.selectedPrecinct.election.type.replace("_", " ")}</b>
+					<Table hover variant="danger" bordered>
+						<tbody>
+							{election}
+							{this.props.selectedPrecinct.election.results.map((candidate, index) => {
+								return (
+									<tr key={candidate.party}>
+										<td>{candidate.name}</td>
+										<td>{candidate.party}</td>
+										<td>{candidate.votes}</td>
+									</tr>
+								)
+							})}
+						</tbody>
+					</Table>
+				</>
+			}
+			else if (this.props.isFetchingSelectedPrecinct) {
+				election = <div className="text-center"><Spinner animation="border" /></div>
+			}
+			else if (!this.props.isFetchingSelectedPrecinct) {
+				election = <div>This precinct has no election data.</div>
+			}
 		}
 		return (
 			<Tabs id="sidebar" activeKey={this.state.key} onSelect={key => this.setState({ key })} transition={false} className="mb-2">
 				<Tab eventKey="info" title="Information" >
-					<Table striped hover>
-						{
-							this.props.selectedPrecinct ?
+					{
+						this.props.selectedPrecinct ?
+							<Table striped hover>
 								<tbody>
 									<tr>
 										<td><strong>Precinct Name:</strong></td>
 										<td>{this.props.selectedPrecinct.name}</td>
 									</tr>
-									{election}
 								</tbody>
-								:
-								null
-						}
-					</Table>
+							</Table>
+							:
+							<span>Please select a precinct</span>
+					}
+					{election}
 				</Tab>
 				<Tab eventKey="err" title={<div>Errors <Badge variant="danger">{this.state.errorsCount}</Badge></div>}>
 					<div>
