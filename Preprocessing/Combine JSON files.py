@@ -3,6 +3,8 @@ import json
 with open('C:/Users/Denis/Software Engineering/Data/Utah/Precincts/Utah_Voting_Precincts_Shape_File_10.json') as f:
     utah_precincts = json.load(f)
 
+f.close()
+
 for precinct in utah_precincts['features']:
     del precinct['properties']['shape_area']
     del precinct['properties']['versionnbr']
@@ -16,6 +18,7 @@ for precinct in utah_precincts['features']:
 with open("C:/Users/Denis/Software Engineering/Data/Utah/Precincts/Utah.json", "w") as utah:
     json.dump(utah_precincts, utah, indent= 2)
 
+utah.close()
 # Utah.json file has been created, clean of unnecessary information
 vote_file = open("C:/Users/Denis/Software Engineering/Data/Utah/Voting/utah_voting_data.json")
 voting_data = json.load(vote_file)
@@ -54,6 +57,13 @@ for precinct in utah_precincts['features']:
                             "Stein"     : {"party" : "green", "votes": stein, "percentage": stein1}}}
             precinct['properties'].update(presidential)
 
+sources = {"sources" : {"precincts"  : "Utah.gov OpenDataCatalog",
+                        "voting"     : "Harvard Dataverse"}}
+utah_precincts.update(sources)
+
+utah.close()
+
 with open("C:/Users/Denis/Software Engineering/Data/Utah/Precincts/Utah.json", "w") as utah:
     json.dump(utah_precincts, utah, indent= 2)
 
+utah.close()
