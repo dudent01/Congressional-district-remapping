@@ -3,10 +3,11 @@ import { FETCH_PRECINCT, MERGE_PRECINCT, UPDATE_PRECINCT, CREATE_GHOST_PRECINCT,
 import axios from 'axios';
 
 
-export const fetchPrecincts = precincts => {
+export const fetchPrecincts = (precincts, geojson) => {
   return {
     type: FETCH_PRECINCT,
-    precincts
+    precincts,
+    geojson
   }
 }
 
@@ -52,7 +53,8 @@ export const fetchPrecinctsByState = (abbr) => {
           features = features.concat(JSON.parse(precinct.geojson))
           delete precinct.geojson
         }
-        dispatch(fetchPrecincts({ precincts: data, geojson: { type: "FeatureCollection", features } }))
+        let geojson = { type: "FeatureCollection", features }
+        dispatch(fetchPrecincts(data, geojson))
       })
       .catch(error => {
         throw (error)

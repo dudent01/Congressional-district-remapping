@@ -2,17 +2,18 @@ import { FETCH_PRECINCT, MERGE_PRECINCT, UPDATE_PRECINCT, CREATE_GHOST_PRECINCT,
 
 const initialState = {
   precincts: [],
-  selectedPrecinct: {
-    election: null,
-    demographic: null
-  },
+  selectedPrecinct: null,
   geojson: null
 }
 
 export default function precinctReducer(state = initialState, action) {
   switch (action.type) {
     case FETCH_PRECINCT:
-      return action.precincts;
+      return {
+        ...state,
+        precincts: action.precincts,
+        geojson: action.geojson
+      };
     case DELETE_PRECINCT:
       return Object.assign({}, state, initialState)
     case FETCH_ELECTION:

@@ -78,7 +78,7 @@ class Sidebar extends React.Component {
 									{election}
 								</tbody>
 								:
-								null
+								<span>Please select a precinct</span>
 						}
 					</Table>
 				</Tab>
