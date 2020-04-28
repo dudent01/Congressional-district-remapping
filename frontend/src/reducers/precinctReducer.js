@@ -26,7 +26,7 @@ export default function precinctReducer(state = initialState, action) {
         geojson: action.geojson
       }
     case DELETE_PRECINCTS:
-      return Object.assign({}, state, initialState)
+      return initialState
     case REQUEST_SELECTED_PRECINCT_DATA:
       return {
         ...state,
