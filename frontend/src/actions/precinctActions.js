@@ -1,6 +1,6 @@
 import {
   DELETE_PRECINCTS, REQUEST_PRECINCTS, RECEIVE_PRECINCTS, REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA,
-  SET_SELECTED_PRECINCT
+  SET_SELECTED_PRECINCT, SET_PRECINCT_GEOJSON
 } from './types';
 import axios from 'axios';
 
@@ -55,5 +55,11 @@ export const fetchPrecinctsByState = (abbr) => {
     catch (error) {
       throw (error);
     }
+  }
+}
+export const updatePrecinctGeojson = (id, geojson) => {
+  return async (dispatch) => {
+    await axios.put(process.env.REACT_APP_API_URL + `${id}/geojson`, { geojson })
+    dispatch({ type: SET_PRECINCT_GEOJSON, geojson, id })
   }
 }

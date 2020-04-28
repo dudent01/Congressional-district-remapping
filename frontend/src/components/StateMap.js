@@ -49,15 +49,7 @@ class StateMap extends React.Component {
 			isPrecinctSelected: false
 		}
 	}
-	componentWillReceiveProps(nextProps) {  // whenever precincts geojson or states geojson is loaded, update the map
-		if (nextProps.statesGeojson) {
-			this.setState({ geojson: nextProps.statesGeojson });
-		}
-		if (nextProps.precincts) {
-			this.setState({ geojson: nextProps.precinctsGeojson });
-		}
-	}
-	handleSelectState(abbr) { //handles selection from the drop-down menu
+	handleSelectState(abbr) {
 		this.props.onSelectState(abbr);
 		let state;
 		for (let s of this.props.states) {
