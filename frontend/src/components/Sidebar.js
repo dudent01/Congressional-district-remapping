@@ -66,6 +66,10 @@ class Sidebar extends React.Component {
 										<td><strong>Precinct Name:</strong></td>
 										<td>{this.props.selectedPrecinct.name}</td>
 									</tr>
+									<tr>
+										<td><strong>Precinct ID:</strong></td>
+										<td>{this.props.selectedPrecinct.id}</td>
+									</tr>
 								</tbody>
 							</Table>
 							:

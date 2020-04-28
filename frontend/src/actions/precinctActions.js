@@ -39,7 +39,12 @@ export const fetchPrecinctsByState = (abbr) => {
       const { data } = await axios.get(process.env.REACT_APP_API_URL + `/api/precinct/state/${abbr}`);
       let features = [];
       for (let precinct of data) {
-        precinct.geojson = JSON.parse(precinct.geojson)
+        try {
+          precinct.geojson = JSON.parse(precinct.geojson)
+        }
+        catch {
+          continue;
+        }
         precinct.geojson.properties.id = precinct.id  // Set id in geojson for use in the Leaflet API onClick handler
         features = features.concat(precinct.geojson);
         delete precinct.geojson;
