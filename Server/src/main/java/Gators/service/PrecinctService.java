@@ -48,4 +48,11 @@ public class PrecinctService {
     public Collection getPres2016AndDemographicById(long id) {
         return new ArrayList(Arrays.asList(precinctRepository.findById(id).orElse(null).getPres2016(), precinctRepository.findById(id).orElse(null).getDemographic()));
     }
+
+    @Transactional
+    public void editGeojsonById(long id, String geojson) {
+        Precinct precinct = precinctRepository.findById(id).orElse(null);
+        precinct.setGeojson(geojson);
+        precinctRepository.save(precinct);
+    }
 }

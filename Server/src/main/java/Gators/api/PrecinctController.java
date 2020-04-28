@@ -44,4 +44,9 @@ public class PrecinctController {
     public Collection getPresidentialElectionAndDemographicById(@PathVariable long id) {
         return precinctService.getPres2016AndDemographicById(id);
     }
+
+    @PutMapping(path = "/{id}/geojson")
+    public void editGeojsonById(@PathVariable long id, @RequestBody String geojson) {
+        precinctService.editGeojsonById(id, geojson);
+    }
 }
