@@ -6,7 +6,8 @@ import { connect } from 'react-redux';
 const mapStateToProps = s => {
 	return {
 		selectedPrecinct: s.precincts.selectedPrecinct,
-		isFetchingSelectedPrecinct: s.precincts.isFetchingSelectedPrecinct
+		isFetchingSelectedPrecinct: s.precincts.isFetchingSelectedPrecinct,
+		selectedState:s.states.selectedState
 	}
 }
 
@@ -18,21 +19,6 @@ class Sidebar extends React.Component {
 		}
 	}
 
-	checkBoxChange(e) {
-		if (e.target.id === "nationalParks") {
-			if (e.target.checked === false) {
-				console.log("National Parks Disabled");
-			} else {
-				console.log("National Parks Enabled");
-			}
-		} else if (e.target.id === "districtBounds") {
-			if (e.target.checked === false) {
-				console.log("Congressional Bounds Disabled");
-			} else {
-				console.log("Congressional Bounds Enabled");
-			}
-		}
-	}
 
 	render() {
 		let election = null;
@@ -83,29 +69,22 @@ class Sidebar extends React.Component {
 								</tbody>
 							</Table>
 							:
-							<span>Please select a precinct</span>
+							<span><h2>Welcome to the Precinct Error Correction Program!</h2>To begin, please select a state, then select a precinct whose data you would wish to view. It will then be shown here.</span>
 					}
 					{election}
 				</Tab>
-				<Tab eventKey="err" title={<div>Errors <Badge variant="danger">{this.state.errorsCount}</Badge></div>}>
+				<Tab eventKey="err" disabled={this.props.selectedState === ""} title={<div>Errors <Badge variant="danger">{this.state.errorsCount}</Badge></div>}>
 					<div>
+						{ this.state.precinctErrors ?
 						<ListGroup>
 							{this.state.precinctErrors}
 						</ListGroup>
+						: <span>There are no known errors in the selected state.</span>
+						}
 					</div>
 				</Tab>
-				<Tab eventKey="edit" title="Tools">
+				<Tab eventKey="edit" disabled={this.props.selectedPrecinct === null || this.props.selectedState === ""} title="Tools">
 					<div className="mb-4">
-						<h2>Map Control Tools</h2>
-						<div className="custom-control custom-checkbox">
-							<input type="checkbox" className="custom-control-input" onChange={this.checkBoxChange} defaultChecked={false} id="nationalParks"></input>
-							<label className="custom-control-label" htmlFor="nationalParks">Enable/Disable National Parks</label>
-						</div>
-						<div className="custom-control custom-checkbox">
-							<input type="checkbox" className="custom-control-input" onChange={this.checkBoxChange} defaultChecked={false} id="districtBounds"></input>
-							<label className="custom-control-label" htmlFor="districtBounds">Enable/Disable District Boundaries</label>
-						</div>
-						<h2>Data Correction Tools</h2>
 						<Button block className="text-left" onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>
 							Add Edge
 						</Button>
