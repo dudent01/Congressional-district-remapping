@@ -3,10 +3,10 @@ import React from "react";
 import { Map, GeoJSON, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
-import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor } from "../config"
+import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor, leafletDrawOptions } from "../config"
 import { connect } from 'react-redux';
 import { selectState, deselectState } from '../actions/stateActions';
-import { fetchPrecinctsByState,  deletePrecincts,  fetchPrecinctData } from '../actions/precinctActions';
+import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData } from '../actions/precinctActions';
 // TODO: replace hashing object for key with something else because of slow performance 
 
 const mapStateToProps = s => {
@@ -23,6 +23,7 @@ const mapStateToProps = s => {
 const mapDispatchToProps = dispatch => {
 	return {
 		onSelectState: abbr => {
+			dispatch(deletePrecincts());
 			dispatch(selectState(abbr));
 			dispatch(fetchPrecinctsByState(abbr));
 		},
@@ -43,7 +44,7 @@ class StateMap extends React.Component {
 			center: defaultMapCenter,
 			zoom: defaultMapZoom,
 			viewport: {},
-			election: defaultElection
+			election: defaultElection,
 		}
 	}
 	componentWillReceiveProps(nextProps) {  // whenever precincts geojson or states geojson is loaded, update the map
@@ -77,7 +78,7 @@ class StateMap extends React.Component {
 		layer.on({
 			click: e => {
 				let layer = e.target;
-				let abbr = layer.feature.properties.ABBR;
+				let abbr = layer.feature.properties.abbr;
 				let center = layer.feature.properties.CENTER;
 				let zoom = layer.feature.properties.ZOOM;
 				this.props.onSelectState(abbr);
@@ -95,6 +96,11 @@ class StateMap extends React.Component {
 				this.props.onSelectPrecinct(id, this.state.election, this.props.precincts)
 			}
 		});
+	}
+	_onCreate(e) {
+		if (e.layerType !== 'polygon') return;
+		console.log(e)
+		console.log(JSON.stringify(e.layer.toGeoJSON()))
 	}
 	render() {
 		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
@@ -133,13 +139,9 @@ class StateMap extends React.Component {
 					<EditControl
 						position='topleft'
 						onEdited={this._onEditPath}
-						onCreated={this._onCreate}
+						onCreated={this._onCreate.bind(this)}
 						onDeleted={this._onDeleted}
-						draw={{
-							rectangle: false,
-							circle: false,
-							circlemarker: false
-						}}
+						draw={leafletDrawOptions}
 					/>
 				</FeatureGroup>
 				<TileLayer

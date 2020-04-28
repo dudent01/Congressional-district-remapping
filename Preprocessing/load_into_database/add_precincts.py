@@ -21,20 +21,16 @@ for precinct in utah['features']:
         val = ("PRESIDENTIAL_2016",)
         mycursor.execute(sql, val)
         pres2016_id = mycursor.lastrowid
+
+        vals = []
         for name, value in precinct["properties"]["presidential"].items():
             sql = "INSERT INTO candidate_result (name, party, votes, election_id) VALUES (%s,%s,%s,%s)"
-            val = (name, value["party"].upper(), value["votes"], pres2016_id)
-            mycursor.execute(sql, val)
+            vals.append((name, value["party"].upper(), value["votes"], pres2016_id))
+            mycursor.executemany(sql, vals)
         del precinct["properties"]["presidential"]
     else:
         pres2016_id = None
-    sql = "INSERT INTO precinct (name, state_id, pres2016_id, c_name) VALUES (%s,%s,%s,%s)"
-    val = (precinct['properties']['precinctid'], 2, pres2016_id, precinct['properties']['cname'])
-    mycursor.execute(sql, val)
-
-    precinct_id = mycursor.lastrowid
-    precinct["properties"]["id"] = precinct_id  # Add database id into the geojson for use in the frontend
-    sql = "UPDATE precinct SET geojson = %s WHERE id = %s"
-    val = (json.dumps(precinct), precinct_id)
+    sql = "INSERT INTO precinct (name, state_id, pres2016_id, c_name, geojson) VALUES (%s,%s,%s,%s,%s)"
+    val = (precinct['properties']['precinctid'], 2, pres2016_id, None, json.dumps(precinct))
     mycursor.execute(sql, val)
 mydb.commit()

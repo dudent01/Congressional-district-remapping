@@ -19,7 +19,8 @@ vals = []
 for state in data['features']:
     name = state['properties']['NAME']
     abbr = state['properties']['ABBR']
-    vals += (json.dumps(state), name, abbr)
+    del state['properties']['ABBR']
+    vals.append((json.dumps(state), name, abbr))
 sql = "INSERT INTO state (geojson, name, abbr) VALUES (%s,%s,%s)"
 mycursor.executemany(sql, vals)
 mydb.commit()

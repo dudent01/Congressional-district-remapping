@@ -104,14 +104,21 @@ class Sidebar extends React.Component {
 						<div className="custom-control custom-checkbox">
 							<input type="checkbox" className="custom-control-input" onChange={this.checkBoxChange} defaultChecked={false} id="districtBounds"></input>
 							<label className="custom-control-label" htmlFor="districtBounds">Enable/Disable District Boundaries</label>
-						</div><h2>Data Correction Tools</h2>
-						<Button block className="text-left" onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>Add Edge</Button> Add an edge between two precincts.
-                </div>
+						</div>
+						<h2>Data Correction Tools</h2>
+						<Button block className="text-left" onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>
+							Add Edge
+						</Button>
+						Add an edge between two precincts.
+					</div>
 					<div className="mb-4">
 						<Button block className="text-left">Combine Precinct</Button> Combine two existing precincts into one.
 					</div>
 					<div className="mb-4">
-						<Button block className="text-left" onClick={e => new L.Draw.Polygon(this.refs.map.leafletElement).enable()}>Generate Ghost Precinct</Button> Create a ghost precinct in case an area where the geographic union of precincts does not fully cover the area of the state
+						<Button block className="text-left" onClick={e => new L.Draw.Polygon(this.refs.map.leafletElement).enable()}>
+							Generate Ghost Precinct
+						</Button>
+						Create a ghost precinct in case an area where the geographic union of precincts does not fully cover the area of the state
 					</div>
 				</Tab>
 			</Tabs>

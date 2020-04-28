@@ -25,6 +25,7 @@ node_modules
 Server/target/
 Server/.settings/
 Server/.factorypath
+Server/Server.iml
 
 npm-debug.log*
 yarn-debug.log*

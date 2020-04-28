@@ -21,5 +21,6 @@ public class Election {
     private ElectionType type;
 
     @OneToMany(mappedBy = "election")
+    @OrderBy("votes DESC")
     private Set<CandidateResult> results;
 }
