@@ -45,6 +45,8 @@ class StateMap extends React.Component {
 			zoom: defaultMapZoom,
 			viewport: {},
 			election: defaultElection,
+			isStateSelected: false,
+			isPrecinctSelected: false
 		}
 	}
 	componentWillReceiveProps(nextProps) {  // whenever precincts geojson or states geojson is loaded, update the map
@@ -55,7 +57,7 @@ class StateMap extends React.Component {
 			this.setState({ geojson: nextProps.precinctsGeojson });
 		}
 	}
-	handleSelectState(abbr) {
+	handleSelectState(abbr) { //handles selection from the drop-down menu
 		this.props.onSelectState(abbr);
 		let state;
 		for (let s of this.props.states) {
@@ -64,13 +66,15 @@ class StateMap extends React.Component {
 		}
 		let center = state.geojson.properties.CENTER;
 		let zoom = state.geojson.properties.ZOOM;
-		this.setState({ center, zoom })
+		this.setState({ center, zoom, isStateSelected: true })
 	}
 	handleResetClicked() {
 		this.props.removePrecincts() // remove precincts to reset map
 		this.setState({
 			center: defaultMapCenter,
 			zoom: defaultMapZoom,
+			isStateSelected: false,
+			isPrecinctSelected: false,
 			viewport: {} // reset the viewport to center in on USA
 		})
 	}
@@ -83,8 +87,7 @@ class StateMap extends React.Component {
 				let zoom = layer.feature.properties.ZOOM;
 				this.props.onSelectState(abbr);
 				this.setState({
-					center, zoom
-				})
+					center, zoom, isStateSelected: true})
 			}
 		});
 	}
@@ -101,6 +104,21 @@ class StateMap extends React.Component {
 		if (e.layerType !== 'polygon') return;
 		console.log(e)
 		console.log(JSON.stringify(e.layer.toGeoJSON()))
+	}
+	checkBoxChange(e) {
+		if (e.target.id === "nationalParks") {
+			if (e.target.checked === false) {
+				console.log("National Parks Disabled");
+			} else {
+				console.log("National Parks Enabled");
+			}
+		} else if (e.target.id === "districtBounds") {
+			if (e.target.checked === false) {
+				console.log("Congressional Bounds Disabled");
+			} else {
+				console.log("Congressional Bounds Enabled");
+			}
+		}
 	}
 	render() {
 		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
@@ -134,6 +152,13 @@ class StateMap extends React.Component {
 						</Form.Control>
 						<Button className="ml-auto" onClick={this.handleResetClicked.bind(this)}>Reset</Button>
 					</Form>
+					<Form inline className="m-2">
+						<Form.Group className="mr-2" controlId="nationalParks">
+							<Form.Check type="checkbox" id="nationalParks"  disabled={!this.state.isStateSelected} onClick={this.checkBoxChange} label="Toggle National Parks" />
+						</Form.Group>
+						<Form.Group controlId="districtBounds">
+							<Form.Check type="checkbox" id="districtBounds" disabled={!this.state.isStateSelected} onClick={this.checkBoxChange} label="Toggle District Boundaries" />
+						</Form.Group></Form>
 				</div>
 				<FeatureGroup>
 					<EditControl
