@@ -22,7 +22,6 @@ class Sidebar extends React.Component {
 
 	render() {
 		let election = null;
-		console.log(this.props.selectedPrecinct)
 		if (this.props.selectedPrecinct) {
 			if (this.props.selectedPrecinct.election) {
 				election = <tr>
@@ -76,9 +75,12 @@ class Sidebar extends React.Component {
 				</Tab>
 				<Tab eventKey="err" disabled={this.props.selectedState === ""} title={<div>Errors <Badge variant="danger">{this.state.errorsCount}</Badge></div>}>
 					<div>
+						{ this.state.precinctErrors ?
 						<ListGroup>
 							{this.state.precinctErrors}
 						</ListGroup>
+						: <span>There are no known errors in the selected state.</span>
+						}
 					</div>
 				</Tab>
 				<Tab eventKey="edit" disabled={this.props.selectedPrecinct === null || this.props.selectedState === ""} title="Tools">
