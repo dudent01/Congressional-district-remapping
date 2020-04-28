@@ -1,12 +1,12 @@
 package Gators.api;
 
 import Gators.model.Demographic.Demographic;
-import Gators.model.Election.Election;
 import Gators.model.Precinct;
 import Gators.service.PrecinctService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.Set;
 
 @CrossOrigin
@@ -41,7 +41,7 @@ public class PrecinctController {
     }
 
     @GetMapping(path = "/{id}/presidential2016")
-    public Election getPresidentialElectionById(@PathVariable long id) {
-        return precinctService.getPres2016ById(id);
+    public Collection getPresidentialElectionAndDemographicById(@PathVariable long id) {
+        return precinctService.getPres2016AndDemographicById(id);
     }
 }

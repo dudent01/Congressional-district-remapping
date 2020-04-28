@@ -11,12 +11,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class StateControllerTest {
+    private final TestRestTemplate testRestTemplate;
+
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    public StateControllerTest(TestRestTemplate testRestTemplate) {
+        this.testRestTemplate = testRestTemplate;
+    }
 
     @Test
-    public void testGetState() {
+    public void testGetStateById() {
         ResponseEntity<State> response = testRestTemplate.getForEntity("/api/state/2", State.class);
+        assertEquals(2, response.getBody().getId());
+        assertEquals("Utah", response.getBody().getName());
+        assertEquals("UT", response.getBody().getAbbr());
+    }
+
+    @Test
+    public void testGetStateByAbbr() {
+        ResponseEntity<State> response = testRestTemplate.getForEntity("/api/state/abbr/ut", State.class);
         assertEquals(2, response.getBody().getId());
         assertEquals("Utah", response.getBody().getName());
         assertEquals("UT", response.getBody().getAbbr());

@@ -1,14 +1,15 @@
 package Gators.service;
 
 import Gators.model.Demographic.Demographic;
-import Gators.model.Election.Election;
 import Gators.model.Precinct;
 import Gators.repository.PrecinctRepository;
-import Gators.repository.StateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 
 @Service
@@ -44,7 +45,7 @@ public class PrecinctService {
         return precinctRepository.findAllByNeighborsId(id);
     }
 
-    public Election getPres2016ById(long id) {
-        return precinctRepository.findById(id).orElse(null).getPres2016();
+    public Collection getPres2016AndDemographicById(long id) {
+        return new ArrayList(Arrays.asList(precinctRepository.findById(id).orElse(null).getPres2016(), precinctRepository.findById(id).orElse(null).getDemographic()));
     }
 }
