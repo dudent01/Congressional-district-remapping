@@ -10,7 +10,7 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 // import { fetchGithubData } from './actions/index';
-import { fetchAllStates } from './actions/index';
+import { fetchAllStates } from './actions/stateActions';
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 store.dispatch(fetchAllStates());

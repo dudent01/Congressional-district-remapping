@@ -1,11 +1,12 @@
+import hash from 'object-hash';
 import React from "react";
 import { Map, GeoJSON, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
 import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor } from "../config"
 import { connect } from 'react-redux';
-import hash from 'object-hash';
-import { selectState, fetchPrecinctsByState, fetchAllStates, deleteAllPrecincts, deselectState, fetchPrecinctElectionData } from '../actions';
+import { selectState, deselectState } from '../actions/stateActions';
+import { fetchPrecinctsByState,  deletePrecincts,  fetchPrecinctData } from '../actions/precinctActions';
 // TODO: replace hashing object for key with something else because of slow performance 
 
 const mapStateToProps = s => {
@@ -16,7 +17,7 @@ const mapStateToProps = s => {
 
 		precinctsGeojson: s.precincts.geojson,
 		precincts: s.precincts.precincts,
-		selectedPrecinct: s.precincts.selectedPrecinct
+		selectedPrecinct: s.precincts.selectedPrecinct,
 	}
 }
 const mapDispatchToProps = dispatch => {
@@ -26,11 +27,11 @@ const mapDispatchToProps = dispatch => {
 			dispatch(fetchPrecinctsByState(abbr));
 		},
 		removePrecincts: () => {
-			dispatch(deleteAllPrecincts())
+			dispatch(deletePrecincts())
 			dispatch(deselectState(""))
 		},
 		onSelectPrecinct: (id, election, precincts) => {
-			dispatch(fetchPrecinctElectionData(id, election, precincts))
+			dispatch(fetchPrecinctData(id, election, precincts))
 		}
 	};
 };

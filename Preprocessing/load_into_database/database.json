@@ -1,0 +1,6 @@
+{
+    "host": "mysql3.cs.stonybrook.edu",
+    "user": "befeng",
+    "password": "cse416gators",
+    "database": "befeng"
+}
