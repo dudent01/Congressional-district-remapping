@@ -1,4 +1,4 @@
-package Gators.Server;
+package Gators;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

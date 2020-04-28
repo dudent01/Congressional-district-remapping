@@ -3,7 +3,8 @@ package Gators.service;
 import Gators.model.Demographic.Demographic;
 import Gators.model.Election.Election;
 import Gators.model.Precinct;
-import Gators.repository.Repositories;
+import Gators.repository.PrecinctRepository;
+import Gators.repository.StateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,38 +13,38 @@ import java.util.Set;
 
 @Service
 public class PrecinctService {
-    private final Repositories repositories;
+    private final PrecinctRepository precinctRepository;
 
     @Autowired
-    public PrecinctService(Repositories repositories) {
-        this.repositories = repositories;
+    public PrecinctService(PrecinctRepository precinctRepository) {
+        this.precinctRepository = precinctRepository;
     }
 
     @Transactional
     public void addNeighborById(long id1, long id2) {
-        Precinct precinct1 = repositories.getPrecinctRepository().findById(id1).orElse(null);
-        Precinct precinct2 = repositories.getPrecinctRepository().findById(id2).orElse(null);
+        Precinct precinct1 = precinctRepository.findById(id1).orElse(null);
+        Precinct precinct2 = precinctRepository.findById(id2).orElse(null);
 
         precinct1.getNeighbors().add(precinct2);
         precinct2.getNeighbors().add(precinct1);
 
-        repositories.getPrecinctRepository().save(precinct1);
-        repositories.getPrecinctRepository().save(precinct2);
+        precinctRepository.save(precinct1);
+        precinctRepository.save(precinct2);
     }
 
     public Set<Precinct> getPrecinctsByStateAbbr(String stateAbbr) {
-        return repositories.getPrecinctRepository().findByStateAbbr(stateAbbr);
+        return precinctRepository.findByStateAbbr(stateAbbr);
     }
 
     public Demographic getDemographicById(long id) {
-        return repositories.getPrecinctRepository().findById(id).orElse(null).getDemographic();
+        return precinctRepository.findById(id).orElse(null).getDemographic();
     }
 
     public Set<Precinct> getNeighborsById(long id) {
-        return repositories.getPrecinctRepository().findAllByNeighborsId(id);
+        return precinctRepository.findAllByNeighborsId(id);
     }
 
     public Election getPres2016ById(long id) {
-        return repositories.getPrecinctRepository().findById(id).orElse(null).getPres2016();
+        return precinctRepository.findById(id).orElse(null).getPres2016();
     }
 }
