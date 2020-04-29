@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.Set;
 
-@CrossOrigin
 @RequestMapping("api/precinct")
 @RestController
 public class PrecinctController {

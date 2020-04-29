@@ -2,12 +2,10 @@ package Gators.model;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import javax.persistence.*;
-
-@MappedSuperclass
 @Getter
 @Setter
+@MappedSuperclass
 public abstract class Territory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,4 +17,8 @@ public abstract class Territory {
 
     @Column
     private String name;
+
+    public void setGeojson(String geojson) {
+        this.geojson = geojson;
+    }
 }

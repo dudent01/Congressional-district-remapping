@@ -7,6 +7,7 @@ const initialState = {
   precincts: [],
   selectedPrecinct: null,
   geojson: null,
+  geojsonKey: 0, // used in statemap for updating the map
   isFetching: false,
   isFetchingSelectedPrecinct: false // If selecting demo/election data for clicked precinct.
 }
@@ -47,7 +48,10 @@ export default function precinctReducer(state = initialState, action) {
         selectedPrecinct: action.precinct
       }
     case SET_PRECINCT_GEOJSON: 
-      const index = state.geojson.features.findIndex(p => p.id === action.id)
+      if (state.geojson == null) return state
+      const index = state.geojson.features.findIndex(p => p.properties.id === action.id)
+      if (index < 0 ) return state
+      action.geojson.properties.id = action.id
       return {
         ...state,
         geojson: {
@@ -57,7 +61,8 @@ export default function precinctReducer(state = initialState, action) {
             action.geojson,
             ...state.geojson.features.slice(index + 1)
           ]
-        }
+        },
+        geojsonKey: state.geojsonKey + 1
       }
     default:
       return state;
