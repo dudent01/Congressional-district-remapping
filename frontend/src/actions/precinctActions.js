@@ -39,7 +39,9 @@ export const fetchPrecinctsByState = (abbr) => {
       const { data } = await axios.get(process.env.REACT_APP_API_URL + `/api/precinct/state/${abbr}`);
       let features = [];
       for (let precinct of data) {
-        if(!precinct.geojson) continue;
+        if (!precinct.geojson) {
+          continue;
+        }
         try {
           precinct.geojson = JSON.parse(precinct.geojson)
         }

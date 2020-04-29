@@ -5,9 +5,9 @@ import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
 import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor, leafletDrawOptions, selectedPrecinctColor } from "../config"
 import { connect } from 'react-redux';
-import { selectState, deselectState } from '../actions/stateActions';
-import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson } from '../actions/precinctActions';
-import { setDrawPolygon } from '../actions/mapActions'
+import { selectState, deselectState } from '../actions/StateActions';
+import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson } from '../actions/PrecinctActions';
+import { setDrawPolygon } from '../actions/MapActions'
 import L from 'leaflet'
 // TODO: replace hashing object for key with something else because of slow performance 
 
@@ -69,8 +69,10 @@ class StateMap extends React.Component {
 		this.props.onSelectState(abbr);
 		let state;
 		for (let s of this.props.states) {
-			if (s.abbr === abbr)
+			if (s.abbr === abbr) {
 				state = s;
+				break;
+			}
 		}
 		let center = state.geojson.properties.CENTER;
 		let zoom = state.geojson.properties.ZOOM;
@@ -94,9 +96,7 @@ class StateMap extends React.Component {
 				let center = layer.feature.properties.CENTER;
 				let zoom = layer.feature.properties.ZOOM;
 				this.props.onSelectState(abbr);
-				this.setState({
-					center, zoom, isStateSelected: true
-				})
+				this.setState({ center, zoom, isStateSelected: true })
 			}
 		});
 	}
@@ -116,21 +116,23 @@ class StateMap extends React.Component {
 		});
 	}
 	_onCreate(e) {
-		if (e.layerType !== 'polygon') return;
-		if (!this.props.selectedPrecinct) return;
-
+		if (e.layerType !== 'polygon' || !this.props.selectedPrecinct) {
+			return;
+		}
 		let id = this.props.selectedPrecinct.id
 		let geojson = e.layer.toGeoJSON()
-		if (window.confirm(`Would you like to set this as the boundary data for Precinct ${this.props.selectedPrecinct.name}?`))
+		if (window.confirm(`Would you like to set this as the boundary data for Precinct ${this.props.selectedPrecinct.name}?`)) {
 			this.props.updatePrecinctGeojson(id, geojson).then(() => this.map.current.contextValue.map.removeLayer(e.layer))
-		else
+		} else {
 			this.map.current.contextValue.map.removeLayer(e.layer)
+		}
 	}
 	precinctStyle = (feature) => {
-		if (this.props.selectedPrecinct && this.props.selectedPrecinct.id === feature.properties.id)
+		if (this.props.selectedPrecinct && this.props.selectedPrecinct.id === feature.properties.id) {
 			return {
 				color: selectedPrecinctColor
 			}
+		}
 		return {
 			color: precinctColor
 		}
@@ -154,13 +156,13 @@ class StateMap extends React.Component {
 		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
 		let geojson;
 		// render either the states geojson or precincts geojson based on if there are precincts loaded
-		if (this.props.precincts.length === 0)
+		if (this.props.precincts.length === 0) {
 			geojson = <GeoJSON key={hash(this.props.states)} data={this.props.statesGeojson}
 				onEachFeature={this.onEachStateFeature.bind(this)} style={{ color: stateColor }} />
-		else
+		} else {
 			geojson = <GeoJSON key={this.props.precinctGeojsonKey} data={this.props.precinctsGeojson}
 				onEachFeature={this.onEachPrecinctFeature.bind(this)} style={this.precinctStyle} />
-
+		}
 		return (
 			<Map id="leaflet-map" center={this.state.center} zoom={this.state.zoom} viewport={this.state.viewport} ref={this.map}>
 				<div id="map-controls" className="leaflet-right leaflet-top" style={{ "pointerEvents": "auto" }}>

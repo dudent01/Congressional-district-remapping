@@ -48,7 +48,9 @@ export default function precinctReducer(state = initialState, action) {
         selectedPrecinct: action.precinct
       }
     case SET_PRECINCT_GEOJSON: 
-      if (state.geojson == null) return state
+      if (state.geojson == null) {
+        return state
+      }
       const index = state.geojson.features.findIndex(p => p.properties.id === action.id)
       if (index < 0 ) return state
       action.geojson.properties.id = action.id
