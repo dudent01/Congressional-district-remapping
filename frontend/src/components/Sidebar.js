@@ -120,11 +120,16 @@ class Sidebar extends React.Component {
 							<Button block className="text-left">Combine Precinct</Button> Combine two existing precincts into one.
 						</div>
 						<div className="mb-4">
-							<Button block className="text-left" onClick={e => this.props.enableDrawPolygon()}>
+							<Button block className="text-left">
 								Edit Boundary Data
 							</Button>
-							Edit the boundarys for a given precinct. After clicking, draw the new boundaries on the map. <br></br>
-							*You can also edit the boundary data by clicking on the polygon in the toolbar in the map.
+							<ol>
+								<li>To Edit boundary data first select a precinct.</li>
+								<li>Next, click on the 'Edit layers' tool in the toolbar on the top left corner of the map.</li>
+								<li>Drag the edges around the polygon to change its shape.</li>
+								<li>When you are done, hit 'Save' next to the 'Edit layers' tool.</li>
+								<li>Confirm if you want to permanently save this change.</li>
+							</ol>
 						</div>
 					</Container>
 				</Tab>

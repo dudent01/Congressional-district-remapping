@@ -75,9 +75,11 @@ class StateMap extends React.Component {
 		let center = state.geojson.properties.CENTER;
 		let zoom = state.geojson.properties.ZOOM;
 		this.setState({ center, zoom, isStateSelected: true })
+		this.resetFeaturedGroup()
 	}
 	handleResetClicked() {
 		this.props.removePrecincts() // remove precincts to reset map
+		this.resetFeaturedGroup()
 		this.setState({
 			center: defaultMapCenter,
 			zoom: defaultMapZoom,
@@ -98,32 +100,25 @@ class StateMap extends React.Component {
 			}
 		});
 	}
+	resetFeaturedGroup() {  // Fix an error where when editing there are still editing layers showing
+		let layerContainer = this.refs.featuredGroup.contextValue.layerContainer
+		layerContainer.eachLayer(layer => {
+			layerContainer.removeLayer(layer)
+			layer.addTo(this.map.current.contextValue.map)
+		})
+	}
 	onEachPrecinctFeature(feature, layer) {
 		layer.on({
 			click: e => {
-				// let layerContainer = this.refs.featuredGroup.contextValue.layerContainer
-				// layerContainer.eachLayer(layer => {
-				// 	layerContainer.removeLayer(layer)
-				// 	layer.addTo(this.map.current.contextValue.map)
-				// })
-				// let layer = e.target;
-				// this.refs.featuredGroup.contextValue.layerContainer.addLayer(layer)
+				this.resetFeaturedGroup()
+				let layer = e.target;
+				if (layer.feature.geometry.type === 'Polygon') { // Only enable editing for Polygons
+					this.refs.featuredGroup.contextValue.layerContainer.addLayer(layer)
+				}
 				let id = layer.feature.properties.id;
 				this.props.onSelectPrecinct(id, this.state.election, this.props.precincts)
 			}
 		});
-	}
-	handleLeafletCreate(e) {
-		if (e.layerType !== 'polygon' || !this.props.selectedPrecinct) {
-			return;
-		}
-		let id = this.props.selectedPrecinct.id
-		let geojson = e.layer.toGeoJSON()
-		if (window.confirm(`Would you like to set this as the boundary data for Precinct ${this.props.selectedPrecinct.name}?`)) {
-			this.props.updatePrecinctGeojson(id, geojson).then(() => this.map.current.contextValue.map.removeLayer(e.layer))
-		} else {
-			this.map.current.contextValue.map.removeLayer(e.layer)
-		}
 	}
 	handleCheckBoxChange(e) {
 		if (e.target.id === "nationalParks") {
@@ -139,6 +134,22 @@ class StateMap extends React.Component {
 				console.log("Congressional Bounds Enabled");
 			}
 		}
+	}
+	handleLeafletEdit(e) {
+		if (!this.props.selectedPrecinct) {
+			return;
+		}
+		e.layers.eachLayer(layer => {
+			let geojson = layer.toGeoJSON();
+			let { id, name } = geojson.properties;
+			if (!id) {
+				return;
+			}
+			geojson.properties = {}
+			if (window.confirm(`Would you like to set this as the official boundary data for Precinct ${name}?`)) {
+				this.props.updatePrecinctGeojson(id, geojson).then(() => this.resetFeaturedGroup())
+			}
+		})
 	}
 	precinctStyle = (feature) => {
 		let color = precinctColor;
@@ -191,7 +202,7 @@ class StateMap extends React.Component {
 					<EditControl
 						ref={this.edit}
 						position='topleft'
-						onCreated={this.handleLeafletCreate.bind(this)}
+						onEdited={this.handleLeafletEdit.bind(this)}
 						draw={leafletDrawOptions}
 					/>
 				</FeatureGroup>
