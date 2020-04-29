@@ -7,7 +7,7 @@ const mapStateToProps = s => {
 	return {
 		selectedPrecinct: s.precincts.selectedPrecinct,
 		isFetchingSelectedPrecinct: s.precincts.isFetchingSelectedPrecinct,
-		selectedState:s.states.selectedState
+		selectedState: s.states.selectedState
 	}
 }
 
@@ -22,6 +22,7 @@ class Sidebar extends React.Component {
 
 	render() {
 		let election = null;
+		console.log(this.props.selectedState);
 		if (this.props.selectedPrecinct) {
 			if (this.props.selectedPrecinct.election) {
 				election = <tr>
