@@ -28,10 +28,13 @@ for i in range(numPrecincts):
         errors[i].append(mperror)
         utah_precincts[i]['properties']['errors'] = errors[i][0]
         errorID += 1
-    cnames[i] = utah_precincts[i]['properties']['cname']
-   # ring = LinearRing(utah_precincts[i]['geometry']["coordinates"][0])
-  #  boundaries[i] = ring
- #   if(utah_precincts[i]['properties']['cname'] != cnames[0]):
-#        print(boundaries[i])
+
 with open("C:/Users/Denis/Software Engineering/Data/Utah/Precincts/Utah.json", "w") as utah:
-    json.dump(utah_precincts, utah, indent= 2)
+    json.dump(utah_data, utah, indent= 2)
+
+'''for i in range(numPrecincts):
+    cnames[i] = utah_precincts[i]['properties']['cname']
+    ring = LinearRing(utah_precincts[i]['geometry']["coordinates"][0])
+    boundaries[i] = ring
+    if (utah_precincts[i]['properties']['cname'] != cnames[0]):
+        print(boundaries[i])'''
