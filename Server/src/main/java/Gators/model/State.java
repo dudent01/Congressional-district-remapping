@@ -16,6 +16,12 @@ public class State extends Territory {
     @Column
     private String abbr;
 
+    @Column
+    private String precinctsDataSource;
+
+    @Column
+    private String electionsDataSource;
+
     @JsonIgnore
     @OneToMany(mappedBy = "state")
     private Set<Precinct> precincts;

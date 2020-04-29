@@ -1,6 +1,6 @@
 import {
   DELETE_PRECINCTS, REQUEST_PRECINCTS, RECEIVE_PRECINCTS, REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA,
-  SET_SELECTED_PRECINCT
+  SET_SELECTED_PRECINCT, SET_PRECINCT_GEOJSON
 } from './types';
 import axios from 'axios';
 
@@ -39,7 +39,13 @@ export const fetchPrecinctsByState = (abbr) => {
       const { data } = await axios.get(process.env.REACT_APP_API_URL + `/api/precinct/state/${abbr}`);
       let features = [];
       for (let precinct of data) {
-        precinct.geojson = JSON.parse(precinct.geojson)
+        if(!precinct.geojson) continue;
+        try {
+          precinct.geojson = JSON.parse(precinct.geojson)
+        }
+        catch {
+          continue;
+        }
         precinct.geojson.properties.id = precinct.id  // Set id in geojson for use in the Leaflet API onClick handler
         features = features.concat(precinct.geojson);
         delete precinct.geojson;
@@ -50,5 +56,11 @@ export const fetchPrecinctsByState = (abbr) => {
     catch (error) {
       throw (error);
     }
+  }
+}
+export const updatePrecinctGeojson = (id, geojson) => {
+  return async (dispatch) => {
+    await axios.put(process.env.REACT_APP_API_URL + `/api/precinct/${id}/geojson`, geojson)
+    dispatch({ type: SET_PRECINCT_GEOJSON, geojson, id })
   }
 }

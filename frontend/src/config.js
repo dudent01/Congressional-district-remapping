@@ -7,7 +7,7 @@ export const leafletDrawOptions = {
   polygon: {
     shapeOptions: {
       color: '#f357a1',
-      weight: 2
+      weight: 5
     },
     allowIntersection: false, // Restricts shapes to simple polygons
     drawError: {

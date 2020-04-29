@@ -6,7 +6,7 @@ import { Form, Button } from "react-bootstrap"
 import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor, leafletDrawOptions } from "../config"
 import { connect } from 'react-redux';
 import { selectState, deselectState } from '../actions/stateActions';
-import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData } from '../actions/precinctActions';
+import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson } from '../actions/precinctActions';
 // TODO: replace hashing object for key with something else because of slow performance 
 
 const mapStateToProps = s => {
@@ -16,6 +16,7 @@ const mapStateToProps = s => {
 		selectedState: s.states.selectedState,
 
 		precinctsGeojson: s.precincts.geojson,
+		precinctGeojsonKey: s.precincts.geojsonKey,
 		precincts: s.precincts.precincts,
 		selectedPrecinct: s.precincts.selectedPrecinct,
 	}
@@ -33,6 +34,9 @@ const mapDispatchToProps = dispatch => {
 		},
 		onSelectPrecinct: (id, election, precincts) => {
 			dispatch(fetchPrecinctData(id, election, precincts))
+		},
+		updatePrecinctGeojson: async (id, geojson) => {
+			await dispatch(updatePrecinctGeojson(id, geojson))
 		}
 	};
 };
@@ -40,24 +44,19 @@ const mapDispatchToProps = dispatch => {
 class StateMap extends React.Component {
 	constructor(props) {
 		super(props);
+		this.geojson = React.createRef();
+		this.edit = React.createRef();
+		this.map = React.createRef();
 		this.state = {
 			center: defaultMapCenter,
 			zoom: defaultMapZoom,
 			viewport: {},
 			election: defaultElection,
 			isStateSelected: false,
-			isPrecinctSelected: false
+			isPrecinctSelected: false,
 		}
 	}
-	componentWillReceiveProps(nextProps) {  // whenever precincts geojson or states geojson is loaded, update the map
-		if (nextProps.statesGeojson) {
-			this.setState({ geojson: nextProps.statesGeojson });
-		}
-		if (nextProps.precincts) {
-			this.setState({ geojson: nextProps.precinctsGeojson });
-		}
-	}
-	handleSelectState(abbr) { //handles selection from the drop-down menu
+	handleSelectState(abbr) {
 		this.props.onSelectState(abbr);
 		let state;
 		for (let s of this.props.states) {
@@ -87,7 +86,8 @@ class StateMap extends React.Component {
 				let zoom = layer.feature.properties.ZOOM;
 				this.props.onSelectState(abbr);
 				this.setState({
-					center, zoom, isStateSelected: true})
+					center, zoom, isStateSelected: true
+				})
 			}
 		});
 	}
@@ -102,8 +102,14 @@ class StateMap extends React.Component {
 	}
 	_onCreate(e) {
 		if (e.layerType !== 'polygon') return;
-		console.log(e)
-		console.log(JSON.stringify(e.layer.toGeoJSON()))
+		if (!this.props.selectedPrecinct) return;
+
+		let id = this.props.selectedPrecinct.id
+		let geojson = e.layer.toGeoJSON()
+		if (window.confirm(`Would you like to set the boundary data for Precinct ${id}?`))
+			this.props.updatePrecinctGeojson(id, geojson).then(() => this.map.current.contextValue.map.removeLayer(e.layer))
+		else
+			this.map.current.contextValue.map.removeLayer(e.layer)
 	}
 	checkBoxChange(e) {
 		if (e.target.id === "nationalParks") {
@@ -128,11 +134,11 @@ class StateMap extends React.Component {
 			geojson = <GeoJSON key={hash(this.props.states)} data={this.props.statesGeojson}
 				onEachFeature={this.onEachStateFeature.bind(this)} style={{ color: stateColor }} />
 		else
-			geojson = <GeoJSON key={hash(this.props.precincts[0] || {})} data={this.props.precinctsGeojson}
+			geojson = <GeoJSON key={this.props.precinctGeojsonKey} data={this.props.precinctsGeojson}
 				onEachFeature={this.onEachPrecinctFeature.bind(this)} style={{ color: precinctColor }} />
 
 		return (
-			<Map id="leaflet-map" center={this.state.center} zoom={this.state.zoom} ref="map" viewport={this.state.viewport}>
+			<Map id="leaflet-map" center={this.state.center} zoom={this.state.zoom} viewport={this.state.viewport} ref={this.map}>
 				<div id="map-controls" className="leaflet-right leaflet-top" style={{ "pointerEvents": "auto" }}>
 					<Form inline className="m-2">
 						<Form.Control as="select" placeholder="Select one" className="mr-2" value={this.props.selectedState}
@@ -154,7 +160,7 @@ class StateMap extends React.Component {
 					</Form>
 					<Form inline className="m-2">
 						<Form.Group className="mr-2" controlId="nationalParks">
-							<Form.Check type="checkbox" id="nationalParks"  disabled={!this.state.isStateSelected} onClick={this.checkBoxChange} label="Toggle National Parks" />
+							<Form.Check type="checkbox" id="nationalParks" disabled={!this.state.isStateSelected} onClick={this.checkBoxChange} label="Toggle National Parks" />
 						</Form.Group>
 						<Form.Group controlId="districtBounds">
 							<Form.Check type="checkbox" id="districtBounds" disabled={!this.state.isStateSelected} onClick={this.checkBoxChange} label="Toggle District Boundaries" />
@@ -162,6 +168,7 @@ class StateMap extends React.Component {
 				</div>
 				<FeatureGroup>
 					<EditControl
+						ref={this.edit}
 						position='topleft'
 						onEdited={this._onEditPath}
 						onCreated={this._onCreate.bind(this)}
