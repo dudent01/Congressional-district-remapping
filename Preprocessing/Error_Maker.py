@@ -24,22 +24,24 @@ def errorMaker(errorCategory, interestPoints, id, precincts):
 
     return error
 
-def mapCoverageErrorMaker(ghostArea):
+def mapCoverageErrorMaker(generalError, ghostArea):
     '''
+    :param generalError     Error that is being expanded
     :param ghostArea:       JSON object representing the area that is not in any precinct
     :return:                Additional line for JSON error object
     '''
-    error = {"geojson" : ghostArea}
+    generalError["geojson"] = ghostArea
 
-    return error
+    return generalError
 
-def dataErrorMaker(category, key):
+def dataErrorMaker(generalError, category, key):
     '''
+    :param generalError     Error that is being expanded
     :param category:        Category of data in which the error occurs
     :param key:             Key identifying where in the category the data occurs
     :return:                Additional lines for JSON error object
     '''
-    error = {"data category" : category,
-             "data key" : key}
+    generalError["data category"] = category
+    generalError["data key"] = key
 
-    return error
+    return generalError
