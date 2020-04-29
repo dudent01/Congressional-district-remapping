@@ -3,10 +3,12 @@ import React from "react";
 import { Map, GeoJSON, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
-import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor, leafletDrawOptions } from "../config"
+import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor, leafletDrawOptions, selectedPrecinctColor } from "../config"
 import { connect } from 'react-redux';
 import { selectState, deselectState } from '../actions/stateActions';
 import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson } from '../actions/precinctActions';
+import { setDrawPolygon } from '../actions/mapActions'
+import L from 'leaflet'
 // TODO: replace hashing object for key with something else because of slow performance 
 
 const mapStateToProps = s => {
@@ -19,6 +21,7 @@ const mapStateToProps = s => {
 		precinctGeojsonKey: s.precincts.geojsonKey,
 		precincts: s.precincts.precincts,
 		selectedPrecinct: s.precincts.selectedPrecinct,
+		drawPolygon: s.map.drawPolygon
 	}
 }
 const mapDispatchToProps = dispatch => {
@@ -37,6 +40,9 @@ const mapDispatchToProps = dispatch => {
 		},
 		updatePrecinctGeojson: async (id, geojson) => {
 			await dispatch(updatePrecinctGeojson(id, geojson))
+		},
+		setDrawPolygon: (drawPolygon) => {
+			dispatch(setDrawPolygon(drawPolygon))
 		}
 	};
 };
@@ -55,6 +61,9 @@ class StateMap extends React.Component {
 			isStateSelected: false,
 			isPrecinctSelected: false,
 		}
+	}
+	componentDidMount() {
+		this.props.setDrawPolygon(new L.Draw.Polygon(this.map.current.leafletElement, leafletDrawOptions.polygon))
 	}
 	handleSelectState(abbr) {
 		this.props.onSelectState(abbr);
@@ -94,7 +103,13 @@ class StateMap extends React.Component {
 	onEachPrecinctFeature(feature, layer) {
 		layer.on({
 			click: e => {
-				let layer = e.target;
+				// let layerContainer = this.refs.featuredGroup.contextValue.layerContainer
+				// layerContainer.eachLayer(layer => {
+				// 	layerContainer.removeLayer(layer)
+				// 	layer.addTo(this.map.current.contextValue.map)
+				// })
+				// let layer = e.target;
+				// this.refs.featuredGroup.contextValue.layerContainer.addLayer(layer)
 				let id = layer.feature.properties.id;
 				this.props.onSelectPrecinct(id, this.state.election, this.props.precincts)
 			}
@@ -106,10 +121,19 @@ class StateMap extends React.Component {
 
 		let id = this.props.selectedPrecinct.id
 		let geojson = e.layer.toGeoJSON()
-		if (window.confirm(`Would you like to set the boundary data for Precinct ${id}?`))
+		if (window.confirm(`Would you like to set this as the boundary data for Precinct ${this.props.selectedPrecinct.name}?`))
 			this.props.updatePrecinctGeojson(id, geojson).then(() => this.map.current.contextValue.map.removeLayer(e.layer))
 		else
 			this.map.current.contextValue.map.removeLayer(e.layer)
+	}
+	precinctStyle = (feature) => {
+		if (this.props.selectedPrecinct && this.props.selectedPrecinct.id === feature.properties.id)
+			return {
+				color: selectedPrecinctColor
+			}
+		return {
+			color: precinctColor
+		}
 	}
 	checkBoxChange(e) {
 		if (e.target.id === "nationalParks") {
@@ -135,7 +159,7 @@ class StateMap extends React.Component {
 				onEachFeature={this.onEachStateFeature.bind(this)} style={{ color: stateColor }} />
 		else
 			geojson = <GeoJSON key={this.props.precinctGeojsonKey} data={this.props.precinctsGeojson}
-				onEachFeature={this.onEachPrecinctFeature.bind(this)} style={{ color: precinctColor }} />
+				onEachFeature={this.onEachPrecinctFeature.bind(this)} style={this.precinctStyle} />
 
 		return (
 			<Map id="leaflet-map" center={this.state.center} zoom={this.state.zoom} viewport={this.state.viewport} ref={this.map}>
@@ -166,7 +190,7 @@ class StateMap extends React.Component {
 							<Form.Check type="checkbox" id="districtBounds" disabled={!this.state.isStateSelected} onClick={this.checkBoxChange} label="Toggle District Boundaries" />
 						</Form.Group></Form>
 				</div>
-				<FeatureGroup>
+				<FeatureGroup ref="featuredGroup">
 					<EditControl
 						ref={this.edit}
 						position='topleft'

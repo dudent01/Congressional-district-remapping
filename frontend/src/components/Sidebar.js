@@ -1,7 +1,8 @@
 import React from "react";
-import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner } from "react-bootstrap"
+import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container } from "react-bootstrap"
 import L from "leaflet"
 import { connect } from 'react-redux';
+import { enableDrawPolygon } from '../actions/mapActions'
 
 const mapStateToProps = s => {
 	return {
@@ -9,6 +10,11 @@ const mapStateToProps = s => {
 		isFetchingSelectedPrecinct: s.precincts.isFetchingSelectedPrecinct,
 		selectedState: s.states.selectedState,
 		states: s.states.states,
+	}
+}
+const mapDispatchToProps = dispatch => {
+	return {
+		enableDrawPolygon: () => dispatch(enableDrawPolygon())
 	}
 }
 
@@ -19,7 +25,6 @@ class Sidebar extends React.Component {
 			errorsCount: 0
 		}
 	}
-
 
 	render() {
 		let election = null;
@@ -71,47 +76,53 @@ class Sidebar extends React.Component {
 							</Table>
 							:
 							this.props.selectedState !== "" ?
-							<div>
-							<h2>Data Sources for This State:</h2>
-							<h5>Precincts Data Source:</h5>
-							{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.precinctsDataSource)}
-							<h5>Elections Data Source:</h5>
-							{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.electionsDataSource)}
-							</div>
-							:
-							<span><h2>Welcome to the Precinct Error Correction Program!</h2>To begin, please select a state, then select a precinct whose data you would wish to view. It will then be shown here.</span>
+								<div>
+									<h2>Data Sources for This State:</h2>
+									<h5>Precincts Data Source:</h5>
+									{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.precinctsDataSource)}
+									<h5>Elections Data Source:</h5>
+									{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.electionsDataSource)}
+								</div>
+								:
+								<span><h2>Welcome to the Precinct Error Correction Program!</h2>To begin, please select a state, then select a precinct whose data you would wish to view. It will then be shown here.</span>
 					}
 					{election}
 				</Tab>
 				<Tab eventKey="err" disabled={this.props.selectedState === ""} title={<div>Errors <Badge variant="danger">{this.state.errorsCount}</Badge></div>}>
 					<div>
-						{ this.state.precinctErrors ?
-						<ListGroup>
-							{this.state.precinctErrors}
-						</ListGroup>
-						: <span>There are no known errors in the selected state.</span>
+						{this.state.precinctErrors ?
+							<ListGroup>
+								{this.state.precinctErrors}
+							</ListGroup>
+							: <span>There are no known errors in the selected state.</span>
 						}
 					</div>
 				</Tab>
 				<Tab eventKey="edit" disabled={this.props.selectedPrecinct === null || this.props.selectedState === ""} title="Tools">
-					<div className="mb-4">
-						<Button block className="text-left" onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>
-							Add Edge
-						</Button>
-						Add an edge between two precincts.
-					</div>
-					<div className="mb-4">
-						<Button block className="text-left">Combine Precinct</Button> Combine two existing precincts into one.
-					</div>
-					<div className="mb-4">
-						<Button block className="text-left" onClick={e => new L.Draw.Polygon(this.refs.map.leafletElement).enable()}>
-							Generate Ghost Precinct
-						</Button>
-						Create a ghost precinct in case an area where the geographic union of precincts does not fully cover the area of the state
-					</div>
+					<Container>
+						{this.props.selectedPrecinct &&
+							<h2>Precinct {this.props.selectedPrecinct.name}</h2>
+						}
+						<div className="mb-4">
+							<Button block className="text-left" onClick={e => {}}>
+								Add Edge
+							</Button>
+							Add an edge between two precincts.
+						</div>
+						<div className="mb-4">
+							<Button block className="text-left">Combine Precinct</Button> Combine two existing precincts into one.
+						</div>
+						<div className="mb-4">
+							<Button block className="text-left" onClick={e => this.props.enableDrawPolygon()}>
+								Edit Boundary Data
+							</Button>
+							Edit the boundarys for a given precinct. After clicking, draw the new boundaries on the map. <br></br>
+							*You can also edit the boundary data by clicking on the polygon in the toolbar in the map.
+						</div>
+					</Container>
 				</Tab>
 			</Tabs>
 		)
 	}
 }
-export default connect(mapStateToProps, null)(Sidebar);
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);

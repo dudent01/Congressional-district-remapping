@@ -47,6 +47,7 @@ export const fetchPrecinctsByState = (abbr) => {
           continue;
         }
         precinct.geojson.properties.id = precinct.id  // Set id in geojson for use in the Leaflet API onClick handler
+        precinct.geojson.properties.color = "red"
         features = features.concat(precinct.geojson);
         delete precinct.geojson;
       }
