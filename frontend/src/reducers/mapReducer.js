@@ -12,8 +12,9 @@ export default function mapReducer(state = initialState, action) {
         drawPolygon: action.drawPolygon
       }
     case ENABLE_DRAW_POLYGON:
-      if (state.drawPolygon)
+      if (state.drawPolygon) {
         state.drawPolygon.enable()
+      }
       return state
     default:
       return state

@@ -22,12 +22,12 @@ for state in data['features']:
     del state['properties']['ABBR']
 
     if abbr == "UT":
-        precincts_data_source = "Harvard Dataverse"
-        elections_data_source = "Utah.gov OpenDataCatalog"
+        precincts_source = "Harvard Dataverse"
+        elections_source = "Utah.gov OpenDataCatalog"
     else:
-        precincts_data_source = None
-        elections_data_source = None
-    vals.append((json.dumps(state), name, abbr, precincts_data_source, elections_data_source))
-sql = "INSERT INTO state (geojson, name, abbr, precincts_data_source, elections_data_source) VALUES (%s,%s,%s,%s,%s)"
+        precincts_source = None
+        elections_source = None
+    vals.append((json.dumps(state), name, abbr, precincts_source, elections_source))
+sql = "INSERT INTO state (geojson, name, abbr, precincts_source, elections_source) VALUES (%s,%s,%s,%s,%s)"
 mycursor.executemany(sql, vals)
 mydb.commit()

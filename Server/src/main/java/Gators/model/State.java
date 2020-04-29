@@ -17,10 +17,10 @@ public class State extends Territory {
     private String abbr;
 
     @Column
-    private String precinctsDataSource;
+    private String precinctsSource;
 
     @Column
-    private String electionsDataSource;
+    private String electionsSource;
 
     @JsonIgnore
     @OneToMany(mappedBy = "state")

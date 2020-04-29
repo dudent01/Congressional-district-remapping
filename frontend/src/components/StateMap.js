@@ -37,12 +37,12 @@ const mapDispatchToProps = dispatch => {
 		onSelectPrecinct: (id, election, precincts) => {
 			dispatch(fetchPrecinctData(id, election, precincts))
 		},
+		setDrawPolygon: (drawPolygon) => {
+			dispatch(setDrawPolygon(drawPolygon))
+		},
 		updatePrecinctGeojson: async (id, geojson) => {
 			await dispatch(updatePrecinctGeojson(id, geojson))
 		},
-		setDrawPolygon: (drawPolygon) => {
-			dispatch(setDrawPolygon(drawPolygon))
-		}
 	};
 };
 
@@ -125,17 +125,7 @@ class StateMap extends React.Component {
 			this.map.current.contextValue.map.removeLayer(e.layer)
 		}
 	}
-	precinctStyle = (feature) => {
-		if (this.props.selectedPrecinct && this.props.selectedPrecinct.id === feature.properties.id) {
-			return {
-				color: selectedPrecinctColor
-			}
-		}
-		return {
-			color: precinctColor
-		}
-	}
-	checkBoxChange(e) {
+	handleCheckBoxChange(e) {
 		if (e.target.id === "nationalParks") {
 			if (e.target.checked === false) {
 				console.log("National Parks Disabled");
@@ -149,6 +139,13 @@ class StateMap extends React.Component {
 				console.log("Congressional Bounds Enabled");
 			}
 		}
+	}
+	precinctStyle = (feature) => {
+		let color = precinctColor;
+		if (this.props.selectedPrecinct && this.props.selectedPrecinct.id === feature.properties.id) {
+			color = selectedPrecinctColor;
+		}
+		return { color }
 	}
 	render() {
 		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
@@ -184,10 +181,10 @@ class StateMap extends React.Component {
 					</Form>
 					<Form inline className="m-2">
 						<Form.Group className="mr-2" controlId="nationalParks">
-							<Form.Check type="checkbox" id="nationalParks" disabled={!this.state.isStateSelected} onClick={this.checkBoxChange} label="Toggle National Parks" />
+							<Form.Check type="checkbox" id="nationalParks" disabled={!this.state.isStateSelected} onClick={this.handleCheckBoxChange} label="Toggle National Parks" />
 						</Form.Group>
 						<Form.Group controlId="districtBounds">
-							<Form.Check type="checkbox" id="districtBounds" disabled={!this.state.isStateSelected} onClick={this.checkBoxChange} label="Toggle District Boundaries" />
+							<Form.Check type="checkbox" id="districtBounds" disabled={!this.state.isStateSelected} onClick={this.handleCheckBoxChange} label="Toggle District Boundaries" />
 						</Form.Group></Form>
 				</div>
 				<FeatureGroup ref="featuredGroup">
