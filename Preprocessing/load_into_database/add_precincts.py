@@ -26,7 +26,7 @@ for precinct in utah['features']:
         for name, value in precinct["properties"]["presidential"].items():
             sql = "INSERT INTO candidate_result (name, party, votes, election_id) VALUES (%s,%s,%s,%s)"
             vals.append((name, value["party"].upper(), value["votes"], pres2016_id))
-            mycursor.executemany(sql, vals)
+        mycursor.executemany(sql, vals)
         del precinct["properties"]["presidential"]
     else:
         pres2016_id = None
