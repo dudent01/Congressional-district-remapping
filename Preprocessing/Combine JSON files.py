@@ -29,7 +29,7 @@ with open("C:/Users/Denis/Software Engineering/Data/Utah/Precincts/Utah.json", "
 
 # cname added by combined county id and precinct id for unique identifier
 for precinct in utah_precincts['features']:
-    new_id = "UT_" + precinct['properties']['countyid'] + "_" + precinct['properties']['precinctid']
+    new_id = "UT_" + precinct['properties']['countyid'] + "_" + precinct['properties']['precinctid'] + "_" + precinct['properties']['vistaid']
     cname = {'cname':new_id}
     precinct['properties'].update(cname)
 
@@ -57,6 +57,9 @@ for precinct in utah_precincts['features']:
                             "Stein"     : {"party" : "green", "votes": stein, "percentage": stein1}}}
             precinct['properties'].update(presidential)
 
+            errors = {"errors" : {}}
+            precinct['properties'].update(errors)
+
 sources = {"sources" : {"precincts"  : "Utah.gov OpenDataCatalog",
                         "voting"     : "Harvard Dataverse"}}
 utah_precincts.update(sources)
@@ -67,3 +70,24 @@ with open("C:/Users/Denis/Software Engineering/Data/Utah/Precincts/Utah.json", "
     json.dump(utah_precincts, utah, indent= 2)
 
 utah.close()
+'''
+with open("C:/Users/Denis/Software Engineering/Data/Utah/Precincts/Utah.json", "r") as utah:
+    utah_data = json.load(utah)
+utah_precincts = utah_data['features']
+
+i = 0
+length = len(utah_precincts)
+while(i < length):
+    if(utah_precincts[i]['geometry'] == None):
+        utah_precincts.pop(i)
+        length -= 1
+    i += 1
+
+i = 0
+while(i < length):
+    if(utah_precincts[i]['geometry'] == None):
+        print(utah_precincts[i]['properties']['countyid'])
+    i += 1
+
+with open("C:/Users/Denis/Software Engineering/Data/Utah/Precincts/Utah.json", "w") as utah:
+    json.dump(utah_precincts, utah, indent=2)'''
