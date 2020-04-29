@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container } from "react-bootstrap"
+import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner } from "react-bootstrap"
 import L from "leaflet"
 import { connect } from 'react-redux';
 
@@ -7,7 +7,8 @@ const mapStateToProps = s => {
 	return {
 		selectedPrecinct: s.precincts.selectedPrecinct,
 		isFetchingSelectedPrecinct: s.precincts.isFetchingSelectedPrecinct,
-		selectedState: s.states.selectedState
+		selectedState: s.states.selectedState,
+		states: s.states.states,
 	}
 }
 
@@ -22,7 +23,6 @@ class Sidebar extends React.Component {
 
 	render() {
 		let election = null;
-		console.log(this.props.selectedState);
 		if (this.props.selectedPrecinct) {
 			if (this.props.selectedPrecinct.election) {
 				election = <tr>
@@ -59,32 +59,29 @@ class Sidebar extends React.Component {
 		return (
 			<Tabs id="sidebar" activeKey={this.state.key} onSelect={key => this.setState({ key })} transition={false} className="mb-2">
 				<Tab eventKey="info" title="Information" >
-					<Container>
-						{
-							this.props.selectedPrecinct ?
-								<>
-									<h2>Precinct {this.props.selectedPrecinct.name}</h2>
-									<Table striped hover>
-										<tbody>
-											<tr>
-												<td><strong>Name:</strong></td>
-												<td>{this.props.selectedPrecinct.name}</td>
-											</tr>
-											<tr>
-												<td><strong>ID:</strong></td>
-												<td>{this.props.selectedPrecinct.id}</td>
-											</tr>
-										</tbody>
-									</Table>
-								</>
-								:
-								<div>
-									<h2>Welcome to the Precinct Error Correction Program!</h2>
-									To begin, please select a state, then select a precinct whose data you would wish to view. It will then be shown here.
-								</div>
-						}
-						{election}
-					</Container>
+					{
+						this.props.selectedPrecinct ?
+							<Table striped hover>
+								<tbody>
+									<tr>
+										<td><strong>Precinct Name:</strong></td>
+										<td>{this.props.selectedPrecinct.name}</td>
+									</tr>
+								</tbody>
+							</Table>
+							:
+							this.props.selectedState !== "" ?
+							<div>
+							<h2>Data Sources for This State:</h2>
+							<h5>Precincts Data Source:</h5>
+							{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.precinctsDataSource)}
+							<h5>Elections Data Source:</h5>
+							{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.electionsDataSource)}
+							</div>
+							:
+							<span><h2>Welcome to the Precinct Error Correction Program!</h2>To begin, please select a state, then select a precinct whose data you would wish to view. It will then be shown here.</span>
+					}
+					{election}
 				</Tab>
 				<Tab eventKey="err" disabled={this.props.selectedState === ""} title={<div>Errors <Badge variant="danger">{this.state.errorsCount}</Badge></div>}>
 					<div>
