@@ -39,6 +39,4 @@ public class Precinct extends Territory {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private State state;
-
-
 }
