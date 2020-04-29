@@ -34,7 +34,6 @@ class Sidebar extends React.Component {
 					<th>Politcal Party</th>
 					<th>Votes</th>
 				</tr>
-
 				election = <>
 					<b className="text-center">{this.props.selectedPrecinct.election.type.replace("_", " ")}</b>
 					<Table hover variant="danger" bordered>
@@ -52,38 +51,38 @@ class Sidebar extends React.Component {
 						</tbody>
 					</Table>
 				</>
-			}
-			else if (this.props.isFetchingSelectedPrecinct) {
+			} else if (this.props.isFetchingSelectedPrecinct) {
 				election = <div className="text-center"><Spinner animation="border" /></div>
-			}
-			else if (!this.props.isFetchingSelectedPrecinct) {
+			} else if (!this.props.isFetchingSelectedPrecinct) {
 				election = <div>This precinct has no election data.</div>
 			}
 		}
 		return (
 			<Tabs id="sidebar" activeKey={this.state.key} onSelect={key => this.setState({ key })} transition={false} className="mb-2">
 				<Tab eventKey="info" title="Information" >
-					{
-						this.props.selectedPrecinct ?
-							<Table striped hover>
-								<tbody>
-									<tr>
-										<td><strong>Precinct Name:</strong></td>
-										<td>{this.props.selectedPrecinct.name}</td>
-									</tr>
-								</tbody>
-							</Table>
+					{this.props.selectedPrecinct ?
+						<Table striped hover>
+							<tbody>
+								<tr>
+									<td><strong>Precinct Name:</strong></td>
+									<td>{this.props.selectedPrecinct.name}</td>
+								</tr>
+							</tbody>
+						</Table>
+						:
+						this.props.selectedState !== "" ?
+							<div>
+								<h2>Data Sources for This State:</h2>
+								<h5>Precincts Data Source:</h5>
+								{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.precinctsDataSource)}
+								<h5>Elections Data Source:</h5>
+								{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.electionsDataSource)}
+							</div>
 							:
-							this.props.selectedState !== "" ?
-								<div>
-									<h2>Data Sources for This State:</h2>
-									<h5>Precincts Data Source:</h5>
-									{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.precinctsDataSource)}
-									<h5>Elections Data Source:</h5>
-									{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.electionsDataSource)}
-								</div>
-								:
-								<span><h2>Welcome to the Precinct Error Correction Program!</h2>To begin, please select a state, then select a precinct whose data you would wish to view. It will then be shown here.</span>
+							<div>
+								<h2>Welcome to the Precinct Error Correction Program!</h2>
+									To begin, please select a state, then select a precinct whose data you would wish to view. It will then be shown here.
+							</div>
 					}
 					{election}
 				</Tab>
@@ -103,7 +102,7 @@ class Sidebar extends React.Component {
 							<h2>Precinct {this.props.selectedPrecinct.name}</h2>
 						}
 						<div className="mb-4">
-							<Button block className="text-left" onClick={e => {}}>
+							<Button block className="text-left" onClick={e => { }}>
 								Add Edge
 							</Button>
 							Add an edge between two precincts.

@@ -9,7 +9,6 @@ import { selectState, deselectState } from '../actions/StateActions';
 import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson } from '../actions/PrecinctActions';
 import { setDrawPolygon } from '../actions/MapActions'
 import L from 'leaflet'
-// TODO: replace hashing object for key with something else because of slow performance 
 
 const mapStateToProps = s => {
 	return {
@@ -50,7 +49,6 @@ const mapDispatchToProps = dispatch => {
 class StateMap extends React.Component {
 	constructor(props) {
 		super(props);
-		this.geojson = React.createRef();
 		this.edit = React.createRef();
 		this.map = React.createRef();
 		this.state = {
@@ -115,7 +113,7 @@ class StateMap extends React.Component {
 			}
 		});
 	}
-	_onCreate(e) {
+	handleLeafletCreate(e) {
 		if (e.layerType !== 'polygon' || !this.props.selectedPrecinct) {
 			return;
 		}
@@ -196,9 +194,7 @@ class StateMap extends React.Component {
 					<EditControl
 						ref={this.edit}
 						position='topleft'
-						onEdited={this._onEditPath}
-						onCreated={this._onCreate.bind(this)}
-						onDeleted={this._onDeleted}
+						onCreated={this.handleLeafletCreate.bind(this)}
 						draw={leafletDrawOptions}
 					/>
 				</FeatureGroup>

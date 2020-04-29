@@ -7,7 +7,7 @@ const initialState = {
   precincts: [],
   selectedPrecinct: null,
   geojson: null,
-  geojsonKey: 0, // used in statemap for updating the map
+  geojsonKey: 0, // used in StateMap for rerendering the geojson
   isFetching: false,
   isFetchingSelectedPrecinct: false // If selecting demo/election data for clicked precinct.
 }
