@@ -13,16 +13,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-class PrecinctControllerTest {
+@Sql("/TestDemographicData.sql")
+class ControllerTests {
     private final TestRestTemplate testRestTemplate;
 
     @Autowired
-    public PrecinctControllerTest(TestRestTemplate testRestTemplate) {
+    public ControllerTests(TestRestTemplate testRestTemplate) {
         this.testRestTemplate = testRestTemplate;
     }
 
     @Test
-    @Sql("/TestDemographicData.sql")
     public void testDemographicById() {
         ResponseEntity<Demographic> response = testRestTemplate.getForEntity("/api/precinct/999999/demographic", Demographic.class);
         assertEquals(999999, response.getBody().getId());
