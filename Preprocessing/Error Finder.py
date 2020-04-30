@@ -72,7 +72,6 @@ def neighborSearch(precinct):
 
 ''' Next block commented '''
 for i in range(numPrecincts):
-    print(str(i/numPrecincts * 100) + "% done")
     neighborSearch(i)
 
 def errorAdder(precinct, error):
@@ -83,15 +82,15 @@ def errorAdder(precinct, error):
 
 for i in range(len(boundaries)):
     if(boundaries[i] != []):
-        precinctRing = LinearRing(boundaries[i][0].exterior.coords)
+        precinct = boundaries[i][0]
         for j in possibleNeighbors[i]:
-            if(precinctRing.crosses(LinearRing(boundaries[j][0].exterior.coords))):
+            if(precinct.overlaps(boundaries[j][0]) and (precinct.touches(boundaries[j][0]) == False)):
                 overlap = em.errorMaker(0, [], errorID, [utah_precincts[i]['properties']['cname'], utah_precincts[j]['properties']['cname']])
                 errorAdder(i, overlap)
-            if(boundaries[i][0].contains(boundaries[j][0])):
+            if(precinct.contains(boundaries[j][0])):
                 enclosed = em.errorMaker(2, [], errorID, [utah_precincts[i]['properties']['cname'], utah_precincts[j]['properties']['cname']])
                 errorAdder(i, enclosed)
-            elif(boundaries[i][0].within(boundaries[j][0])):
+            elif(precinct.within(boundaries[j][0])):
                 enclosed = em.errorMaker(2, [], errorID, [utah_precincts[j]['properties']['cname'], utah_precincts[i]['properties']['cname']])
                 errorAdder(i, enclosed)
 
