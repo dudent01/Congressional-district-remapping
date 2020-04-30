@@ -29,12 +29,12 @@ for i in range(numPrecincts):
     if(utah_precincts[i]['geometry'] == None):
         continue
     if(utah_precincts[i]['geometry']['type'] != "MultiPolygon"):
-        ring = LinearRing(utah_precincts[i]['geometry']['coordinates'][0])
-        boundaries[i].append(ring)
+        poly = Polygon(utah_precincts[i]['geometry']['coordinates'][0])
+        boundaries[i].append(poly)
     else:
         for j in range(len(utah_precincts[i]['geometry']['coordinates'][0])):
-            ring = LinearRing(utah_precincts[i]['geometry']['coordinates'][0][j])
-            boundaries[i].append(ring)
+            poly = Polygon(utah_precincts[i]['geometry']['coordinates'][0][j])
+            boundaries[i].append(poly)
 
 # Populating possibleNeighbors and recommendedRadius
 '''def neighborSearch(precinct, recommended):
@@ -63,25 +63,37 @@ def searchAllNeighbors(precinct, recommended):
 initial_recommend = list(range(numPrecincts))
 searchAllNeighbors(0, initial_recommend)'''
 def neighborSearch(precinct):
-    radius = 0
+    precinctCname = cnames[precinct]
+    precinctPNeighbors = possibleNeighbors[precinct]
     for candidate in range(numPrecincts):
-        if(cnames[candidate] != cnames[precinct]):
+        if(cnames[candidate] != precinctCname):
             if(boundaries[candidate] != [] and boundaries[precinct] != [] and boundaries[precinct][0].distance(boundaries[candidate][0]) <= 0.001):
-                possibleNeighbors[precinct].append(candidate)
+                precinctPNeighbors.append(candidate)
 
 ''' Next block commented '''
 for i in range(numPrecincts):
-    print(str(100 * i / numPrecincts) + "% done with a")
+    print(str(i/numPrecincts * 100) + "% done")
     neighborSearch(i)
 
+def errorAdder(precinct, error):
+    errors[precinct].append(error)
+    utah_precincts[precinct]['properties']['errors'] = errors[precinct]
+    global errorID
+    errorID += 1
+
 for i in range(len(boundaries)):
-    print(str(100 * i / numPrecincts) + "% done with b")
-    for j in possibleNeighbors[i]:
-        if(boundaries[i][0].crosses(boundaries[j][0])):
-            overlap = em.errorMaker(0, [], errorID, [utah_precincts[i]['properties']['cname'], utah_precincts[j]['properties']['cname']])
-            errors[i].append(overlap)
-            utah_precincts[i]['properties']['errors'] = errors[i][-1]
-            errorID += 1
+    if(boundaries[i] != []):
+        precinctRing = LinearRing(boundaries[i][0].exterior.coords)
+        for j in possibleNeighbors[i]:
+            if(precinctRing.crosses(LinearRing(boundaries[j][0].exterior.coords))):
+                overlap = em.errorMaker(0, [], errorID, [utah_precincts[i]['properties']['cname'], utah_precincts[j]['properties']['cname']])
+                errorAdder(i, overlap)
+            if(boundaries[i][0].contains(boundaries[j][0])):
+                enclosed = em.errorMaker(2, [], errorID, [utah_precincts[i]['properties']['cname'], utah_precincts[j]['properties']['cname']])
+                errorAdder(i, enclosed)
+            elif(boundaries[i][0].within(boundaries[j][0])):
+                enclosed = em.errorMaker(2, [], errorID, [utah_precincts[j]['properties']['cname'], utah_precincts[i]['properties']['cname']])
+                errorAdder(i, enclosed)
 
 # Identifying multipolygon errors
 for i in range(numPrecincts):
