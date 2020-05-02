@@ -81,18 +81,34 @@ def errorAdder(precinct, error):
     errorID += 1
 
 for i in range(len(boundaries)):
-    if(boundaries[i] != []):
+    if(boundaries[i] != []):                    # NEED TO FIX remove last empty geometry
         precinct = boundaries[i][0]
         for j in possibleNeighbors[i]:
-            if(precinct.overlaps(boundaries[j][0]) and (precinct.touches(boundaries[j][0]) == False)):
-                overlap = em.errorMaker(0, [], errorID, [utah_precincts[i]['properties']['cname'], utah_precincts[j]['properties']['cname']])
-                errorAdder(i, overlap)
             if(precinct.contains(boundaries[j][0])):
-                enclosed = em.errorMaker(2, [], errorID, [utah_precincts[i]['properties']['cname'], utah_precincts[j]['properties']['cname']])
+                enclosed_bounds = boundaries[j][0].bounds
+                points = list([[enclosed_bounds[0], enclosed_bounds[1]], [enclosed_bounds[2], enclosed_bounds[3]],
+                               [enclosed_bounds[0], enclosed_bounds[3]], [enclosed_bounds[2], enclosed_bounds[1]]])
+                enclosed = em.errorMaker(2, points, errorID, [utah_precincts[i]['properties']['cname'], utah_precincts[j]['properties']['cname']])
                 errorAdder(i, enclosed)
-            elif(precinct.within(boundaries[j][0])):
-                enclosed = em.errorMaker(2, [], errorID, [utah_precincts[j]['properties']['cname'], utah_precincts[i]['properties']['cname']])
+            if(precinct.within(boundaries[j][0])):
+                enclosed_bounds = precinct.bounds
+                points = list([[enclosed_bounds[0], enclosed_bounds[1]], [enclosed_bounds[2], enclosed_bounds[3]],
+                               [enclosed_bounds[0], enclosed_bounds[3]], [enclosed_bounds[2], enclosed_bounds[1]]])
+                enclosed = em.errorMaker(2, points, errorID, [utah_precincts[j]['properties']['cname'], utah_precincts[i]['properties']['cname']])
                 errorAdder(i, enclosed)
+            if (precinct.overlaps(boundaries[j][0]) and (precinct.touches(boundaries[j][0]) == False)):
+                if ((boundaries[i][0].is_valid == False) or
+                    (boundaries[j][0].is_valid == False)):  # NEED TO FIX self-intersecting polygons can't intersect
+                    continue
+                # print(explain_validity(boundaries[i][0]) + " i")
+                # print(explain_validity(boundaries[j][0]) + " j")
+                area = precinct.intersection(boundaries[j][0])
+                area_bounds = area.bounds
+                points = list([[area_bounds[0], area_bounds[1]], [area_bounds[2], area_bounds[3]],
+                               [area_bounds[0], area_bounds[3]], [area_bounds[2], area_bounds[1]]])
+                overlap = em.errorMaker(0, points, errorID, [utah_precincts[i]['properties']['cname'],
+                                                                  utah_precincts[j]['properties']['cname']])
+                errorAdder(i, overlap)
 
 # Identifying multipolygon errors
 for i in range(numPrecincts):
