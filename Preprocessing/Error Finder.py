@@ -7,10 +7,11 @@ from shapely.geometry import Polygon
 from shapely.validation import explain_validity
 from shapely.ops import unary_union
 from shapely.ops import shared_paths
-
 import Error_Maker as em
 
 errorID = 0
+coincident = 0.000705           # ~ 200 feet
+errorCopy = 0
 
 with open("C:/Users/Denis/Software Engineering/Data/Utah/Precincts/Utah.json", "r") as utah:
     utah_data = json.load(utah)
@@ -18,14 +19,11 @@ utah_precincts = utah_data['features']
 
 numPrecincts      = len(utah_precincts)
 possibleNeighbors = [[] for i in repeat(None, numPrecincts)]
-recommendsRadius  = [[] for i in repeat(None, numPrecincts)]
-cnames            = [[] for i in repeat(None, numPrecincts)]
 boundaries        = [[] for i in repeat(None, numPrecincts)]
 errors            = [[] for i in repeat(None, numPrecincts)]
 
 # Populating cnames and boundaries
 for i in range(numPrecincts):
-    cnames[i] = utah_precincts[i]['properties']['cname']
     if(utah_precincts[i]['geometry'] == None):
         continue
     if(utah_precincts[i]['geometry']['type'] != "MultiPolygon"):
@@ -36,41 +34,19 @@ for i in range(numPrecincts):
             poly = Polygon(utah_precincts[i]['geometry']['coordinates'][0][j])
             boundaries[i].append(poly)
 
-# Populating possibleNeighbors and recommendedRadius
-'''def neighborSearch(precinct, recommended):
-    radius = 0
-    for candidate in recommended:
-        if(cnames[candidate] != cnames[precinct]):
-            if(boundaries[candidate] != [] and boundaries[precinct][0].distance(boundaries[candidate][0]) <= 0.001):
-                possibleNeighbors[precinct].append(candidate)
-                if ((boundaries[precinct][0].length / 2 + 0.003) > radius):
-                    radius = boundaries[precinct][0].length / 2 + 0.001
-    for candidate in recommended:
-        if(boundaries[candidate] != [] and (boundaries[precinct][0].distance(boundaries[candidate][0]) <= radius)):
-            recommendsRadius[precinct].append(candidate)
-
-searched = 1
-def searchAllNeighbors(precinct, recommended):
-    neighborSearch(precinct, recommended)
-    for n in possibleNeighbors[precinct]:
-        global searched
-        searched += 1
-        print(str(searched/numPrecincts * 100) + " % completed")
-        searchAllNeighbors(n, recommendsRadius[precinct])
-        if(searched == numPrecincts):
-            return
-
-initial_recommend = list(range(numPrecincts))
-searchAllNeighbors(0, initial_recommend)'''
+# Populating possibleNeighbors
 def neighborSearch(precinct):
-    precinctCname = cnames[precinct]
-    precinctPNeighbors = possibleNeighbors[precinct]
-    for candidate in range(numPrecincts):
-        if(cnames[candidate] != precinctCname):
-            if(boundaries[candidate] != [] and boundaries[precinct] != [] and boundaries[precinct][0].distance(boundaries[candidate][0]) <= 0.001):
-                precinctPNeighbors.append(candidate)
+    precinctPNeighbors = possibleNeighbors[precinct]            # Can further optimize by saving boundaries[precinct] and boundaries[precinct][0]
+    precinctBound = boundaries[precinct]
+    if(precinctBound != []):
+        firstPrecinctBound = precinctBound[0]
+    for candidate in range(precinct + 1, numPrecincts):
+        if(precinctBound == []):
+            break
+        if(boundaries[candidate] != [] and precinctBound != [] and Polygon(firstPrecinctBound).distance(Polygon(boundaries[candidate][0])) <= 0.001):
+            precinctPNeighbors.append(candidate)
+            possibleNeighbors[candidate].append(precinct)
 
-''' Next block commented '''
 for i in range(numPrecincts):
     neighborSearch(i)
 
@@ -80,6 +56,47 @@ def errorAdder(precinct, error):
     global errorID
     errorID += 1
 
+def overlapMaker(region, i, j):
+    eroded = region.buffer(-coincident)
+    if(eroded.boundary.length == 0.0):
+        area_bounds = region.bounds
+        points = list([[area_bounds[0], area_bounds[1]], [area_bounds[2], area_bounds[3]],
+                       [area_bounds[0], area_bounds[3]], [area_bounds[2], area_bounds[1]]])
+        global errorID
+        id = errorID
+        precincts1 = [utah_precincts[i]['properties']['cname'], utah_precincts[j]['properties']['cname']]
+        for error in errors[j]:
+            overlappers = error
+            if(list(overlappers.keys()) == ['Overlapping precincts']):
+                if(overlappers['Overlapping precincts']['precincts'][1] in precincts1 and overlappers['Overlapping precincts']['precincts'][0] in precincts1):
+                    id = overlappers['Overlapping precincts']['id']
+                    global errorCopy
+                    errorCopy = 1                       # If overlap already occured, error has same id
+                    break
+        overlap = em.errorMaker(0, points, id, precincts1)
+        errorAdder(i, overlap)
+        if (errorCopy == 1):
+            errorID -= 1
+        errorCopy = 0
+
+# Identifying overlapping precincts
+for i in range(len(boundaries)):
+    if (boundaries[i] != []):  # NEED TO FIX remove last empty geometry
+        precinct = boundaries[i][0]
+        for j in possibleNeighbors[i]:
+            other_precinct = boundaries[j][0]
+            if (precinct.overlaps(other_precinct) and (precinct.touches(other_precinct) == False)):
+                if ((precinct.is_valid == False) or
+                    (other_precinct.is_valid == False)):  # NEED TO FIX self-intersecting polygons can't intersect
+                    continue
+                area = precinct.intersection(other_precinct)
+                if area.geom_type == "MultiPolygon":
+                    for region in area:
+                        overlapMaker(region, i, j)
+                else:
+                    overlapMaker(area, i, j)
+
+# Identifying enclosed precincts
 for i in range(len(boundaries)):
     if(boundaries[i] != []):                    # NEED TO FIX remove last empty geometry
         precinct = boundaries[i][0]
@@ -96,19 +113,6 @@ for i in range(len(boundaries)):
                                [enclosed_bounds[0], enclosed_bounds[3]], [enclosed_bounds[2], enclosed_bounds[1]]])
                 enclosed = em.errorMaker(2, points, errorID, [utah_precincts[j]['properties']['cname'], utah_precincts[i]['properties']['cname']])
                 errorAdder(i, enclosed)
-            if (precinct.overlaps(boundaries[j][0]) and (precinct.touches(boundaries[j][0]) == False)):
-                if ((boundaries[i][0].is_valid == False) or
-                    (boundaries[j][0].is_valid == False)):  # NEED TO FIX self-intersecting polygons can't intersect
-                    continue
-                # print(explain_validity(boundaries[i][0]) + " i")
-                # print(explain_validity(boundaries[j][0]) + " j")
-                area = precinct.intersection(boundaries[j][0])
-                area_bounds = area.bounds
-                points = list([[area_bounds[0], area_bounds[1]], [area_bounds[2], area_bounds[3]],
-                               [area_bounds[0], area_bounds[3]], [area_bounds[2], area_bounds[1]]])
-                overlap = em.errorMaker(0, points, errorID, [utah_precincts[i]['properties']['cname'],
-                                                                  utah_precincts[j]['properties']['cname']])
-                errorAdder(i, overlap)
 
 # Identifying multipolygon errors
 for i in range(numPrecincts):
@@ -118,5 +122,19 @@ for i in range(numPrecincts):
         utah_precincts[i]['properties']['errors'] = errors[i][-1]
         errorID += 1
 
+# Find unclosed precincts ------ seems that there are none
+for i in range(numPrecincts):
+    if(utah_precincts[i]['geometry'] != None):
+        precinct = utah_precincts[i]['geometry']['coordinates'][0] if (utah_precincts[i]['geometry']['type'] != "MultiPolygon") else utah_precincts[i]['geometry']['coordinates'][0][0]
+        line = LineString(precinct)
+        if(line.coords[0][0] != line.coords[-1][0] or line.coords[0][1] != line.coords[-1][1]):
+            ucerror = em.errorMaker(5, [], errorID, utah_precincts[i]['properties']['cname'])
+            errorAdder(i, ucerror)
+
+
 with open("C:/Users/Denis/Software Engineering/Data/Utah/Precincts/Utah.json", "w") as utah:
     json.dump(utah_data, utah, indent= 2)
+
+import winsound
+winsound.Beep(300, 1000)
+winsound.Beep(300, 1000)

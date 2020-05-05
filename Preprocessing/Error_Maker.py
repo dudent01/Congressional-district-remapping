@@ -16,6 +16,8 @@ def errorMaker(errorCategory, interestPoints, id, precincts):
         errorName = "Multipolygon"
     elif(errorCategory == 4):
         errorName = "Anomalous data"
+    elif(errorCategory == 5):
+        errorName = "Unclosed precinct"
     error = {errorName :
                  {"error type"      : errorCategory,
                   "interest points" : interestPoints,
