@@ -107,12 +107,14 @@ for i in range(len(boundaries)):
                                [enclosed_bounds[0], enclosed_bounds[3]], [enclosed_bounds[2], enclosed_bounds[1]]])
                 enclosed = em.errorMaker(2, points, errorID, [utah_precincts[i]['properties']['cname'], utah_precincts[j]['properties']['cname']])
                 errorAdder(i, enclosed)
-            if(precinct.within(boundaries[j][0])):
+                errorID -= 1
+                errorAdder(j, enclosed)
+            '''if(precinct.within(boundaries[j][0])):
                 enclosed_bounds = precinct.bounds
                 points = list([[enclosed_bounds[0], enclosed_bounds[1]], [enclosed_bounds[2], enclosed_bounds[3]],
                                [enclosed_bounds[0], enclosed_bounds[3]], [enclosed_bounds[2], enclosed_bounds[1]]])
                 enclosed = em.errorMaker(2, points, errorID, [utah_precincts[j]['properties']['cname'], utah_precincts[i]['properties']['cname']])
-                errorAdder(i, enclosed)
+                errorAdder(i, enclosed)'''
 
 # Identifying multipolygon errors
 for i in range(numPrecincts):
