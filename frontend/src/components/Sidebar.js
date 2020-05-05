@@ -111,15 +111,6 @@ class Sidebar extends React.Component {
 							<h2>Precinct {this.props.selectedPrecinct.name}</h2>
 						}
 						<div className="mb-4">
-							<Button block className="text-left" onClick={e => { }}>
-								Add Edge
-							</Button>
-							Add an edge between two precincts.
-						</div>
-						<div className="mb-4">
-							<Button block className="text-left">Combine Precinct</Button> Combine two existing precincts into one.
-						</div>
-						<div className="mb-4">
 							<Button block className="text-left">
 								Edit Boundary Data
 							</Button>
