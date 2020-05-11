@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { RECIEVE_STATES, DESELECT_STATE, REQUEST_STATES, SELECT_STATE } from './types';
-import { fetchPrecinctsByState } from "./PrecinctActions"
+import { fetchPrecinctsByState } from "./precinctActions"
 
 // Synchronous actions
 export const recieveStates = (states, geojson) => ({ type: RECIEVE_STATES, states, geojson })

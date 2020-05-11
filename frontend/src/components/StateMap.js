@@ -5,9 +5,9 @@ import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
 import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor, leafletDrawOptions, selectedPrecinctColor } from "../config"
 import { connect } from 'react-redux';
-import { selectState, deselectState } from '../actions/StateActions';
-import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson } from '../actions/PrecinctActions';
-import { setDrawPolygon } from '../actions/MapActions'
+import { selectState, deselectState } from '../actions/stateActions';
+import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson } from '../actions/precinctActions';
+import { setDrawPolygon } from '../actions/mapActions'
 import L from 'leaflet'
 
 const mapStateToProps = s => {
