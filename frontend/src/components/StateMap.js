@@ -192,7 +192,7 @@ class StateMap extends React.Component {
 					</Form>
 					<Form inline className="m-2">
 						<Form.Group className="mr-2" controlId="nationalParks">
-							<Form.Check type="checkbox" id="nationalParks" disabled={!this.state.isStateSelected} onClick={this.handleCheckBoxChange} label="Toggle National Parks" />
+							<Form.Check type="checkbox" id="nationalParks" onClick={this.handleCheckBoxChange} label="Toggle National Parks" />
 						</Form.Group>
 						<Form.Group controlId="districtBounds">
 							<Form.Check type="checkbox" id="districtBounds" disabled={!this.state.isStateSelected} onClick={this.handleCheckBoxChange} label="Toggle District Boundaries" />
