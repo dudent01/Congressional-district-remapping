@@ -5,5 +5,6 @@ public enum ErrorType {
     MAP_COVERAGE,
     ENCLOSED,
     MULTIPOLYGON,
-    ANOMALOUS_DATA
+    ANOMALOUS_DATA,
+    UNCLOSED
 }

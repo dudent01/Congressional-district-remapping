@@ -6,10 +6,10 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
+//@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
+@MappedSuperclass
 public abstract class Error {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

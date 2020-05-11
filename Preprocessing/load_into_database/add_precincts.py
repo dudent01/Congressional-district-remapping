@@ -15,6 +15,10 @@ mycursor = mydb.cursor()
 with open('Utah.json') as f:
     utah = json.load(f)
 
+map_cname_to_id = {}
+
+# Adding Election and Precinct Data
+print("Adding Precincts and Election")
 for precinct in utah['features']:
     if "presidential" in precinct["properties"]:
         sql = "INSERT INTO election (type) VALUES (%s)"
@@ -31,6 +35,17 @@ for precinct in utah['features']:
     else:
         pres2016_id = None
     sql = "INSERT INTO precinct (name, state_id, pres2016_id, c_name, geojson) VALUES (%s,%s,%s,%s,%s)"
-    val = (precinct['properties']['precinctid'], 2, pres2016_id, None, json.dumps(precinct))
+    val = (precinct['properties']['precinctid'], 2, pres2016_id, precinct['properties']['cname'], json.dumps(precinct))
     mycursor.execute(sql, val)
+    map_cname_to_id[precinct['properties']['cname']] = mycursor.lastrowid
+
+# Adding Neighbors
+print("Adding Neighbors")
+for precinct in utah['features']:
+    if "neighbors" in precinct["properties"]:
+        for neighbor in precinct["properties"]["neighbor"]:
+            sql = "INSERT INTO precinct_neighbors VALUES (%s,%s)"
+            val = (map_cname_to_id[precinct["properties"]["cname"]], map_cname_to_id[neighbor])
+            mycursor.execute(sql, val)
 mydb.commit()
+

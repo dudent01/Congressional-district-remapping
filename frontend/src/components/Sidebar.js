@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container } from "react-bootstrap"
 import { connect } from 'react-redux';
-import { enableDrawPolygon } from '../actions/mapActions'
+import { enableDrawPolygon } from '../actions/MapActions'
 
 const mapStateToProps = s => {
 	return {

@@ -9,9 +9,9 @@ enclosed_precincts = {
 }
 
 for precinct in data["features"]:
-    if "errors" in precinct["properties"] and precinct["properties"]["errors"]:
-        if precinct["properties"]["errors"]["Enclosed precinct"]:
-            enclosed_precincts["features"].append(precinct)
+    # if "errors" in precinct["properties"] and precinct["properties"]["errors"]:
+    if precinct["properties"]["cname"] == "UT_20_NS_NS:U":
+        enclosed_precincts["features"].append(precinct)
 
-with open('Enclosed_Utah.json', 'w') as f:
+with open('Duplicate_Utah.json', 'w') as f:
     json.dump(enclosed_precincts, f)

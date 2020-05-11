@@ -3,12 +3,13 @@ import React from "react";
 import { Map, GeoJSON, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
-import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor, leafletDrawOptions, selectedPrecinctColor } from "../config"
+import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor, leafletDrawOptions, selectedPrecinctColor, nationalParkColor } from "../config"
 import { connect } from 'react-redux';
 import { selectState, deselectState } from '../actions/stateActions';
-import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson } from '../actions/precinctActions';
-import { setDrawPolygon } from '../actions/mapActions'
+import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson } from '../actions/PrecinctActions';
+import { setDrawPolygon } from '../actions/MapActions'
 import L from 'leaflet'
+import nationalParksGeojson from '../assets/simplified_national_parks.json'
 
 const mapStateToProps = s => {
 	return {
@@ -58,6 +59,7 @@ class StateMap extends React.Component {
 			election: defaultElection,
 			isStateSelected: false,
 			isPrecinctSelected: false,
+			showNationalParks: false
 		}
 	}
 	componentDidMount() {
@@ -121,19 +123,22 @@ class StateMap extends React.Component {
 		});
 	}
 	handleCheckBoxChange(e) {
-		if (e.target.id === "nationalParks") {
-			if (e.target.checked === false) {
-				console.log("National Parks Disabled");
-			} else {
-				console.log("National Parks Enabled");
-			}
-		} else if (e.target.id === "districtBounds") {
-			if (e.target.checked === false) {
-				console.log("Congressional Bounds Disabled");
-			} else {
-				console.log("Congressional Bounds Enabled");
-			}
-		}
+		this.setState({ showNationalParks: e.target.checked })
+		// if (e.target.id === "nationalParks") {
+		// 	if (e.target.checked === false) {
+		// 		console.log("National Parks Disabled");
+		// 		this.setState({ showNationalParks: false })
+		// 	} else {
+		// 		console.log("National Parks Enabled");
+		// 		this.setState({ showNationalParks: true })
+		// 	}
+		// } else if (e.target.id === "districtBounds") {
+		// 	if (e.target.checked === false) {
+		// 		console.log("Congressional Bounds Disabled");
+		// 	} else {
+		// 		console.log("Congressional Bounds Enabled");
+		// 	}
+		// }
 	}
 	handleLeafletEdit(e) {
 		if (!this.props.selectedPrecinct) {
@@ -192,10 +197,10 @@ class StateMap extends React.Component {
 					</Form>
 					<Form inline className="m-2">
 						<Form.Group className="mr-2" controlId="nationalParks">
-							<Form.Check type="checkbox" id="nationalParks" onClick={this.handleCheckBoxChange} label="Toggle National Parks" />
+							<Form.Check type="checkbox" id="nationalParks" onClick={(e) => this.handleCheckBoxChange(e)} checked={this.state.showNationalParks} label="Toggle National Parks" />
 						</Form.Group>
 						<Form.Group controlId="districtBounds">
-							<Form.Check type="checkbox" id="districtBounds" disabled={!this.state.isStateSelected} onClick={this.handleCheckBoxChange} label="Toggle District Boundaries" />
+							<Form.Check type="checkbox" id="districtBounds" disabled={!this.state.isStateSelected} onClick={() => {}} label="Toggle District Boundaries" />
 						</Form.Group></Form>
 				</div>
 				<FeatureGroup ref="featuredGroup">
@@ -211,6 +216,9 @@ class StateMap extends React.Component {
 					attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 				/>
 				{geojson}
+				{this.state.showNationalParks && 
+					<GeoJSON data={nationalParksGeojson} style={{ color: nationalParkColor }} />
+				}
 			</Map>
 		)
 	}
