@@ -10,7 +10,7 @@ enclosed_precincts = {
 
 for precinct in data["features"]:
     if "errors" in precinct["properties"] and precinct["properties"]["errors"]:
-        if any("Enclosed precinct" in e for e in precinct["properties"]["errors"]):
+        if precinct["properties"]["errors"]["Enclosed precinct"]:
             enclosed_precincts["features"].append(precinct)
 
 with open('Enclosed_Utah.json', 'w') as f:
