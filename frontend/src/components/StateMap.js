@@ -9,8 +9,8 @@ import {
 } from "../config"
 import { connect } from 'react-redux';
 import { selectState, deselectState } from '../actions/stateActions';
-import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson, addNeighborAsync, deleteNeighborAsync } from '../actions/PrecinctActions';
-import { setDrawPolygon, unsetTool } from '../actions/MapActions'
+import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson, addNeighborAsync, deleteNeighborAsync } from '../actions/precinctActions';
+import { setDrawPolygon, unsetTool } from '../actions/mapActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
 import L from 'leaflet'
 import nationalParksGeojson from '../assets/simplified_national_parks.json'
