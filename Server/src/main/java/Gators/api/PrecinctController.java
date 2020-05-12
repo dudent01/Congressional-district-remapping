@@ -58,4 +58,9 @@ public class PrecinctController {
         precinctService.deleteNeighborById(id1, id2);
         return true;
     }
+
+    @PatchMapping(path = "/{id1}/{id2}/merge")
+    public Precinct mergePrecinctsById(@PathVariable long id1, @PathVariable long id2) {
+        return precinctService.mergePrecinctsById(id1, id2);
+    }
 }

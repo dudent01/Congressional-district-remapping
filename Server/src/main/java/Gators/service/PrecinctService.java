@@ -8,6 +8,7 @@ import Gators.repository.PrecinctRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.locationtech.jts.geom.GeometryFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -99,5 +100,15 @@ public class PrecinctService {
 
         logRepository.save(log1);
         logRepository.save(log2);
+    }
+
+    @Transactional
+    public Precinct mergePrecinctsById(long id1, long id2) {
+        Precinct precinct1 = precinctRepository.findById(id1).orElse(null);
+        Precinct precinct2 = precinctRepository.findById(id2).orElse(null);
+
+        GeometryFactory obj;
+
+        return precinct1;
     }
 }

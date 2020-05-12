@@ -1,7 +1,8 @@
 import React from "react";
 import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container } from "react-bootstrap"
 import { connect } from 'react-redux';
-import { enableDrawPolygon } from '../actions/MapActions'
+import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, unsetTool } from '../actions/MapActions'
+import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
 
 const mapStateToProps = s => {
 	return {
@@ -9,11 +10,18 @@ const mapStateToProps = s => {
 		isFetchingSelectedPrecinct: s.precincts.isFetchingSelectedPrecinct,
 		selectedState: s.states.selectedState,
 		states: s.states.states,
+
+		toolAction: s.map.toolAction
 	}
 }
 const mapDispatchToProps = dispatch => {
 	return {
-		enableDrawPolygon: () => dispatch(enableDrawPolygon())
+		enableDrawPolygon: () => dispatch(enableDrawPolygon()),
+
+		setToolAddNeighbor: () => dispatch(setToolAddNeighbor()),
+		setToolDeleteNeighbor: () => dispatch(setToolDeleteNeighbor()),
+		setToolMergePrecincts: () => dispatch(setToolMergePrecincts()),
+		unsetTool: () => dispatch(unsetTool())
 	}
 }
 
@@ -71,6 +79,10 @@ class Sidebar extends React.Component {
 											<td>{this.props.selectedPrecinct.name}</td>
 										</tr>
 										<tr>
+											<td><strong>Canonical Name:</strong></td>
+											<td>{this.props.selectedPrecinct.cname}</td>
+										</tr>
+										<tr>
 											<td><strong>Precinct ID:</strong></td>
 											<td>{this.props.selectedPrecinct.id}</td>
 										</tr>
@@ -111,7 +123,7 @@ class Sidebar extends React.Component {
 							<h2>Precinct {this.props.selectedPrecinct.name}</h2>
 						}
 						<div className="mb-4">
-							<Button block className="text-left">
+							<Button block className="text-left" disabled>
 								Edit Boundary Data
 							</Button>
 							<ol>
@@ -122,6 +134,70 @@ class Sidebar extends React.Component {
 								<li>Confirm if you want to permanently save this change.</li>
 							</ol>
 						</div>
+						<div className="mb-4">
+							<Button block className="text-left" 
+							onClick={() => this.props.setToolAddNeighbor()}
+							disabled={this.props.toolAction !== null}
+							>
+							{ this.props.toolAction === ADD_NEIGHBOR &&
+								<Spinner
+									as="span"
+									animation="grow"
+									size="sm"
+									role="status"
+									aria-hidden="true"
+								/>
+							}
+								Add Neighbor
+							</Button>
+							<ol>
+								<li>Firstly, click on the Add Neighbor button above.</li>
+								<li>To Add a neighbor, simply click on a precinct that you want to add as a neighbor to the currently selected precinct.</li>
+							</ol>
+						</div>
+						<div className="mb-4">
+							<Button block className="text-left"
+								onClick={() => this.props.setToolDeleteNeighbor()}
+								disabled={this.props.toolAction !== null}
+							>
+								{ this.props.toolAction === DELETE_NEIGHBOR &&
+									<Spinner
+										as="span"
+										animation="grow"
+										size="sm"
+										role="status"
+										aria-hidden="true"
+									/>
+								}
+								Delete Neighbor
+								</Button>
+							<ol>
+								<li>Firstly, click on the Delete Neighbor button above.</li>
+								<li>To Delete a neighbor, simply click on a precinct that you want to delete from the currently selected precinct.</li>
+							</ol>
+						</div>
+						<div className="mb-4">
+							<Button block className="text-left"
+								onClick={() => this.props.setToolMergePrecincts()}
+								disabled={this.props.toolAction !== null}
+							>
+								{ this.props.toolAction === MERGE_PRECINCTS &&
+									<Spinner
+										as="span"
+										animation="grow"
+										size="sm"
+										role="status"
+										aria-hidden="true"
+									/>
+								}
+								Merge Precincts
+								</Button>
+						</div>
+						{this.props.toolAction &&
+							<div className="mb-4">
+								<Button block className="text-left" variant="danger" disabled={this.props.toolAction == null} onClick={() => this.props.unsetTool()}>Cancel Action</Button>
+							</div>
+						}
 					</Container>
 				</Tab>
 			</Tabs>
