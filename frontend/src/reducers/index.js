@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
-import states from './StateReducer';
-import precincts from './PrecinctReducer';
-import map from './MapReducer'
+import states from './stateReducer';
+import precincts from './precinctReducer';
+import map from './mapReducer'
 
 export default combineReducers({ states, precincts, map });

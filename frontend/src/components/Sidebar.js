@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container } from "react-bootstrap"
 import { connect } from 'react-redux';
-import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, unsetTool } from '../actions/MapActions'
+import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, unsetTool } from '../actions/mapActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
 
 const mapStateToProps = s => {
