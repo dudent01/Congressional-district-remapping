@@ -55,4 +55,16 @@ public class PrecinctService {
         precinct.setGeojson(geojson);
         precinctRepository.save(precinct);
     }
+
+    @Transactional
+    public void deleteNeighborById(long id1, long id2) {
+        Precinct precinct1 = precinctRepository.findById(id1).orElse(null);
+        Precinct precinct2 = precinctRepository.findById(id2).orElse(null);
+
+        precinct1.getNeighbors().remove(precinct2);
+        precinct2.getNeighbors().remove(precinct1);
+
+        precinctRepository.save(precinct1);
+        precinctRepository.save(precinct2);
+    }
 }
