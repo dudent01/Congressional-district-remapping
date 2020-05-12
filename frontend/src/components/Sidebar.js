@@ -71,6 +71,10 @@ class Sidebar extends React.Component {
 											<td>{this.props.selectedPrecinct.name}</td>
 										</tr>
 										<tr>
+											<td><strong>Canonical Name:</strong></td>
+											<td>{this.props.selectedPrecinct.cname}</td>
+										</tr>
+										<tr>
 											<td><strong>Precinct ID:</strong></td>
 											<td>{this.props.selectedPrecinct.id}</td>
 										</tr>
@@ -111,7 +115,7 @@ class Sidebar extends React.Component {
 							<h2>Precinct {this.props.selectedPrecinct.name}</h2>
 						}
 						<div className="mb-4">
-							<Button block className="text-left">
+							<Button block className="text-left" disabled>
 								Edit Boundary Data
 							</Button>
 							<ol>
@@ -121,6 +125,12 @@ class Sidebar extends React.Component {
 								<li>When you are done, hit 'Save' next to the 'Edit layers' tool.</li>
 								<li>Confirm if you want to permanently save this change.</li>
 							</ol>
+						</div>
+						<div className="mb-4">
+							<Button block className="text-left">Add Neighbor</Button>
+						</div>
+						<div className="mb-4">
+							<Button block className="text-left">Delete Neighbor</Button>
 						</div>
 					</Container>
 				</Tab>
