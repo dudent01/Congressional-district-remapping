@@ -29,7 +29,7 @@ public class PrecinctService {
         Precinct precinct2 = precinctRepository.findById(id2).orElse(null);
 
         Log log1 = new Log(precinct1, "Add Neighbor");
-        Log log2 = new Log(precinct1, "Add Neighbor");
+        Log log2 = new Log(precinct2, "Add Neighbor");
         log1.setOldData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
         log2.setOldData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
 
@@ -84,7 +84,7 @@ public class PrecinctService {
         Precinct precinct2 = precinctRepository.findById(id2).orElse(null);
 
         Log log1 = new Log(precinct1, "Delete Neighbor");
-        Log log2 = new Log(precinct1, "Delete Neighbor");
+        Log log2 = new Log(precinct2, "Delete Neighbor");
         log1.setOldData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
         log2.setOldData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
 

@@ -27,8 +27,9 @@ public class PrecinctController {
     }
 
     @PatchMapping(path = "/{id1}/{id2}")
-    public void addNeighborById(@PathVariable long id1, @PathVariable long id2) {
+    public boolean addNeighborById(@PathVariable long id1, @PathVariable long id2) {
         precinctService.addNeighborById(id1, id2);
+        return true;
     }
 
     @GetMapping(path = "/{id}/demographic")
@@ -47,12 +48,14 @@ public class PrecinctController {
     }
 
     @PutMapping(path = "/{id}/geojson")
-    public void editGeojsonById(@PathVariable long id, @RequestBody String geojson) {
+    public boolean editGeojsonById(@PathVariable long id, @RequestBody String geojson) {
         precinctService.editGeojsonById(id, geojson);
+        return true;
     }
 
     @DeleteMapping(path = "/{id1}/{id2}")
-    public void deleteNeighborById(@PathVariable long id1, @PathVariable long id2) {
+    public boolean deleteNeighborById(@PathVariable long id1, @PathVariable long id2) {
         precinctService.deleteNeighborById(id1, id2);
+        return true;
     }
 }
