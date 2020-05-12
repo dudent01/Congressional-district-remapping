@@ -2,7 +2,10 @@ export const defaultMapCenter = [39.8283, -98.5795];
 export const defaultMapZoom = 4;
 export const defaultElection = "presidential2016"
 export const stateColor = "darkorange";
-export const precinctColor = "green";
+export const precinctColor = "blue";
+export const selectedPrecinctColor = "yellow"
+export const neighborPrecinctColor = "orange"
+export const nationalParkColor = "green"
 export const leafletDrawOptions = {
   polygon: {
     shapeOptions: {

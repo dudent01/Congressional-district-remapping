@@ -1,13 +1,19 @@
 import React from "react";
 import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container } from "react-bootstrap"
-import L from "leaflet"
 import { connect } from 'react-redux';
+import { enableDrawPolygon } from '../actions/MapActions'
 
 const mapStateToProps = s => {
 	return {
 		selectedPrecinct: s.precincts.selectedPrecinct,
 		isFetchingSelectedPrecinct: s.precincts.isFetchingSelectedPrecinct,
-		selectedState: s.states.selectedState
+		selectedState: s.states.selectedState,
+		states: s.states.states,
+	}
+}
+const mapDispatchToProps = dispatch => {
+	return {
+		enableDrawPolygon: () => dispatch(enableDrawPolygon())
 	}
 }
 
@@ -19,7 +25,6 @@ class Sidebar extends React.Component {
 		}
 	}
 
-
 	render() {
 		let election = null;
 		if (this.props.selectedPrecinct) {
@@ -29,7 +34,6 @@ class Sidebar extends React.Component {
 					<th>Politcal Party</th>
 					<th>Votes</th>
 				</tr>
-
 				election = <>
 					<b className="text-center">{this.props.selectedPrecinct.election.type.replace("_", " ")}</b>
 					<Table hover variant="danger" bordered>
@@ -47,11 +51,9 @@ class Sidebar extends React.Component {
 						</tbody>
 					</Table>
 				</>
-			}
-			else if (this.props.isFetchingSelectedPrecinct) {
+			} else if (this.props.isFetchingSelectedPrecinct) {
 				election = <div className="text-center"><Spinner animation="border" /></div>
-			}
-			else if (!this.props.isFetchingSelectedPrecinct) {
+			} else if (!this.props.isFetchingSelectedPrecinct) {
 				election = <div>This precinct has no election data.</div>
 			}
 		}
@@ -59,61 +61,71 @@ class Sidebar extends React.Component {
 			<Tabs id="sidebar" activeKey={this.state.key} onSelect={key => this.setState({ key })} transition={false} className="mb-2">
 				<Tab eventKey="info" title="Information" >
 					<Container>
-						{
-							this.props.selectedPrecinct ?
-								<>
-									<h2>Precinct {this.props.selectedPrecinct.name}</h2>
-									<Table striped hover>
-										<tbody>
-											<tr>
-												<td><strong>Name:</strong></td>
-												<td>{this.props.selectedPrecinct.name}</td>
-											</tr>
-											<tr>
-												<td><strong>ID:</strong></td>
-												<td>{this.props.selectedPrecinct.id}</td>
-											</tr>
-										</tbody>
-									</Table>
-								</>
+						{this.props.selectedPrecinct ?
+							<>
+								<h2>Precinct {this.props.selectedPrecinct.name}</h2>
+								<Table striped hover>
+									<tbody>
+										<tr>
+											<td><strong>Precinct Name:</strong></td>
+											<td>{this.props.selectedPrecinct.name}</td>
+										</tr>
+										<tr>
+											<td><strong>Precinct ID:</strong></td>
+											<td>{this.props.selectedPrecinct.id}</td>
+										</tr>
+									</tbody>
+								</Table>
+							</>
+							:
+							this.props.selectedState !== "" ?
+								<div>
+									<h2>Data Sources for This State:</h2>
+									<h5>Precincts Data Source:</h5>
+									{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.precinctsSource)}
+									<h5>Elections Data Source:</h5>
+									{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.electionsSource)}
+								</div>
 								:
 								<div>
 									<h2>Welcome to the Precinct Error Correction Program!</h2>
 									To begin, please select a state, then select a precinct whose data you would wish to view. It will then be shown here.
-								</div>
+							</div>
 						}
 						{election}
 					</Container>
 				</Tab>
 				<Tab eventKey="err" disabled={this.props.selectedState === ""} title={<div>Errors <Badge variant="danger">{this.state.errorsCount}</Badge></div>}>
 					<div>
-						{ this.state.precinctErrors ?
-						<ListGroup>
-							{this.state.precinctErrors}
-						</ListGroup>
-						: <span>There are no known errors in the selected state.</span>
+						{this.state.precinctErrors ?
+							<ListGroup>
+								{this.state.precinctErrors}
+							</ListGroup>
+							: <span>There are no known errors in the selected state.</span>
 						}
 					</div>
 				</Tab>
 				<Tab eventKey="edit" disabled={this.props.selectedPrecinct === null || this.props.selectedState === ""} title="Tools">
-					<div className="mb-4">
-						<Button block className="text-left" onClick={e => new L.Draw.Polyline(this.refs.map.leafletElement).enable()}>
-							Add Edge
-						</Button>
-						Add an edge between two precincts.
-					</div>
-					<div className="mb-4">
-						<Button block className="text-left">Combine Precinct</Button> Combine two existing precincts into one.
-					</div>
-					<div className="mb-4">
-						<Button block className="text-left" onClick={e => new L.Draw.Polygon(this.refs.map.leafletElement).enable()}>
-							Generate Ghost Precinct
-						</Button>
-						Create a ghost precinct in case an area where the geographic union of precincts does not fully cover the area of the state
-					</div>
+					<Container>
+						{this.props.selectedPrecinct &&
+							<h2>Precinct {this.props.selectedPrecinct.name}</h2>
+						}
+						<div className="mb-4">
+							<Button block className="text-left">
+								Edit Boundary Data
+							</Button>
+							<ol>
+								<li>To Edit boundary data first select a precinct.</li>
+								<li>Next, click on the 'Edit layers' tool in the toolbar on the top left corner of the map.</li>
+								<li>Drag the edges around the polygon to change its shape.</li>
+								<li>When you are done, hit 'Save' next to the 'Edit layers' tool.</li>
+								<li>Confirm if you want to permanently save this change.</li>
+							</ol>
+						</div>
+					</Container>
 				</Tab>
 			</Tabs>
 		)
 	}
 }
-export default connect(mapStateToProps, null)(Sidebar);
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);
