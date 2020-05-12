@@ -28,14 +28,9 @@ public class PrecinctService {
         Precinct precinct1 = precinctRepository.findById(id1).orElse(null);
         Precinct precinct2 = precinctRepository.findById(id2).orElse(null);
 
-        Log log1 = new Log();
-        log1.setLogDate(new Date());
-        log1.setPrecinct(precinct1);
+        Log log1 = new Log(precinct1, "Add Neighbor");
+        Log log2 = new Log(precinct1, "Add Neighbor");
         log1.setOldData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-
-        Log log2 = new Log();
-        log2.setLogDate(new Date());
-        log2.setPrecinct(precinct2);
         log2.setOldData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
 
         precinct1.getNeighbors().add(precinct2);
@@ -71,9 +66,7 @@ public class PrecinctService {
     public void editGeojsonById(long id, String geojson) {
         Precinct precinct = precinctRepository.findById(id).orElse(null);
 
-        Log log = new Log();
-        log.setLogDate(new Date());
-        log.setPrecinct(precinct);
+        Log log = new Log(precinct, "Edit GeoJson");
         log.setOldData(precinct.getGeojson());
 
         precinct.setGeojson(geojson);
@@ -90,14 +83,9 @@ public class PrecinctService {
         Precinct precinct1 = precinctRepository.findById(id1).orElse(null);
         Precinct precinct2 = precinctRepository.findById(id2).orElse(null);
 
-        Log log1 = new Log();
-        log1.setLogDate(new Date());
-        log1.setPrecinct(precinct1);
+        Log log1 = new Log(precinct1, "Delete Neighbor");
+        Log log2 = new Log(precinct1, "Delete Neighbor");
         log1.setOldData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-
-        Log log2 = new Log();
-        log2.setLogDate(new Date());
-        log2.setPrecinct(precinct2);
         log2.setOldData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
 
         precinct1.getNeighbors().remove(precinct2);
