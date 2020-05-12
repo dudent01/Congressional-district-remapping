@@ -3,15 +3,11 @@ import React from "react";
 import { Map, GeoJSON, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
-import {
-	defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor, leafletDrawOptions,
-	selectedPrecinctColor, nationalParkColor, neighborPrecinctColor
-} from "../config"
+import { defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor, leafletDrawOptions, selectedPrecinctColor, nationalParkColor } from "../config"
 import { connect } from 'react-redux';
 import { selectState, deselectState } from '../actions/stateActions';
-import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson, addNeighborAsync, deleteNeighborAsync } from '../actions/precinctActions';
-import { setDrawPolygon, unsetTool } from '../actions/mapActions'
-import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
+import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson } from '../actions/PrecinctActions';
+import { setDrawPolygon } from '../actions/MapActions'
 import L from 'leaflet'
 import nationalParksGeojson from '../assets/simplified_national_parks.json'
 
@@ -25,9 +21,7 @@ const mapStateToProps = s => {
 		precinctGeojsonKey: s.precincts.geojsonKey,
 		precincts: s.precincts.precincts,
 		selectedPrecinct: s.precincts.selectedPrecinct,
-
-		drawPolygon: s.map.drawPolygon,
-		toolAction: s.map.toolAction
+		drawPolygon: s.map.drawPolygon
 	}
 }
 const mapDispatchToProps = dispatch => {
@@ -50,14 +44,6 @@ const mapDispatchToProps = dispatch => {
 		updatePrecinctGeojson: async (id, geojson) => {
 			await dispatch(updatePrecinctGeojson(id, geojson))
 		},
-		addNeighbor: async (id, neighborId) => {
-			await dispatch(addNeighborAsync(id, neighborId))
-			dispatch(unsetTool())
-		},
-		deleteNeighbor: async (id, neighborId) => {
-			await dispatch(deleteNeighborAsync(id, neighborId))
-			dispatch(unsetTool())
-		}
 	};
 };
 
@@ -126,29 +112,13 @@ class StateMap extends React.Component {
 	onEachPrecinctFeature(feature, layer) {
 		layer.on({
 			click: e => {
+				this.resetFeaturedGroup()
 				let layer = e.target;
-				let {name, id} = layer.feature.properties;
-				switch(this.props.toolAction) {
-					case ADD_NEIGHBOR:
-						if (window.confirm(`Are you sure you want to add Precinct ${name} to neighbors?`)) {
-							this.props.addNeighbor(this.props.selectedPrecinct.id, id)
-						}
-						break;
-					case DELETE_NEIGHBOR:
-						if (window.confirm(`Are you sure you want to delete Precinct ${name} from neighbors?`)) {
-							this.props.deleteNeighbor(this.props.selectedPrecinct.id, id)
-						}
-						break;
-					case MERGE_PRECINCTS:
-						alert("MERGE_PRECINCTS")
-						break;
-					default:
-						this.resetFeaturedGroup()
-						if (layer.feature.geometry.type === 'Polygon') { // Only enable editing for Polygons
-							this.refs.featuredGroup.contextValue.layerContainer.addLayer(layer)
-						}
-						this.props.onSelectPrecinct(id, this.state.election, this.props.precincts)
+				if (layer.feature.geometry.type === 'Polygon') { // Only enable editing for Polygons
+					this.refs.featuredGroup.contextValue.layerContainer.addLayer(layer)
 				}
+				let id = layer.feature.properties.id;
+				this.props.onSelectPrecinct(id, this.state.election, this.props.precincts)
 			}
 		});
 	}
@@ -188,12 +158,8 @@ class StateMap extends React.Component {
 	}
 	precinctStyle = (feature) => {
 		let color = precinctColor;
-		if (this.props.selectedPrecinct) {
-			if (this.props.selectedPrecinct.id === feature.properties.id) {
-				color = selectedPrecinctColor;
-			} else if (this.props.selectedPrecinct.neighbors && this.props.selectedPrecinct.neighbors.includes(feature.properties.id)) {
-				color = neighborPrecinctColor;
-			}
+		if (this.props.selectedPrecinct && this.props.selectedPrecinct.id === feature.properties.id) {
+			color = selectedPrecinctColor;
 		}
 		return { color }
 	}
@@ -234,7 +200,7 @@ class StateMap extends React.Component {
 							<Form.Check type="checkbox" id="nationalParks" onClick={(e) => this.handleCheckBoxChange(e)} checked={this.state.showNationalParks} label="Toggle National Parks" />
 						</Form.Group>
 						<Form.Group controlId="districtBounds">
-							<Form.Check type="checkbox" id="districtBounds" disabled={!this.state.isStateSelected} onClick={() => { }} label="Toggle District Boundaries" />
+							<Form.Check type="checkbox" id="districtBounds" disabled={!this.state.isStateSelected} onClick={() => {}} label="Toggle District Boundaries" />
 						</Form.Group></Form>
 				</div>
 				<FeatureGroup ref="featuredGroup">
@@ -250,7 +216,7 @@ class StateMap extends React.Component {
 					attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 				/>
 				{geojson}
-				{this.state.showNationalParks &&
+				{this.state.showNationalParks && 
 					<GeoJSON data={nationalParksGeojson} style={{ color: nationalParkColor }} />
 				}
 			</Map>

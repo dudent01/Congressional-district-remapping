@@ -12,7 +12,7 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 
-with open('../Utah.json') as f:
+with open('Utah.json') as f:
     utah = json.load(f)
 
 map_cname_to_id = {}
@@ -43,12 +43,9 @@ for precinct in utah['features']:
 print("Adding Neighbors")
 for precinct in utah['features']:
     if "neighbors" in precinct["properties"]:
-        for neighbor in precinct["properties"]["neighbors"]:
+        for neighbor in precinct["properties"]["neighbor"]:
             sql = "INSERT INTO precinct_neighbors VALUES (%s,%s)"
             val = (map_cname_to_id[precinct["properties"]["cname"]], map_cname_to_id[neighbor])
-            try:
-                mycursor.execute(sql, val)
-            except:
-                continue
+            mycursor.execute(sql, val)
 mydb.commit()
 
