@@ -1,16 +1,20 @@
 package Gators.service;
 
 import Gators.model.Demographic.Demographic;
+import Gators.model.Election.CandidateResult;
+import Gators.model.Election.Election;
 import Gators.model.Error.Log;
 import Gators.model.Precinct;
 import Gators.repository.LogRepository;
 import Gators.repository.PrecinctRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.tomcat.util.json.JSONParser;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.locationtech.jts.operation.buffer.BufferOp;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +22,6 @@ import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.io.geojson.GeoJsonReader;
-import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,12 +52,6 @@ public class PrecinctService {
 
         log1.setNewData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
         log2.setNewData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-
-        precinctRepository.save(precinct1);
-        precinctRepository.save(precinct2);
-
-        logRepository.save(log1);
-        logRepository.save(log2);
     }
 
     public Set<Precinct> getPrecinctsByStateAbbr(String stateAbbr) {
@@ -85,10 +80,6 @@ public class PrecinctService {
         precinct.setGeojson(geojson);
 
         log.setNewData(precinct.getGeojson());
-
-        precinctRepository.save(precinct);
-
-        logRepository.save(log);
     }
 
     @Transactional
@@ -106,12 +97,6 @@ public class PrecinctService {
 
         log1.setNewData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
         log2.setNewData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-
-        precinctRepository.save(precinct1);
-        precinctRepository.save(precinct2);
-
-        logRepository.save(log1);
-        logRepository.save(log2);
     }
 
     @Transactional
@@ -155,8 +140,27 @@ public class PrecinctService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+
+        precinct1.setGeojson(newGeojson);
+
+        mergeDemographics(precinct1.getDemographic(), precinct2.getDemographic());
+
+        mergeElections(precinct1.getPres2016(), precinct2.getPres2016());
+        mergeElections(precinct1.getCong2016(), precinct2.getCong2016());
+        mergeElections(precinct1.getCong2018(), precinct2.getCong2018());
+
+        precinct1.setCName(precinct1.getCName() + " + " + precinct2.getCName());
+        precinct1.getNeighbors().addAll(precinct2.getNeighbors());
+        precinct1.getNeighbors().remove(precinct1);
+
+        for (Precinct p : precinct2.getNeighbors()) {
+            p.getNeighbors().add(precinct1);
+            p.getNeighbors().remove(precinct2);
+        }
+        precinct2.getNeighbors().clear();
         return precinct1;
     }
+
     private Geometry deflate(Geometry geom) {
         BufferParameters bufferParameters = new BufferParameters();
         bufferParameters.setEndCapStyle(BufferParameters.CAP_ROUND);
@@ -165,12 +169,49 @@ public class PrecinctService {
         buffered.setUserData(geom.getUserData());
         return buffered;
     }
+
     private Geometry inflate(Geometry geom) {
         BufferParameters bufferParameters = new BufferParameters();
         bufferParameters.setEndCapStyle(BufferParameters.CAP_ROUND);
         bufferParameters.setJoinStyle(BufferParameters.JOIN_MITRE);
-        Geometry buffered = BufferOp.bufferOp(geom,.0001, bufferParameters);
+        Geometry buffered = BufferOp.bufferOp(geom, .0001, bufferParameters);
         buffered.setUserData(geom.getUserData());
         return buffered;
+    }
+
+    private void mergeElections(Election election1, Election election2) {
+        if (election2 == null) {
+            return;
+        }
+        if (election1 == null) {
+            election1 = new Election(election2.getType());
+        }
+        for (CandidateResult cr2 : election2.getResults()) {
+            boolean inCrs1 = false;
+            for (CandidateResult cr1 : election1.getResults()) {
+                if (cr2.getName().equals(cr1.getName())) {
+                    cr1.setVotes(cr1.getVotes() + cr2.getVotes());
+                    inCrs1 = true;
+                    break;
+                }
+            }
+            if (!inCrs1) {
+                election1.getResults().add(new CandidateResult(cr2.getName(), cr2.getParty(), cr2.getVotes(), cr2.getElection()));
+            }
+        }
+    }
+
+    private void mergeDemographics(Demographic demographic1, Demographic demographic2) {
+        if (demographic2 == null) {
+            return;
+        }
+        if (demographic1 == null) {
+            demographic1 = new Demographic();
+        }
+        demographic1.setAsianPop(demographic1.getAsianPop() + demographic2.getAsianPop());
+        demographic1.setBlackPop(demographic1.getBlackPop() + demographic2.getBlackPop());
+        demographic1.setWhitePop(demographic1.getWhitePop() + demographic2.getWhitePop());
+        demographic1.setHispanicPop(demographic1.getHispanicPop() + demographic2.getHispanicPop());
+        demographic1.setOtherPop(demographic1.getOtherPop() + demographic2.getOtherPop());
     }
 }
