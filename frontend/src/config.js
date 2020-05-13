@@ -1,11 +1,33 @@
+
 export const defaultMapCenter = [39.8283, -98.5795];
 export const defaultMapZoom = 4;
 export const defaultElection = "presidential2016"
 export const stateColor = "darkorange";
-export const precinctColor = "blue";
-export const selectedPrecinctColor = "yellow"
-export const neighborPrecinctColor = "purple"
-export const nationalParkColor = "green"
+export const precinctStyle = { 
+  color: "brown",
+  fillOpacity: .2,
+  weight: 2 
+};
+export const selectedPrecinctStyle = { 
+  color: "yellow", 
+  fillOpacity: .5,
+  weight: 4
+}
+export const secondSelectedPrecinctStyle = { 
+  color: "red", 
+  fillOpacity: .5,
+  weight: 4 
+}
+export const neighborPrecinctStyle = { 
+  color: "purple", 
+  fillOpacity: .5,
+  weight: 3 
+}
+export const nationalParkStyle = {
+  color: "green",
+  fillColor: "green",
+  fillOpacity: .65
+}
 export const leafletDrawOptions = {
   polygon: {
     shapeOptions: {
@@ -17,10 +39,19 @@ export const leafletDrawOptions = {
       color: '#e1e100', // Color the shape will turn when intersects
       message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
     },
+    editError: {
+      color: '#e1e100', // Color the shape will turn when intersects
+      message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+    }
   },
   circle: false,
   circlemarker: false,
   rectangle: false,
   polyline: false,
   marker: false
+}
+export const leafletEditOptions = {
+  poly: {
+    allowIntersection: false,
+  }
 }

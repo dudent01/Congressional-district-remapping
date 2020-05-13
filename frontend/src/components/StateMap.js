@@ -4,12 +4,15 @@ import { Map, GeoJSON, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
 import {
-	defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctColor, leafletDrawOptions,
-	selectedPrecinctColor, nationalParkColor, neighborPrecinctColor
+	defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctStyle, leafletDrawOptions, leafletEditOptions,
+	selectedPrecinctStyle, nationalParkStyle, neighborPrecinctStyle, secondSelectedPrecinctStyle
 } from "../config"
 import { connect } from 'react-redux';
 import { selectState, deselectState } from '../actions/stateActions';
-import { fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson, addNeighborAsync, deleteNeighborAsync } from '../actions/precinctActions';
+import {
+	fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson,
+	addNeighborAsync, deleteNeighborAsync, mergePrecinctsAsync, setSecondSelectedPrecinct
+} from '../actions/precinctActions';
 import { setDrawPolygon, unsetTool } from '../actions/mapActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
 import L from 'leaflet'
@@ -25,6 +28,7 @@ const mapStateToProps = s => {
 		precinctGeojsonKey: s.precincts.geojsonKey,
 		precincts: s.precincts.precincts,
 		selectedPrecinct: s.precincts.selectedPrecinct,
+		secondSelectedPrecinct: s.precincts.secondSelectedPrecinct,
 
 		drawPolygon: s.map.drawPolygon,
 		toolAction: s.map.toolAction
@@ -53,10 +57,24 @@ const mapDispatchToProps = dispatch => {
 		addNeighbor: async (id, neighborId) => {
 			await dispatch(addNeighborAsync(id, neighborId))
 			dispatch(unsetTool())
+			dispatch(setSecondSelectedPrecinct(null))
 		},
 		deleteNeighbor: async (id, neighborId) => {
 			await dispatch(deleteNeighborAsync(id, neighborId))
 			dispatch(unsetTool())
+			dispatch(setSecondSelectedPrecinct(null))
+		},
+		mergePrecincts: async (id1, id2) => {
+			await dispatch(mergePrecinctsAsync(id1, id2))
+			dispatch(unsetTool())
+			dispatch(setSecondSelectedPrecinct(null))
+		},
+		unsetTool: () => {
+			dispatch(unsetTool())
+			dispatch(setSecondSelectedPrecinct(null))
+		},
+		setSecondSelectedPrecinct: (precinct) => {
+			dispatch(setSecondSelectedPrecinct(precinct))
 		}
 	};
 };
@@ -127,27 +145,43 @@ class StateMap extends React.Component {
 		layer.on({
 			click: e => {
 				let layer = e.target;
-				let {name, id} = layer.feature.properties;
-				switch(this.props.toolAction) {
-					case ADD_NEIGHBOR:
-						if (window.confirm(`Are you sure you want to add Precinct ${name} to neighbors?`)) {
-							this.props.addNeighbor(this.props.selectedPrecinct.id, id)
+				let { name, id } = layer.feature.properties;
+				if (this.props.selectedPrecinct && this.props.selectedPrecinct.id === id) return;
+				if (this.props.toolAction) {
+					this.props.setSecondSelectedPrecinct(this.props.precincts.find(p => p.id === id))
+					window.setTimeout(() => { // set timeout of 0 to add to end of event queue
+						switch (this.props.toolAction) {
+							case ADD_NEIGHBOR:
+								if (window.confirm(`Are you sure you want to add Precinct ${name} to neighbors?`)) {
+									this.props.addNeighbor(this.props.selectedPrecinct.id, id)
+								} else {
+									this.props.unsetTool()
+								}
+								break;
+							case DELETE_NEIGHBOR:
+								if (window.confirm(`Are you sure you want to delete Precinct ${name} from neighbors?`)) {
+									this.props.deleteNeighbor(this.props.selectedPrecinct.id, id)
+								} else {
+									this.props.unsetTool()
+								}
+								break;
+							case MERGE_PRECINCTS:
+								if (window.confirm(`Are you sure you want to merge Precinct ${name}?`)) {
+									this.props.mergePrecincts(this.props.selectedPrecinct.id, id)
+								} else {
+									this.props.unsetTool()
+								}
+								break;
+							default:
 						}
-						break;
-					case DELETE_NEIGHBOR:
-						if (window.confirm(`Are you sure you want to delete Precinct ${name} from neighbors?`)) {
-							this.props.deleteNeighbor(this.props.selectedPrecinct.id, id)
-						}
-						break;
-					case MERGE_PRECINCTS:
-						alert("MERGE_PRECINCTS")
-						break;
-					default:
-						this.resetFeaturedGroup()
-						if (layer.feature.geometry.type === 'Polygon') { // Only enable editing for Polygons
-							this.refs.featuredGroup.contextValue.layerContainer.addLayer(layer)
-						}
-						this.props.onSelectPrecinct(id, this.state.election, this.props.precincts)
+					}, 0)
+
+				} else {
+					this.resetFeaturedGroup()
+					if (layer.feature.geometry.type === 'Polygon') { // Only enable editing for Polygons
+						this.refs.featuredGroup.contextValue.layerContainer.addLayer(layer)
+					}
+					this.props.onSelectPrecinct(id, this.state.election, this.props.precincts)
 				}
 			}
 		});
@@ -187,15 +221,17 @@ class StateMap extends React.Component {
 		})
 	}
 	precinctStyle = (feature) => {
-		let color = precinctColor;
+		if (this.props.secondSelectedPrecinct && this.props.secondSelectedPrecinct.id === feature.properties.id) {
+			return secondSelectedPrecinctStyle;
+		}
 		if (this.props.selectedPrecinct) {
 			if (this.props.selectedPrecinct.id === feature.properties.id) {
-				color = selectedPrecinctColor;
+				return selectedPrecinctStyle;
 			} else if (this.props.selectedPrecinct.neighbors && this.props.selectedPrecinct.neighbors.includes(feature.properties.id)) {
-				color = neighborPrecinctColor;
+				return neighborPrecinctStyle;
 			}
 		}
-		return { color }
+		return precinctStyle;
 	}
 	render() {
 		const stateSelectOptions = this.props.states.map(state => <option key={state.id} value={state.abbr}>{state.name}</option>);
@@ -243,6 +279,7 @@ class StateMap extends React.Component {
 						position='topleft'
 						onEdited={this.handleLeafletEdit.bind(this)}
 						draw={leafletDrawOptions}
+						edit={leafletEditOptions}
 					/>
 				</FeatureGroup>
 				<TileLayer
@@ -251,7 +288,7 @@ class StateMap extends React.Component {
 				/>
 				{geojson}
 				{this.state.showNationalParks &&
-					<GeoJSON data={nationalParksGeojson} style={{ color: nationalParkColor }} />
+					<GeoJSON data={nationalParksGeojson} style={nationalParkStyle} />
 				}
 			</Map>
 		)

@@ -1,6 +1,6 @@
 import {
   DELETE_PRECINCTS, REQUEST_PRECINCTS, RECEIVE_PRECINCTS, REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA,
-  SET_SELECTED_PRECINCT,
+  SET_SELECTED_PRECINCT, SET_SECOND_SELECTED_PRECINCT,
   ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS
 } from './types';
 import axios from 'axios';
@@ -16,6 +16,12 @@ export const setSelectedPrecinct = precinct => {
     precinct
   }
 }
+export const setSecondSelectedPrecinct = precinct => {
+  return {
+    type: SET_SECOND_SELECTED_PRECINCT,
+    precinct
+  }
+}
 export const recievePrecincts = (precincts, geojson) => {
   return {
     type: RECEIVE_PRECINCTS,
@@ -28,6 +34,9 @@ export const addNeighbor = (neighborId) => {
 }
 export const deleteNeighbor = (neighborId) => {
   return { type: DELETE_NEIGHBOR, neighborId }
+}
+export const mergePrecincts = (id1, id2, precinct) => {
+  return { type: MERGE_PRECINCTS, id1, id2, precinct }
 }
 
 // Asynchronous actions
@@ -87,5 +96,11 @@ export const deleteNeighborAsync = (id, neighborId) => {
   return async (dispatch) => {
     await axios.delete(process.env.REACT_APP_API_URL + `/api/precinct/${id}/${neighborId}`)
     dispatch(deleteNeighbor(neighborId))
+  }
+}
+export const mergePrecinctsAsync = (id1, id2) => {
+  return async (dispatch) => {
+    let { data } = await axios.patch(process.env.REACT_APP_API_URL + `/api/precinct/${id1}/${id2}/merge`)
+    dispatch(mergePrecincts(id1, id2, data))
   }
 }
