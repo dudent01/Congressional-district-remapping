@@ -5,6 +5,7 @@ import Gators.model.Election.CandidateResult;
 import Gators.model.Election.Election;
 import Gators.model.Error.Log;
 import Gators.model.Precinct;
+import Gators.repository.LogRepository;
 import Gators.repository.PrecinctRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,10 +29,12 @@ import java.util.stream.Collectors;
 @Service
 public class PrecinctService {
     private final PrecinctRepository precinctRepository;
+    private final LogRepository logRepository;
 
     @Autowired
-    public PrecinctService(PrecinctRepository precinctRepository) {
+    public PrecinctService(PrecinctRepository precinctRepository, LogRepository logRepository) {
         this.precinctRepository = precinctRepository;
+        this.logRepository = logRepository;
     }
 
     @Transactional
@@ -53,6 +56,9 @@ public class PrecinctService {
                 precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
         log2.setNewData(
                 precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+
+        logRepository.save(log1);
+        logRepository.save(log2);
     }
 
     public Set<Precinct> getPrecinctsByStateAbbr(String stateAbbr) {
@@ -82,6 +88,8 @@ public class PrecinctService {
         precinct.setGeojson(geojson);
 
         log.setNewData(precinct.getGeojson());
+
+        logRepository.save(log);
     }
 
     @Transactional
@@ -103,6 +111,9 @@ public class PrecinctService {
                 precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
         log2.setNewData(
                 precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+
+        logRepository.save(log1);
+        logRepository.save(log2);
     }
 
     @Transactional
@@ -183,6 +194,8 @@ public class PrecinctService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+
+        logRepository.save(log);
 
         return precinct1;
     }
