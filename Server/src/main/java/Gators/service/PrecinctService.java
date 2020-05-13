@@ -5,7 +5,6 @@ import Gators.model.Election.CandidateResult;
 import Gators.model.Election.Election;
 import Gators.model.Error.Log;
 import Gators.model.Precinct;
-import Gators.repository.LogRepository;
 import Gators.repository.PrecinctRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,12 +28,10 @@ import java.util.stream.Collectors;
 @Service
 public class PrecinctService {
     private final PrecinctRepository precinctRepository;
-    private final LogRepository logRepository;
 
     @Autowired
-    public PrecinctService(PrecinctRepository precinctRepository, LogRepository logRepository) {
+    public PrecinctService(PrecinctRepository precinctRepository) {
         this.precinctRepository = precinctRepository;
-        this.logRepository = logRepository;
     }
 
     @Transactional
@@ -44,14 +41,18 @@ public class PrecinctService {
 
         Log log1 = new Log(precinct1, "Add Neighbor");
         Log log2 = new Log(precinct2, "Add Neighbor");
-        log1.setOldData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-        log2.setOldData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log1.setOldData(
+                precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log2.setOldData(
+                precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
 
         precinct1.getNeighbors().add(precinct2);
         precinct2.getNeighbors().add(precinct1);
 
-        log1.setNewData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-        log2.setNewData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log1.setNewData(
+                precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log2.setNewData(
+                precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
     }
 
     public Set<Precinct> getPrecinctsByStateAbbr(String stateAbbr) {
@@ -67,7 +68,8 @@ public class PrecinctService {
     }
 
     public Collection getPres2016AndDemographicById(long id) {
-        return new ArrayList(Arrays.asList(precinctRepository.findById(id).orElse(null).getPres2016(), precinctRepository.findById(id).orElse(null).getDemographic()));
+        return new ArrayList(Arrays.asList(precinctRepository.findById(id).orElse(null).getPres2016(),
+                precinctRepository.findById(id).orElse(null).getDemographic()));
     }
 
     @Transactional
@@ -89,20 +91,33 @@ public class PrecinctService {
 
         Log log1 = new Log(precinct1, "Delete Neighbor");
         Log log2 = new Log(precinct2, "Delete Neighbor");
-        log1.setOldData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-        log2.setOldData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log1.setOldData(
+                precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log2.setOldData(
+                precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
 
         precinct1.getNeighbors().remove(precinct2);
         precinct2.getNeighbors().remove(precinct1);
 
-        log1.setNewData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-        log2.setNewData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log1.setNewData(
+                precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log2.setNewData(
+                precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
     }
 
     @Transactional
     public Precinct mergePrecinctsById(long id1, long id2) {
         Precinct precinct1 = precinctRepository.findById(id1).orElse(null);
         Precinct precinct2 = precinctRepository.findById(id2).orElse(null);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        Log log = new Log(precinct1, "Merge Precincts");
+        try {
+            log.setOldData(stringifyPrecinct(precinct2, mapper));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
         JsonParser springParser = JsonParserFactory.getJsonParser();
         Map<String, Object> precinct1Map = springParser.parseMap(precinct1.getGeojson());
@@ -111,8 +126,8 @@ public class PrecinctService {
         String precinct1Json = null;
         String precinct2Json = null;
         try {
-            precinct1Json = new ObjectMapper().writeValueAsString(precinct1Map.get("geometry"));
-            precinct2Json = new ObjectMapper().writeValueAsString(precinct2Map.get("geometry"));
+            precinct1Json = mapper.writeValueAsString(precinct1Map.get("geometry"));
+            precinct2Json = mapper.writeValueAsString(precinct2Map.get("geometry"));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -150,6 +165,7 @@ public class PrecinctService {
         mergeElections(precinct1.getCong2018(), precinct2.getCong2018());
 
         precinct1.setCName(precinct1.getCName() + " + " + precinct2.getCName());
+        precinct1.setName(precinct1.getName() + " + " + precinct2.getName());
         precinct1.getNeighbors().addAll(precinct2.getNeighbors());
         precinct1.getNeighbors().remove(precinct1);
 
@@ -157,7 +173,17 @@ public class PrecinctService {
             p.getNeighbors().add(precinct1);
             p.getNeighbors().remove(precinct2);
         }
+
+        precinctRepository.delete(precinct2);
         precinct2.getNeighbors().clear();
+
+        try {
+            log.setNewData(stringifyPrecinct(precinct1, mapper));
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
         return precinct1;
     }
 
@@ -196,7 +222,8 @@ public class PrecinctService {
                 }
             }
             if (!inCrs1) {
-                election1.getResults().add(new CandidateResult(cr2.getName(), cr2.getParty(), cr2.getVotes(), cr2.getElection()));
+                election1.getResults().add(
+                        new CandidateResult(cr2.getName(), cr2.getParty(), cr2.getVotes(), cr2.getElection()));
             }
         }
     }
@@ -213,5 +240,14 @@ public class PrecinctService {
         demographic1.setWhitePop(demographic1.getWhitePop() + demographic2.getWhitePop());
         demographic1.setHispanicPop(demographic1.getHispanicPop() + demographic2.getHispanicPop());
         demographic1.setOtherPop(demographic1.getOtherPop() + demographic2.getOtherPop());
+    }
+
+    private String stringifyPrecinct(Precinct precinct, ObjectMapper mapper) throws JsonProcessingException {
+        return mapper.writeValueAsString(precinct) + "\nneighbors : " + precinct.getNeighbors().stream().map(
+                Precinct::getCName).collect(Collectors.toSet()).toString() + mapper.writeValueAsString(
+                precinct.getPres2016()) + mapper.writeValueAsString(
+                precinct.getCong2016()) + mapper.writeValueAsString(
+                precinct.getCong2018()) + mapper.writeValueAsString(
+                precinct.getDemographic()) + "\nstate : " + precinct.getState().getName();
     }
 }

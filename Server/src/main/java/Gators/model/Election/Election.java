@@ -23,12 +23,12 @@ public class Election {
     @Enumerated(EnumType.STRING)
     private ElectionType type;
 
-    @OneToMany(mappedBy = "election")
+    @OneToMany(mappedBy = "election", cascade = CascadeType.REMOVE)
     @OrderBy("votes DESC")
     private Set<CandidateResult> results;
 
     public Election(ElectionType type) {
         this.type = type;
-        results = new HashSet<CandidateResult>();
+        results = new HashSet<>();
     }
 }
