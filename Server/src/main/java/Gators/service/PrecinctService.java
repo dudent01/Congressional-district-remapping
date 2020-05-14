@@ -84,17 +84,17 @@ public class PrecinctService {
     }
 
     public Collection<?> getPres2016AndDemographicById(long id) {
-        return new ArrayList(Arrays.asList(precinctRepository.findById(id).orElse(null).getPres2016(),
+        return new ArrayList<>(Arrays.asList(precinctRepository.findById(id).orElse(null).getPres2016(),
                 precinctRepository.findById(id).orElse(null).getDemographic()));
     }
 
     public Collection<?> getCong2016AndDemographicById(long id) {
-        return new ArrayList(Arrays.asList(precinctRepository.findById(id).orElse(null).getCong2016(),
+        return new ArrayList<>(Arrays.asList(precinctRepository.findById(id).orElse(null).getCong2016(),
                 precinctRepository.findById(id).orElse(null).getDemographic()));
     }
 
     public Collection<?> getCong2018AndDemographicById(long id) {
-        return new ArrayList(Arrays.asList(precinctRepository.findById(id).orElse(null).getCong2018(),
+        return new ArrayList<>(Arrays.asList(precinctRepository.findById(id).orElse(null).getCong2018(),
                 precinctRepository.findById(id).orElse(null).getDemographic()));
     }
 
