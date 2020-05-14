@@ -1,6 +1,6 @@
 import {
   DELETE_PRECINCTS, REQUEST_PRECINCTS, RECEIVE_PRECINCTS, REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA,
-  SET_SELECTED_PRECINCT, SET_SECOND_SELECTED_PRECINCT,
+  SET_SELECTED_PRECINCT, SET_SECOND_SELECTED_PRECINCT, SET_PRECINCT_GEOJSON,
   ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION, ADD_PRECINCT
 } from './types';
 import axios from 'axios';
@@ -98,7 +98,7 @@ export const fetchPrecinctsByState = (abbr) => {
 export const updatePrecinctGeojson = (id, geojson) => {
   return async (dispatch) => {
     await axios.put(process.env.REACT_APP_API_URL + `/api/precinct/${id}/geojson`, geojson)
-    // dispatch({ type: SET_PRECINCT_GEOJSON, geojson, id })
+    dispatch({ type: SET_PRECINCT_GEOJSON, geojson, id })
   }
 }
 export const addNeighborAsync = (id, neighborId) => {

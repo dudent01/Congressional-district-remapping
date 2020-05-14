@@ -23,7 +23,13 @@ for state in data['features']:
 
     if abbr == "UT":
         precincts_source = "Harvard Dataverse"
-        elections_source = "Utah.gov OpenDataCatalog"
+        elections_source = "Utah.gov / OpenDataCatalog"
+    elif abbr == "CA":
+        precincts_source = "UC Berkeley Law"
+        elections_source = "Harvard Dataverse"
+    elif abbr == "WV":
+        precincts_source = "Data.gov"
+        elections_source = "West Virginia GIS Technical Center"
     else:
         precincts_source = None
         elections_source = None

@@ -14,7 +14,7 @@ import {
 	addNeighborAsync, deleteNeighborAsync, mergePrecinctsAsync, setSecondSelectedPrecinct, updateGeojsonKey, generatePrecinctAsync
 } from '../actions/precinctActions';
 import { setDrawPolygon, unsetTool } from '../actions/mapActions'
-import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
+import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, DRAW_NEW_BOUNDARY } from '../actions/types'
 import L from 'leaflet'
 import nationalParksGeojson from '../assets/simplified_national_parks.json'
 
@@ -209,24 +209,37 @@ class StateMap extends React.Component {
 			}
 			geojson.properties = {}
 			if (window.confirm(`Would you like to set this as the official boundary data for Precinct ${name}?`)) {
-				this.props.updatePrecinctGeojson(id, geojson).then(() => this.resetFeaturedGroup())
+				this.resetFeaturedGroup()
+				this.props.updatePrecinctGeojson(id, geojson)
 			}
 		})
 	}
 	handleLeafletCreate(e) {
-		if (e.layerType !== 'polygon' || !this.props.precincts) {
+		if (e.layerType !== 'polygon' || !this.props.selectedState) {
 			return;
 		}
 		let geojson = e.layer.toGeoJSON();
-		window.setTimeout(() => {
-			if (window.confirm(`Would you like to create a new Precinct from this boundary in State ${this.props.selectedState}?`)) {
-				this.props.addPrecinct(geojson, this.props.selectedState).then(() => {
-					this.refs.featuredGroup.contextValue.layerContainer.removeLayer(e.layer)
+		if (this.props.toolAction === DRAW_NEW_BOUNDARY) {
+			if (window.confirm(`Would you like to set this as the new boundary for Precinct ${this.props.selectedPrecinct.name}`)) {
+				this.refs.featuredGroup.contextValue.layerContainer.removeLayer(e.layer)
+				this.resetFeaturedGroup()
+				this.props.updatePrecinctGeojson(this.props.selectedPrecinct.id, geojson).then(() => {
+					this.props.unsetTool()
 				})
+			}
+			else {
+				this.props.unsetTool()
+			}
+		}
+		else {
+			if (window.confirm(`Would you like to create a new Precinct from this boundary in State ${this.props.selectedState}?`)) {
+				this.refs.featuredGroup.contextValue.layerContainer.removeLayer(e.layer)
+				this.resetFeaturedGroup()
+				this.props.addPrecinct(geojson, this.props.selectedState)
 			} else {
 				this.refs.featuredGroup.contextValue.layerContainer.removeLayer(e.layer)
 			}
-		}, 0)
+		}
 	}
 	precinctStyle = (feature) => {
 		if (this.props.secondSelectedPrecinct && this.props.secondSelectedPrecinct.id === feature.properties.id) {

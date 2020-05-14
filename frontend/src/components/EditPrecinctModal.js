@@ -9,13 +9,13 @@ class EditPrecinctModal extends React.Component {
       show: false,
       form: {
         name: "",
-        cName: ""
+        cname: ""
       },
       submitting: false
     }
   }
   handleClose() {
-    this.setState({ show: false, form: { name: "", cName: "" } })
+    this.setState({ show: false, form: { name: "", cname: "" } })
   }
   handleShow() {
     this.setState({ show: true })
@@ -23,7 +23,7 @@ class EditPrecinctModal extends React.Component {
   handleOnShow() {
     const form = this.state.form
     form.name = this.props.precinct.name;
-    form.cName = this.props.precinct.cname;
+    form.cname = this.props.precinct.cname;
     this.setState({ form })
   }
   handleChange(e) {
@@ -64,7 +64,7 @@ class EditPrecinctModal extends React.Component {
 
               <Form.Group>
                 <Form.Label>Canonical Name</Form.Label>
-                <Form.Control name="cName" type="text" value={this.state.form.cName} onChange={e => this.handleChange(e)} />
+                <Form.Control name="cname" type="text" value={this.state.form.cname} onChange={e => this.handleChange(e)} />
               </Form.Group>
             </Form>
           </Modal.Body>

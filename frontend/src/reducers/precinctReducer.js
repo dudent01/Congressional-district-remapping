@@ -61,15 +61,17 @@ export default function precinctReducer(state = initialState, action) {
         ...state,
         secondSelectedPrecinct: action.precinct
       }
-    case SET_PRECINCT_GEOJSON:
+    case SET_PRECINCT_GEOJSON: {
       if (state.geojson == null) {
         return state
       }
+      let precinct = state.precincts.find(p => p.id === action.id)
       const index = state.geojson.features.findIndex(p => p.properties.id === action.id)
       if (index < 0) {
         return state
       }
       action.geojson.properties.id = action.id
+      action.geojson.properties.name = precinct.name
       return {
         ...state,
         geojson: {
@@ -82,6 +84,7 @@ export default function precinctReducer(state = initialState, action) {
         },
         geojsonKey: state.geojsonKey + 1
       }
+    }
     case ADD_NEIGHBOR:
       return {
         ...state,
@@ -113,7 +116,7 @@ export default function precinctReducer(state = initialState, action) {
       return {
         ...state,
         precincts: [...state.precincts.filter(p => p.id !== action.id1 && p.id !== action.id2), action.precinct],
-        selectedPrecinct: action.precinct,
+        selectedPrecinct: null,
         geojson: {
           ...state.geojson,
           features: [...state.geojson.features.filter(p => p.properties.id !== action.id1 && p.properties.id !== action.id2), geojson]
@@ -121,11 +124,11 @@ export default function precinctReducer(state = initialState, action) {
         geojsonKey: state.geojsonKey + 1
       }
     case UPDATE_PRECINCT:
-      let { cName, name, id } = action.data;
+      let { cname, name, id } = action.data;
       let precinctsIndex = state.precincts.findIndex(p => p.id === id);
       let precinct = state.precincts[precinctsIndex];
       precinct.name = name;
-      precinct.cname = cName;
+      precinct.cname = cname;
 
       let geojsonIndex = state.geojson.features.findIndex(p => p.properties.id === id);
       let geojson1 = state.geojson.features[geojsonIndex];
@@ -135,7 +138,7 @@ export default function precinctReducer(state = initialState, action) {
         ...state,
         selectedPrecinct: {
           ...state.selectedPrecinct,
-          cname: cName,
+          cname: cname,
           name: name
         },
         precincts: [
@@ -160,16 +163,20 @@ export default function precinctReducer(state = initialState, action) {
           election: action.election
         }
       }
-    case ADD_PRECINCT:
+    case ADD_PRECINCT: {
+      let geojson = JSON.parse(action.precinct.geojson)
+      geojson.properties.id = action.precinct.id;
+      geojson.properties.name = action.precinct.name;
       return {
         ...state,
         precincts: [...state.precincts, action.precinct],
         geojson: {
           ...state.geojson,
-          features: [...state.geojson.features, JSON.parse(action.precinct.geojson)]
+          features: [...state.geojson.features, geojson]
         },
         geojsonKey: state.geojsonKey + 1
       }
+    }
     default:
       return state;
   }
