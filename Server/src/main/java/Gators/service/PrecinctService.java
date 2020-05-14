@@ -200,6 +200,13 @@ public class PrecinctService {
         return precinct1;
     }
 
+    @Transactional
+    public void editPrecinctNames(long id, String name, String cName) {
+        Precinct precinct = precinctRepository.findById(id).orElse(null);
+        precinct.setName(name);
+        precinct.setCName(cName);
+    }
+
     private Geometry deflate(Geometry geom) {
         BufferParameters bufferParameters = new BufferParameters();
         bufferParameters.setEndCapStyle(BufferParameters.CAP_ROUND);

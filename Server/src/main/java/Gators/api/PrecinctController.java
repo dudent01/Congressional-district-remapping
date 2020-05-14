@@ -4,6 +4,7 @@ import Gators.model.Demographic.Demographic;
 import Gators.model.Precinct;
 import Gators.model.Territory;
 import Gators.service.PrecinctService;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,5 +63,12 @@ public class PrecinctController {
     @PatchMapping(path = "/{id1}/{id2}/merge")
     public Precinct mergePrecinctsById(@PathVariable long id1, @PathVariable long id2) {
         return precinctService.mergePrecinctsById(id1, id2);
+    }
+
+    @PatchMapping(path = "/{id}/names")
+    public boolean editPrecinctNames(@PathVariable long id, @RequestBody JsonNode requestBody)
+    {
+        precinctService.editPrecinctNames(id, requestBody.get("name").asText(), requestBody.get("cName").asText());
+        return true;
     }
 }

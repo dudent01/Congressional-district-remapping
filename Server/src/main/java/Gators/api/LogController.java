@@ -19,7 +19,7 @@ public class LogController {
         this.logService = logService;
     }
 
-    @GetMapping(path = "")
+    @GetMapping
     public List<Log> getLogs() {
         return logService.getLogs();
     }
