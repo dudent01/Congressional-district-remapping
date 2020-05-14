@@ -44,19 +44,20 @@ for precinct in california['features']:
     mycursor.execute(sql, val)
     demographic_id = mycursor.lastrowid
 
-    geojson = json.dumps(precinct)
-    geojson["properties"] = {}
+    id = precinct['properties']['ID']
+    cname = precinct['properties']['cname']
+    precinct["properties"] = {}
 
     sql = "INSERT INTO precinct (name, state_id, pres2016_id, demographic_id, c_name, geojson) VALUES (%s,%s,%s,%s,%s,%s)"
-    val = (precinct['properties']['ID'], 1, pres2016_id, demographic_id, precinct['properties']['cname'], geojson)
+    val = (id, 1, pres2016_id, demographic_id, cname, json.dumps(precinct))
     mycursor.execute(sql, val)
-    map_cname_to_id[precinct['properties']['cname']] = mycursor.lastrowid
+    map_cname_to_id[cname] = mycursor.lastrowid
 
 # Adding Neighbors
-sql = "SELECT c_name, id FROM precinct"
-mycursor.execute(sql)
-for result in mycursor.fetchall():
-    map_cname_to_id[result[0]] = result[1]
+# sql = "SELECT c_name, id FROM precinct"
+# mycursor.execute(sql)
+# for result in mycursor.fetchall():
+#     map_cname_to_id[result[0]] = result[1]
 
 print("Adding Neighbors")
 for precinct in california['features']:

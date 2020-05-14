@@ -5,23 +5,19 @@ export const defaultElection = "presidential2016"
 export const stateColor = "darkorange";
 export const precinctStyle = { 
   color: "brown",
-  fillOpacity: .2,
-  weight: 2 
+  fillOpacity: .5,
 };
 export const selectedPrecinctStyle = { 
   color: "yellow", 
   fillOpacity: .5,
-  weight: 4
 }
 export const secondSelectedPrecinctStyle = { 
   color: "red", 
   fillOpacity: .5,
-  weight: 4 
 }
 export const neighborPrecinctStyle = { 
   color: "purple", 
   fillOpacity: .5,
-  weight: 3 
 }
 export const nationalParkStyle = {
   color: "green",
