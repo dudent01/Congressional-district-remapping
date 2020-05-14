@@ -184,7 +184,7 @@ class Sidebar extends React.Component {
 										delay={{ show: 250, hide: 400 }}
 										overlay={this.renderTooltip(0)}
 									>
-										<Button block disabled>
+										<Button block>
 											?
 							</Button>
 									</OverlayTrigger>
@@ -216,7 +216,7 @@ class Sidebar extends React.Component {
 										delay={{ show: 250, hide: 400 }}
 										overlay={this.renderTooltip(1)}
 									>
-										<Button block disabled>
+										<Button block>
 											?
 									</Button>
 									</OverlayTrigger>
@@ -248,7 +248,7 @@ class Sidebar extends React.Component {
 										delay={{ show: 250, hide: 400 }}
 										overlay={this.renderTooltip(2)}
 									>
-										<Button block disabled>
+										<Button block>
 											?
 							</Button>
 									</OverlayTrigger>
@@ -280,7 +280,7 @@ class Sidebar extends React.Component {
 										delay={{ show: 250, hide: 400 }}
 										overlay={this.renderTooltip(3)}
 									>
-										<Button block disabled>
+										<Button block>
 											?
 							</Button>
 									</OverlayTrigger>
