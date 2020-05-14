@@ -9,10 +9,10 @@ import Gators.model.Precinct;
 import Gators.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.locationtech.jts.operation.buffer.BufferOp;
@@ -136,93 +136,88 @@ public class PrecinctService {
         logRepository.save(log2);
     }
 
+    @SneakyThrows
     @Transactional
     public Precinct mergePrecinctsById(long id1, long id2) {
-        try {
-            Precinct precinct1 = precinctRepository.findById(id1).orElse(null);
-            Precinct precinct2 = precinctRepository.findById(id2).orElse(null);
+        Precinct precinct1 = precinctRepository.findById(id1).orElse(null);
+        Precinct precinct2 = precinctRepository.findById(id2).orElse(null);
 
-            Log log = new Log(precinct1, "Merge Precincts");
+        Log log = new Log(precinct1, "Merge Precincts");
 
-            log.setOldData(stringifyPrecinct(precinct2));
+        log.setOldData(stringifyPrecinct(precinct2));
 
-            JsonParser springParser = JsonParserFactory.getJsonParser();
-            Map<String, Object> precinct1Map = springParser.parseMap(precinct1.getGeojson());
-            Map<String, Object> precinct2Map = springParser.parseMap(precinct2.getGeojson());
+        JsonParser springParser = JsonParserFactory.getJsonParser();
+        Map<String, Object> precinct1Map = springParser.parseMap(precinct1.getGeojson());
+        Map<String, Object> precinct2Map = springParser.parseMap(precinct2.getGeojson());
 
-            String precinct1Json;
-            String precinct2Json;
+        String precinct1Json;
+        String precinct2Json;
 
-            precinct1Json = mapper.writeValueAsString(precinct1Map.get("geometry"));
-            precinct2Json = mapper.writeValueAsString(precinct2Map.get("geometry"));
+        precinct1Json = mapper.writeValueAsString(precinct1Map.get("geometry"));
+        precinct2Json = mapper.writeValueAsString(precinct2Map.get("geometry"));
 
-            Collection<Geometry> geometryList = new LinkedList<>();
-            GeoJsonReader geoJsonReader = new GeoJsonReader();
-            Geometry g1, g2;
-            g1 = inflate(geoJsonReader.read(precinct1Json));
-            g2 = inflate(geoJsonReader.read(precinct2Json));
+        Collection<Geometry> geometryList = new LinkedList<>();
+        GeoJsonReader geoJsonReader = new GeoJsonReader();
+        Geometry g1, g2;
+        g1 = inflate(geoJsonReader.read(precinct1Json));
+        g2 = inflate(geoJsonReader.read(precinct2Json));
 
-            Collections.addAll(geometryList, g1, g2);
-            GeometryFactory geometryFactory = new GeometryFactory();
-            Object obj = geometryFactory.buildGeometry(geometryList);
-            GeometryCollection geometryCollection = (GeometryCollection) obj;
-            Geometry union = geometryCollection.union();  //perform union
-            String str = new GeoJsonWriter().write(deflate(union));
-            precinct1Map.put("geometry", springParser.parseMap(str));
+        Collections.addAll(geometryList, g1, g2);
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Object obj = geometryFactory.buildGeometry(geometryList);
+        GeometryCollection geometryCollection = (GeometryCollection) obj;
+        Geometry union = geometryCollection.union();  //perform union
+        String str = new GeoJsonWriter().write(deflate(union));
+        precinct1Map.put("geometry", springParser.parseMap(str));
 
-            String newGeojson;
-            newGeojson = new ObjectMapper().writeValueAsString(precinct1Map);
+        String newGeojson;
+        newGeojson = new ObjectMapper().writeValueAsString(precinct1Map);
 
-            precinct1.setGeojson(newGeojson);
+        precinct1.setGeojson(newGeojson);
 
-            if (precinct1.getDemographic() == null && precinct2.getDemographic() != null) {
-                precinct1.setDemographic(new Demographic());
-                demographicRepository.save(precinct1.getDemographic());
-            }
-            mergeDemographics(precinct1.getDemographic(), precinct2.getDemographic());
+        if (precinct1.getDemographic() == null && precinct2.getDemographic() != null) {
+            precinct1.setDemographic(new Demographic());
+            demographicRepository.save(precinct1.getDemographic());
+        }
+        mergeDemographics(precinct1.getDemographic(), precinct2.getDemographic());
 
-            if (precinct1.getPres2016() == null && precinct2.getPres2016() != null) {
-                precinct1.setPres2016(new Election(ElectionType.PRESIDENTIAL_2016));
-                electionRepository.save(precinct1.getPres2016());
-            }
-
-            if (precinct1.getCong2016() == null && precinct2.getCong2016() != null) {
-                precinct1.setCong2016(new Election(ElectionType.CONGRESSIONAL_2016));
-                electionRepository.save(precinct1.getCong2016());
-            }
-
-            if (precinct1.getCong2018() == null && precinct2.getCong2018() != null) {
-                precinct1.setCong2018(new Election(ElectionType.CONGRESSIONAL_2018));
-                electionRepository.save(precinct1.getCong2018());
-            }
-
-            mergeElections(precinct1.getPres2016(), precinct2.getPres2016());
-            mergeElections(precinct1.getCong2016(), precinct2.getCong2016());
-            mergeElections(precinct1.getCong2018(), precinct2.getCong2018());
-
-            precinct1.setCName(precinct1.getCName() + " + " + precinct2.getCName());
-            precinct1.setName(precinct1.getName() + " + " + precinct2.getName());
-            precinct1.getNeighbors().addAll(precinct2.getNeighbors());
-            precinct1.getNeighbors().remove(precinct1);
-
-            for (Precinct p : precinct2.getNeighbors()) {
-                p.getNeighbors().add(precinct1);
-                p.getNeighbors().remove(precinct2);
-            }
-
-            precinctRepository.delete(precinct2);
-            precinct2.getNeighbors().clear();
-
-            log.setNewData(stringifyPrecinct(precinct1));
-
-            logRepository.save(log);
-
-            return precinct1;
-        } catch (JsonProcessingException | ParseException e) {
-            e.printStackTrace();
+        if (precinct1.getPres2016() == null && precinct2.getPres2016() != null) {
+            precinct1.setPres2016(new Election(ElectionType.PRESIDENTIAL_2016));
+            electionRepository.save(precinct1.getPres2016());
         }
 
-        return null;
+        if (precinct1.getCong2016() == null && precinct2.getCong2016() != null) {
+            precinct1.setCong2016(new Election(ElectionType.CONGRESSIONAL_2016));
+            electionRepository.save(precinct1.getCong2016());
+        }
+
+        if (precinct1.getCong2018() == null && precinct2.getCong2018() != null) {
+            precinct1.setCong2018(new Election(ElectionType.CONGRESSIONAL_2018));
+            electionRepository.save(precinct1.getCong2018());
+        }
+
+        mergeElections(precinct1.getPres2016(), precinct2.getPres2016());
+        mergeElections(precinct1.getCong2016(), precinct2.getCong2016());
+        mergeElections(precinct1.getCong2018(), precinct2.getCong2018());
+
+        precinct1.setCName(precinct1.getCName() + " + " + precinct2.getCName());
+        precinct1.setName(precinct1.getName() + " + " + precinct2.getName());
+        precinct1.getNeighbors().addAll(precinct2.getNeighbors());
+        precinct1.getNeighbors().remove(precinct1);
+
+        for (Precinct p : precinct2.getNeighbors()) {
+            p.getNeighbors().add(precinct1);
+            p.getNeighbors().remove(precinct2);
+        }
+
+        precinctRepository.delete(precinct2);
+        precinct2.getNeighbors().clear();
+
+        log.setNewData(stringifyPrecinct(precinct1));
+
+        logRepository.save(log);
+
+        return precinct1;
     }
 
     @Transactional
@@ -241,47 +236,43 @@ public class PrecinctService {
         logRepository.save(log);
     }
 
+    @SneakyThrows
     @Transactional
     public void editElection(long id, Election election) {
         Precinct precinct = precinctRepository.findById(id).orElse(null);
 
         Log log = new Log(precinct, "Edit Election");
-        try {
-            switch (election.getType()) {
-            case PRESIDENTIAL_2016:
-                if (precinct.getPres2016() == null) {
-                    precinct.setPres2016(new Election(ElectionType.PRESIDENTIAL_2016));
-                    electionRepository.save(precinct.getPres2016());
-                }
-                log.setOldData(mapper.writeValueAsString(precinct.getPres2016()));
-                writeElection(precinct.getPres2016(), election);
-                log.setNewData(mapper.writeValueAsString(precinct.getPres2016()));
-                break;
-            case CONGRESSIONAL_2016:
-                if (precinct.getCong2016() == null) {
-                    precinct.setCong2016(new Election(ElectionType.CONGRESSIONAL_2016));
-                    electionRepository.save(precinct.getCong2016());
-                }
-                log.setOldData(mapper.writeValueAsString(precinct.getCong2016()));
-                writeElection(precinct.getCong2016(), election);
-                log.setNewData(mapper.writeValueAsString(precinct.getCong2016()));
-                break;
-            case CONGRESSIONAL_2018:
-                if (precinct.getCong2018() == null) {
-                    precinct.setCong2018(new Election(ElectionType.CONGRESSIONAL_2018));
-                    electionRepository.save(precinct.getCong2018());
-                }
-                log.setOldData(mapper.writeValueAsString(precinct.getCong2018()));
-                writeElection(precinct.getCong2018(), election);
-                log.setNewData(mapper.writeValueAsString(precinct.getCong2018()));
-                break;
+        switch (election.getType()) {
+        case PRESIDENTIAL_2016:
+            if (precinct.getPres2016() == null) {
+                precinct.setPres2016(new Election(ElectionType.PRESIDENTIAL_2016));
+                electionRepository.save(precinct.getPres2016());
             }
-
-            logRepository.save(log);
-
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.setOldData(mapper.writeValueAsString(precinct.getPres2016()));
+            writeElection(precinct.getPres2016(), election);
+            log.setNewData(mapper.writeValueAsString(precinct.getPres2016()));
+            break;
+        case CONGRESSIONAL_2016:
+            if (precinct.getCong2016() == null) {
+                precinct.setCong2016(new Election(ElectionType.CONGRESSIONAL_2016));
+                electionRepository.save(precinct.getCong2016());
+            }
+            log.setOldData(mapper.writeValueAsString(precinct.getCong2016()));
+            writeElection(precinct.getCong2016(), election);
+            log.setNewData(mapper.writeValueAsString(precinct.getCong2016()));
+            break;
+        case CONGRESSIONAL_2018:
+            if (precinct.getCong2018() == null) {
+                precinct.setCong2018(new Election(ElectionType.CONGRESSIONAL_2018));
+                electionRepository.save(precinct.getCong2018());
+            }
+            log.setOldData(mapper.writeValueAsString(precinct.getCong2018()));
+            writeElection(precinct.getCong2018(), election);
+            log.setNewData(mapper.writeValueAsString(precinct.getCong2018()));
+            break;
         }
+
+        logRepository.save(log);
     }
 
     @Transactional
@@ -292,28 +283,31 @@ public class PrecinctService {
         precinct.setName(Long.toString(precinct.getId()));
         precinct.setCName(Long.toString(precinct.getId()));
         precinct.setState(stateRepository.findByAbbr(stateAbbr));
+        precinct.setDemographic(new Demographic());
+        demographicRepository.save(precinct.getDemographic());
+
+        Log log = new Log(precinct, "Generate Precinct");
+        logRepository.save(log);
+        log.setOldData("");
+        log.setNewData(stringifyPrecinct(precinct));
         return precinct;
     }
 
+    @SneakyThrows
     @Transactional
     public void editDemographic(long id, Demographic demographic) {
         Precinct precinct = precinctRepository.findById(id).orElse(null);
 
         Log log = new Log(precinct, "Edit Demographic");
-        try {
-            if (precinct.getDemographic() == null) {
-                precinct.setDemographic(new Demographic());
-                demographicRepository.save(precinct.getDemographic());
-            }
-            log.setOldData(mapper.writeValueAsString(precinct.getDemographic()));
-            writeDemograpic(precinct.getDemographic(), demographic);
-            log.setNewData(mapper.writeValueAsString(precinct.getDemographic()));
-
-            logRepository.save(log);
-
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        if (precinct.getDemographic() == null) {
+            precinct.setDemographic(new Demographic());
+            demographicRepository.save(precinct.getDemographic());
         }
+        log.setOldData(mapper.writeValueAsString(precinct.getDemographic()));
+        writeDemograpic(precinct.getDemographic(), demographic);
+        log.setNewData(mapper.writeValueAsString(precinct.getDemographic()));
+
+        logRepository.save(log);
     }
 
     private Geometry deflate(Geometry geom) {
@@ -369,7 +363,8 @@ public class PrecinctService {
         demographic1.setOtherPop(demographic1.getOtherPop() + demographic2.getOtherPop());
     }
 
-    private String stringifyPrecinct(Precinct precinct) throws JsonProcessingException {
+    @SneakyThrows
+    private String stringifyPrecinct(Precinct precinct) {
         return mapper.writeValueAsString(precinct) + "\nneighbors : " + precinct.getNeighbors().stream().map(
                 Precinct::getCName).collect(Collectors.toSet()).toString() + mapper.writeValueAsString(
                 precinct.getPres2016()) + mapper.writeValueAsString(precinct.getCong2016()) + mapper.writeValueAsString(
