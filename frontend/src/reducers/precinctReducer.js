@@ -1,7 +1,7 @@
 import {
   REQUEST_PRECINCTS, RECEIVE_PRECINCTS, DELETE_PRECINCTS, SET_SELECTED_PRECINCT,
   REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA, SET_PRECINCT_GEOJSON,
-  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, SET_SECOND_SELECTED_PRECINCT
+  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, SET_SECOND_SELECTED_PRECINCT, UPDATE_GEOJSON_KEY
 } from '../actions/types';
 
 const initialState = {
@@ -16,6 +16,11 @@ const initialState = {
 
 export default function precinctReducer(state = initialState, action) {
   switch (action.type) {
+    case UPDATE_GEOJSON_KEY: 
+      return {
+        ...state,
+        geojsonKey: state.geojsonKey + 1
+      }
     case REQUEST_PRECINCTS:
       return {
         ...state,
@@ -101,13 +106,16 @@ export default function precinctReducer(state = initialState, action) {
         }
       }
     case MERGE_PRECINCTS:
+      let geojson = JSON.parse(action.precinct.geojson);
+      geojson.properties.id = action.precinct.id;
+      geojson.properties.name = action.precinct.name
       return {
         ...state,
-        precincts: state.precincts.filter(p => p.id !== action.id1 && p.id !== action.id2).push(action.precinct),
-        selectedPrecinct: null,
+        precincts: [...state.precincts.filter(p => p.id !== action.id1 && p.id !== action.id2), action.precinct],
+        selectedPrecinct: action.precinct,
         geojson: {
           ...state.geojson,
-          features: state.geojson.features.filter(p => p.properties.id !== action.id1 && p.properties.id !== action.id2).push(action.precinct.geojson)
+          features: [...state.geojson.features.filter(p => p.properties.id !== action.id1 && p.properties.id !== action.id2), geojson]
         },
         geojsonKey: state.geojsonKey + 1
       }

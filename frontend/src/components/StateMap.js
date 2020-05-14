@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { selectState, deselectState } from '../actions/stateActions';
 import {
 	fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson,
-	addNeighborAsync, deleteNeighborAsync, mergePrecinctsAsync, setSecondSelectedPrecinct
+	addNeighborAsync, deleteNeighborAsync, mergePrecinctsAsync, setSecondSelectedPrecinct, updateGeojsonKey
 } from '../actions/precinctActions';
 import { setDrawPolygon, unsetTool } from '../actions/mapActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
@@ -75,6 +75,9 @@ const mapDispatchToProps = dispatch => {
 		},
 		setSecondSelectedPrecinct: (precinct) => {
 			dispatch(setSecondSelectedPrecinct(precinct))
+		},
+		updateGeojsonKey: () => {
+			dispatch(updateGeojsonKey())
 		}
 	};
 };
@@ -146,6 +149,7 @@ class StateMap extends React.Component {
 			click: e => {
 				let layer = e.target;
 				let { name, id } = layer.feature.properties;
+				console.log(id)
 				if (this.props.selectedPrecinct && this.props.selectedPrecinct.id === id) return;
 				if (this.props.toolAction) {
 					this.props.setSecondSelectedPrecinct(this.props.precincts.find(p => p.id === id))
@@ -167,6 +171,7 @@ class StateMap extends React.Component {
 								break;
 							case MERGE_PRECINCTS:
 								if (window.confirm(`Are you sure you want to merge Precinct ${name}?`)) {
+									this.resetFeaturedGroup()
 									this.props.mergePrecincts(this.props.selectedPrecinct.id, id)
 								} else {
 									this.props.unsetTool()
@@ -264,6 +269,7 @@ class StateMap extends React.Component {
 							<option value="congressional2018">2018 Congressional</option>
 						</Form.Control>
 						<Button className="ml-auto" onClick={this.handleResetClicked.bind(this)}>Reset</Button>
+						<Button onClick={() => this.props.updateGeojsonKey()}>Update map</Button>
 					</Form>
 					<Form inline className="m-2">
 						<Form.Group className="mr-2" controlId="nationalParks">
