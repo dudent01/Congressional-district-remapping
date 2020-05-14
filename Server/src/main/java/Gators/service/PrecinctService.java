@@ -7,7 +7,6 @@ import Gators.model.Election.ElectionType;
 import Gators.model.Error.Log;
 import Gators.model.Precinct;
 import Gators.repository.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.locationtech.jts.geom.Geometry;
@@ -54,18 +53,14 @@ public class PrecinctService {
 
         Log log1 = new Log(precinct1, "Add Neighbor");
         Log log2 = new Log(precinct2, "Add Neighbor");
-        log1.setOldData(
-                precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-        log2.setOldData(
-                precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log1.setOldData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log2.setOldData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
 
         precinct1.getNeighbors().add(precinct2);
         precinct2.getNeighbors().add(precinct1);
 
-        log1.setNewData(
-                precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-        log2.setNewData(
-                precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log1.setNewData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log2.setNewData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
 
         logRepository.save(log1);
         logRepository.save(log2);
@@ -84,18 +79,15 @@ public class PrecinctService {
     }
 
     public Collection<?> getPres2016AndDemographicById(long id) {
-        return new ArrayList<>(Arrays.asList(precinctRepository.findById(id).orElse(null).getPres2016(),
-                precinctRepository.findById(id).orElse(null).getDemographic()));
+        return new ArrayList<>(Arrays.asList(precinctRepository.findById(id).orElse(null).getPres2016(), precinctRepository.findById(id).orElse(null).getDemographic()));
     }
 
     public Collection<?> getCong2016AndDemographicById(long id) {
-        return new ArrayList<>(Arrays.asList(precinctRepository.findById(id).orElse(null).getCong2016(),
-                precinctRepository.findById(id).orElse(null).getDemographic()));
+        return new ArrayList<>(Arrays.asList(precinctRepository.findById(id).orElse(null).getCong2016(), precinctRepository.findById(id).orElse(null).getDemographic()));
     }
 
     public Collection<?> getCong2018AndDemographicById(long id) {
-        return new ArrayList<>(Arrays.asList(precinctRepository.findById(id).orElse(null).getCong2018(),
-                precinctRepository.findById(id).orElse(null).getDemographic()));
+        return new ArrayList<>(Arrays.asList(precinctRepository.findById(id).orElse(null).getCong2018(), precinctRepository.findById(id).orElse(null).getDemographic()));
     }
 
     @Transactional
@@ -119,18 +111,14 @@ public class PrecinctService {
 
         Log log1 = new Log(precinct1, "Delete Neighbor");
         Log log2 = new Log(precinct2, "Delete Neighbor");
-        log1.setOldData(
-                precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-        log2.setOldData(
-                precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log1.setOldData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log2.setOldData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
 
         precinct1.getNeighbors().remove(precinct2);
         precinct2.getNeighbors().remove(precinct1);
 
-        log1.setNewData(
-                precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
-        log2.setNewData(
-                precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log1.setNewData(precinct1.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
+        log2.setNewData(precinct2.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString());
 
         logRepository.save(log1);
         logRepository.save(log2);
@@ -343,8 +331,7 @@ public class PrecinctService {
                 }
             }
             if (!inCrs1) {
-                CandidateResult result = new CandidateResult(cr2.getName(), cr2.getParty(), cr2.getVotes(),
-                        cr2.getElection());
+                CandidateResult result = new CandidateResult(cr2.getName(), cr2.getParty(), cr2.getVotes(), cr2.getElection());
                 candidateResultRepository.save(result);
                 election1.getResults().add(result);
             }
@@ -365,12 +352,12 @@ public class PrecinctService {
 
     @SneakyThrows
     private String stringifyPrecinct(Precinct precinct) {
-        return mapper.writeValueAsString(precinct) +
-                "\nneighbors : " + precinct.getNeighbors() == null ? "none" : precinct.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString() +
-                precinct.getPres2016() == null ? "No presidential2016 data\n" : mapper.writeValueAsString(precinct.getPres2016()) +
-                precinct.getCong2016() == null ? "No congressional2016 data\n" : mapper.writeValueAsString(precinct.getCong2016()) +
-                precinct.getCong2018() == null ? "No congressional2018 data\n" : mapper.writeValueAsString(precinct.getCong2018()) +
-                precinct.getDemographic() == null ? "No demographic data\n" : mapper.writeValueAsString(precinct.getDemographic()) +
+        return mapper.writeValueAsString(precinct) + "\nneighbors : " +
+                (precinct.getNeighbors() == null ? "none" : precinct.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString()) +
+                (precinct.getPres2016() == null ? "\nNo presidential2016 data" : mapper.writeValueAsString(precinct.getPres2016())) +
+                (precinct.getCong2016() == null ? "\nNo congressional2016 data" : mapper.writeValueAsString(precinct.getCong2016())) +
+                (precinct.getCong2018() == null ? "\nNo congressional2018 data" : mapper.writeValueAsString(precinct.getCong2018())) +
+                (precinct.getDemographic() == null ? "\nNo demographic data" : mapper.writeValueAsString(precinct.getDemographic())) +
                 "\nstate : " + precinct.getState().getName();
     }
 
