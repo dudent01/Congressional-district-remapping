@@ -210,6 +210,17 @@ class StateMap extends React.Component {
 			}
 		})
 	}
+	handleLeafletCreate(e) {
+		if (e.layerType !== 'polygon' || !this.props.precincts) {
+			return;
+		}
+		let geojson = e.layer.toGeoJSON()
+		if (window.confirm(`Would you like to create a new Precinct from this boundary in State ${this.props.selectedState}?`)) {
+			// this.props.updatePrecinctGeojson(id, geojson).then(() => this.map.current.contextValue.map.removeLayer(e.layer))
+		} else {
+			this.map.current.contextValue.map.removeLayer(e.layer)
+		}
+	}
 	precinctStyle = (feature) => {
 		if (this.props.secondSelectedPrecinct && this.props.secondSelectedPrecinct.id === feature.properties.id) {
 			return secondSelectedPrecinctStyle;
@@ -269,6 +280,7 @@ class StateMap extends React.Component {
 						ref={this.edit}
 						position='topleft'
 						onEdited={this.handleLeafletEdit.bind(this)}
+						onCreated={this.handleLeafletCreate.bind(this)}
 						draw={leafletDrawOptions}
 						edit={leafletEditOptions}
 					/>
