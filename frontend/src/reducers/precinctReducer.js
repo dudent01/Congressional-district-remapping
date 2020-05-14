@@ -1,12 +1,13 @@
 import {
   REQUEST_PRECINCTS, RECEIVE_PRECINCTS, DELETE_PRECINCTS, SET_SELECTED_PRECINCT,
   REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA, SET_PRECINCT_GEOJSON,
-  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS
+  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, SET_SECOND_SELECTED_PRECINCT, UPDATE_GEOJSON_KEY
 } from '../actions/types';
 
 const initialState = {
   precincts: [],
   selectedPrecinct: null,
+  secondSelectedPrecinct: null,
   geojson: null,
   geojsonKey: 0, // used in StateMap for rerendering the geojson
   isFetching: false,
@@ -15,6 +16,11 @@ const initialState = {
 
 export default function precinctReducer(state = initialState, action) {
   switch (action.type) {
+    case UPDATE_GEOJSON_KEY: 
+      return {
+        ...state,
+        geojsonKey: state.geojsonKey + 1
+      }
     case REQUEST_PRECINCTS:
       return {
         ...state,
@@ -49,6 +55,11 @@ export default function precinctReducer(state = initialState, action) {
         ...state,
         selectedPrecinct: action.precinct
       }
+    case SET_SECOND_SELECTED_PRECINCT:
+      return {
+        ...state,
+        secondSelectedPrecinct: action.precinct
+      }
     case SET_PRECINCT_GEOJSON:
       if (state.geojson == null) {
         return state
@@ -70,7 +81,7 @@ export default function precinctReducer(state = initialState, action) {
         },
         geojsonKey: state.geojsonKey + 1
       }
-    case ADD_NEIGHBOR: 
+    case ADD_NEIGHBOR:
       return {
         ...state,
         selectedPrecinct: {
@@ -93,6 +104,20 @@ export default function precinctReducer(state = initialState, action) {
             ...state.selectedPrecinct.neighbors.slice(neighborIndex + 1)
           ]
         }
+      }
+    case MERGE_PRECINCTS:
+      let geojson = JSON.parse(action.precinct.geojson);
+      geojson.properties.id = action.precinct.id;
+      geojson.properties.name = action.precinct.name
+      return {
+        ...state,
+        precincts: [...state.precincts.filter(p => p.id !== action.id1 && p.id !== action.id2), action.precinct],
+        selectedPrecinct: action.precinct,
+        geojson: {
+          ...state.geojson,
+          features: [...state.geojson.features.filter(p => p.properties.id !== action.id1 && p.properties.id !== action.id2), geojson]
+        },
+        geojsonKey: state.geojsonKey + 1
       }
     default:
       return state;

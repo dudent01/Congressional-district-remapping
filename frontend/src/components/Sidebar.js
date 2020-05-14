@@ -3,6 +3,8 @@ import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container } from "
 import { connect } from 'react-redux';
 import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, unsetTool } from '../actions/mapActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
+import EditPrecinctModal from './EditPrecinctModal'
+import EditElectionModal from './EditElectionModal'
 
 const mapStateToProps = s => {
 	return {
@@ -37,16 +39,16 @@ class Sidebar extends React.Component {
 		let election = null;
 		if (this.props.selectedPrecinct) {
 			if (this.props.selectedPrecinct.election) {
-				election = <tr>
-					<th>Name</th>
-					<th>Politcal Party</th>
-					<th>Votes</th>
-				</tr>
 				election = <>
 					<b className="text-center">{this.props.selectedPrecinct.election.type.replace("_", " ")}</b>
+					<EditElectionModal results={this.props.selectedPrecinct.election.results} />
 					<Table hover variant="danger" bordered>
 						<tbody>
-							{election}
+							<tr>
+								<th>Name</th>
+								<th>Politcal Party</th>
+								<th>Votes</th>
+							</tr>
 							{this.props.selectedPrecinct.election.results.map((candidate, index) => {
 								return (
 									<tr key={candidate.party}>
@@ -71,7 +73,9 @@ class Sidebar extends React.Component {
 					<Container>
 						{this.props.selectedPrecinct ?
 							<>
-								<h2>Precinct {this.props.selectedPrecinct.name}</h2>
+								<div>
+									<h2>Precinct {this.props.selectedPrecinct.name} <EditPrecinctModal precinct={this.props.selectedPrecinct} /></h2>
+								</div>
 								<Table striped hover>
 									<tbody>
 										<tr>
@@ -117,7 +121,7 @@ class Sidebar extends React.Component {
 						}
 					</div>
 				</Tab>
-				<Tab eventKey="edit" disabled={this.props.selectedPrecinct === null || this.props.selectedState === ""} title="Tools">
+				<Tab eventKey="edit" disabled={this.props.selectedPrecinct === null || this.props.selectedState === ""} title="Map Tools">
 					<Container>
 						{this.props.selectedPrecinct &&
 							<h2>Precinct {this.props.selectedPrecinct.name}</h2>
@@ -135,19 +139,19 @@ class Sidebar extends React.Component {
 							</ol>
 						</div>
 						<div className="mb-4">
-							<Button block className="text-left" 
-							onClick={() => this.props.setToolAddNeighbor()}
-							disabled={this.props.toolAction !== null}
+							<Button block className="text-left"
+								onClick={() => this.props.setToolAddNeighbor()}
+								disabled={this.props.toolAction !== null}
 							>
-							{ this.props.toolAction === ADD_NEIGHBOR &&
-								<Spinner
-									as="span"
-									animation="grow"
-									size="sm"
-									role="status"
-									aria-hidden="true"
-								/>
-							}
+								{this.props.toolAction === ADD_NEIGHBOR &&
+									<Spinner
+										as="span"
+										animation="grow"
+										size="sm"
+										role="status"
+										aria-hidden="true"
+									/>
+								}
 								Add Neighbor
 							</Button>
 							<ol>
@@ -160,7 +164,7 @@ class Sidebar extends React.Component {
 								onClick={() => this.props.setToolDeleteNeighbor()}
 								disabled={this.props.toolAction !== null}
 							>
-								{ this.props.toolAction === DELETE_NEIGHBOR &&
+								{this.props.toolAction === DELETE_NEIGHBOR &&
 									<Spinner
 										as="span"
 										animation="grow"
@@ -181,7 +185,7 @@ class Sidebar extends React.Component {
 								onClick={() => this.props.setToolMergePrecincts()}
 								disabled={this.props.toolAction !== null}
 							>
-								{ this.props.toolAction === MERGE_PRECINCTS &&
+								{this.props.toolAction === MERGE_PRECINCTS &&
 									<Spinner
 										as="span"
 										animation="grow"
