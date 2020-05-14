@@ -1,5 +1,6 @@
 import { SET_DRAW_POLYGON, ENABLE_DRAW_POLYGON, ADD_NEIGHBOR, MERGE_PRECINCTS, 
-  DELETE_NEIGHBOR, SET_TOOL_ADD_NEIGHBOR, SET_TOOL_DELETE_NEIGHBOR, SET_TOOL_MERGE_PRECINCTS, UNSET_TOOL } from "../actions/types"
+  DELETE_NEIGHBOR, SET_TOOL_ADD_NEIGHBOR, SET_TOOL_DELETE_NEIGHBOR, SET_TOOL_MERGE_PRECINCTS,
+  SET_TOOL_DRAW_NEW_BOUNDARY, UNSET_TOOL, DRAW_NEW_BOUNDARY} from "../actions/types"
 
 const initialState = {
   drawPolygon: null,
@@ -32,6 +33,11 @@ export default function mapReducer(state = initialState, action) {
       return {
         ...state,
         toolAction: DELETE_NEIGHBOR
+      }
+    case SET_TOOL_DRAW_NEW_BOUNDARY:
+      return {
+        ...state,
+        toolAction: DRAW_NEW_BOUNDARY
       }
     case UNSET_TOOL: {
       return {

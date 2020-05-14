@@ -1,11 +1,12 @@
 import React from "react";
 import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container, Row, Col, Tooltip, OverlayTrigger } from "react-bootstrap"
 import { connect } from 'react-redux';
-import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, unsetTool } from '../actions/mapActions'
+import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, setToolDrawNewBoundary, unsetTool } from '../actions/mapActions'
 import { updatePrecinct, updateElection } from '../actions/precinctActions'
-import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
+import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, DRAW_NEW_BOUNDARY } from '../actions/types'
 import EditPrecinctModal from './EditPrecinctModal'
 import EditElectionModal from './EditElectionModal'
+import numeral from 'numeral'
 
 const mapStateToProps = s => {
 	return {
@@ -24,6 +25,7 @@ const mapDispatchToProps = dispatch => {
 		setToolAddNeighbor: () => dispatch(setToolAddNeighbor()),
 		setToolDeleteNeighbor: () => dispatch(setToolDeleteNeighbor()),
 		setToolMergePrecincts: () => dispatch(setToolMergePrecincts()),
+		setToolDrawNewBoundary: () => dispatch(setToolDrawNewBoundary()),
 		unsetTool: () => dispatch(unsetTool()),
 		updatePrecinct: (data) => dispatch(updatePrecinct(data)),
 		updateElection: (election) => dispatch(updateElection(election))
@@ -34,14 +36,25 @@ class Sidebar extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			errorsCount: 0
+			errorsCount: 0,
+			key: null,
+			mapStateAbbrToName: {
+				UT: "Utah",
+				CA: "California",
+				WV: "West Virginia"
+			}
 		}
 	}
-
+	componentWillReceiveProps(nextProps) {
+		if (!nextProps.selectedPrecinct) {
+			this.setState({ key: "info" })
+		}
+	}
 	renderTooltip(id) {
 		if (id === 0) {
 			return (
 				<Tooltip id="button-tooltip">
+					<p>*NOTE: You cannot edit Multipolygons. You must Draw a new boundary if you wish to change it.</p>
 					<ol className="text-left" style={{ paddingLeft: 15 }}>
 						<li>To Edit boundary data first select a precinct.</li>
 						<li>Next, click on the 'Edit layers' tool in the toolbar on the top left corner of the map.</li>
@@ -79,6 +92,18 @@ class Sidebar extends React.Component {
 						<li>You will have to confirm you want to do this action after selecting the precinct.</li>
 					</ol>
 				</Tooltip>
+			)
+		} else if (id === 4) {
+			return (
+				<Tooltip id="button-tooltip">
+					<p>*NOTE: Draw new boundary is used to address the issue of Multipolygon.</p>
+					<ol className="text-left" style={{ paddingLeft: 15 }}>
+						<li>First, click on the Draw New Boundary button to the left.</li>
+						<li>Next, click on the Draw a polygon tool on the top left corner of the map.</li>
+						<li>Draw the desired polygon to replace the currently selected precinct's</li>
+						<li>You will have to confirm you want to do this action after selecting the precinct.</li>
+					</ol>
+				</Tooltip>
 			);
 		}
 	}
@@ -89,7 +114,7 @@ class Sidebar extends React.Component {
 			if (this.props.selectedPrecinct.election) {
 				election = <>
 					<b className="text-center">{this.props.selectedPrecinct.election.type.replace("_", " ")}</b>
-					<EditElectionModal precinct={this.props.selectedPrecinct} election={this.props.selectedPrecinct.election} updateElection={(election) => this.props.updateElection(election)}  />
+					<EditElectionModal precinct={this.props.selectedPrecinct} election={this.props.selectedPrecinct.election} updateElection={(election) => this.props.updateElection(election)} />
 					<Table hover variant="danger" bordered>
 						<tbody>
 							<tr>
@@ -102,7 +127,7 @@ class Sidebar extends React.Component {
 									<tr key={candidate.party}>
 										<td>{candidate.name}</td>
 										<td>{candidate.party}</td>
-										<td>{candidate.votes}</td>
+										<td>{numeral(candidate.votes).format('0,0')}</td>
 									</tr>
 								)
 							})}
@@ -122,7 +147,7 @@ class Sidebar extends React.Component {
 						{this.props.selectedPrecinct ?
 							<>
 								<div>
-									<h2>Precinct {this.props.selectedPrecinct.name} 
+									<h2>Precinct {this.props.selectedPrecinct.name}
 										<EditPrecinctModal precinct={this.props.selectedPrecinct} updatePrecinct={(data) => this.props.updatePrecinct(data)} />
 									</h2>
 								</div>
@@ -145,15 +170,29 @@ class Sidebar extends React.Component {
 							</>
 							:
 							this.props.selectedState !== "" ?
-								<div>
-									<h2>Data Sources for This State:</h2>
-									<h5>Precincts Data Source:</h5>
-									{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.precinctsSource)}
-									<h5>Elections Data Source:</h5>
-									{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.electionsSource)}
-									<h5>State Boundary Source:</h5>
-									Data.gov
-								</div>
+								<>
+									<h2>Data Sources for {this.state.mapStateAbbrToName[this.props.selectedState]}</h2>
+									<Table striped hover>
+										<tbody>
+											<tr>
+												<td><strong>Precincts Data</strong></td>
+												<td>{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.precinctsSource)}</td>
+											</tr>
+											<tr>
+												<td><strong>Elections Data</strong></td>
+												<td>{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.electionsSource)}</td>
+											</tr>
+											<tr>
+												<td><strong>State Boundary</strong></td>
+												<td>Data.gov</td>
+											</tr>
+											<tr>
+												<td><strong>Demographic Data</strong></td>
+												<td>U.S Census (API)</td>
+											</tr>
+										</tbody>
+									</Table>
+								</>
 								:
 								<div>
 									<h2>Welcome to the Precinct Error Correction Program!</h2>
@@ -178,6 +217,39 @@ class Sidebar extends React.Component {
 						{this.props.selectedPrecinct &&
 							<h2>Precinct {this.props.selectedPrecinct.name}</h2>
 						}
+						<div className="mb-4">
+							<Row>
+								<Col xs={10}>
+									<Button
+										block className="text-left"
+										onClick={() => this.props.setToolDrawNewBoundary()}
+										disabled={this.props.toolAction !== null}
+									>
+										{this.props.toolAction === DRAW_NEW_BOUNDARY &&
+											<Spinner
+												as="span"
+												animation="grow"
+												size="sm"
+												role="status"
+												aria-hidden="true"
+											/>
+										}
+										Draw New Boundary
+									</Button>
+								</Col>
+								<Col xs={2}>
+									<OverlayTrigger
+										placement="right"
+										delay={{ show: 250, hide: 400 }}
+										overlay={this.renderTooltip(4)}
+									>
+										<Button block>
+											?
+							</Button>
+									</OverlayTrigger>
+								</Col>
+							</Row>
+						</div>
 						<div className="mb-4">
 							<Row>
 								<Col xs={10}>
@@ -214,7 +286,7 @@ class Sidebar extends React.Component {
 												aria-hidden="true"
 											/>
 										}
-								Add Neighbor
+										Add Neighbor
 									</Button>
 								</Col>
 								<Col xs={2}>

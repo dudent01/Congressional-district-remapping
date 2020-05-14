@@ -11,10 +11,10 @@ import { connect } from 'react-redux';
 import { selectState, deselectState } from '../actions/stateActions';
 import {
 	fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson,
-	addNeighborAsync, deleteNeighborAsync, mergePrecinctsAsync, setSecondSelectedPrecinct, updateGeojsonKey
+	addNeighborAsync, deleteNeighborAsync, mergePrecinctsAsync, setSecondSelectedPrecinct, updateGeojsonKey, generatePrecinctAsync
 } from '../actions/precinctActions';
 import { setDrawPolygon, unsetTool } from '../actions/mapActions'
-import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
+import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, DRAW_NEW_BOUNDARY } from '../actions/types'
 import L from 'leaflet'
 import nationalParksGeojson from '../assets/simplified_national_parks.json'
 
@@ -78,6 +78,9 @@ const mapDispatchToProps = dispatch => {
 		},
 		updateGeojsonKey: () => {
 			dispatch(updateGeojsonKey())
+		},
+		addPrecinct: async (geojson, state) => {
+			await dispatch(generatePrecinctAsync(geojson, state))
 		}
 	};
 };
@@ -206,19 +209,36 @@ class StateMap extends React.Component {
 			}
 			geojson.properties = {}
 			if (window.confirm(`Would you like to set this as the official boundary data for Precinct ${name}?`)) {
-				this.props.updatePrecinctGeojson(id, geojson).then(() => this.resetFeaturedGroup())
+				this.resetFeaturedGroup()
+				this.props.updatePrecinctGeojson(id, geojson)
 			}
 		})
 	}
 	handleLeafletCreate(e) {
-		if (e.layerType !== 'polygon' || !this.props.precincts) {
+		if (e.layerType !== 'polygon' || !this.props.selectedState) {
 			return;
 		}
-		let geojson = e.layer.toGeoJSON()
-		if (window.confirm(`Would you like to create a new Precinct from this boundary in State ${this.props.selectedState}?`)) {
-			// this.props.updatePrecinctGeojson(id, geojson).then(() => this.map.current.contextValue.map.removeLayer(e.layer))
-		} else {
-			this.map.current.contextValue.map.removeLayer(e.layer)
+		let geojson = e.layer.toGeoJSON();
+		if (this.props.toolAction === DRAW_NEW_BOUNDARY) {
+			if (window.confirm(`Would you like to set this as the new boundary for Precinct ${this.props.selectedPrecinct.name}`)) {
+				this.refs.featuredGroup.contextValue.layerContainer.removeLayer(e.layer)
+				this.resetFeaturedGroup()
+				this.props.updatePrecinctGeojson(this.props.selectedPrecinct.id, geojson).then(() => {
+					this.props.unsetTool()
+				})
+			}
+			else {
+				this.props.unsetTool()
+			}
+		}
+		else {
+			if (window.confirm(`Would you like to create a new Precinct from this boundary in State ${this.props.selectedState}?`)) {
+				this.refs.featuredGroup.contextValue.layerContainer.removeLayer(e.layer)
+				this.resetFeaturedGroup()
+				this.props.addPrecinct(geojson, this.props.selectedState)
+			} else {
+				this.refs.featuredGroup.contextValue.layerContainer.removeLayer(e.layer)
+			}
 		}
 	}
 	precinctStyle = (feature) => {
@@ -269,10 +289,10 @@ class StateMap extends React.Component {
 					</Form>
 					<Form inline className="m-2">
 						<Form.Group className="mr-2" controlId="nationalParks">
-							<Form.Check type="checkbox" id="nationalParks" onClick={(e) => this.handleCheckBoxChange(e)} checked={this.state.showNationalParks} style={{fontSize:"15px"}} label="Toggle National Parks" />
+							<Form.Check type="checkbox" id="nationalParks" onClick={(e) => this.handleCheckBoxChange(e)} checked={this.state.showNationalParks} style={{ fontSize: "15px" }} label="Toggle National Parks" />
 						</Form.Group>
 						<Form.Group controlId="districtBounds">
-							<Form.Check type="checkbox" id="districtBounds" disabled={true} style={{fontSize:"15px"}}  onClick={() => { }} label="Toggle District Boundaries" />
+							<Form.Check type="checkbox" id="districtBounds" disabled={true} style={{ fontSize: "15px" }} onClick={() => { }} label="Toggle District Boundaries" />
 						</Form.Group></Form>
 				</div>
 				<FeatureGroup ref="featuredGroup">
