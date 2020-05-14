@@ -5,10 +5,7 @@ import Gators.model.Election.CandidateResult;
 import Gators.model.Election.Election;
 import Gators.model.Error.Log;
 import Gators.model.Precinct;
-import Gators.repository.CandidateResultRepository;
-import Gators.repository.ElectionRepository;
-import Gators.repository.LogRepository;
-import Gators.repository.PrecinctRepository;
+import Gators.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.locationtech.jts.geom.Geometry;
@@ -34,14 +31,16 @@ public class PrecinctService {
     private final LogRepository logRepository;
     private final ElectionRepository electionRepository;
     private final CandidateResultRepository candidateResultRepository;
+    private final StateRepository stateRepository;
     private final ObjectMapper mapper;
 
     @Autowired
-    public PrecinctService(PrecinctRepository precinctRepository, LogRepository logRepository, ElectionRepository electionRepository, CandidateResultRepository candidateResultRepository) {
+    public PrecinctService(PrecinctRepository precinctRepository, LogRepository logRepository, ElectionRepository electionRepository, CandidateResultRepository candidateResultRepository, StateRepository stateRepository) {
         this.precinctRepository = precinctRepository;
         this.logRepository = logRepository;
         this.electionRepository = electionRepository;
         this.candidateResultRepository = candidateResultRepository;
+        this.stateRepository = stateRepository;
         mapper = new ObjectMapper();
     }
 
@@ -221,16 +220,22 @@ public class PrecinctService {
                     log.setOldData(precinct.getPres2016() == null ? "" : mapper.writeValueAsString(
                             precinct.getPres2016()));
                     writeElection(precinct.getPres2016(), election);
+                    log.setNewData(mapper.writeValueAsString(
+                            precinct.getPres2016()));
                     break;
                 case CONGRESSIONAL_2016:
                     log.setOldData(precinct.getCong2016() == null ? "" : mapper.writeValueAsString(
                             precinct.getCong2016()));
                     writeElection(precinct.getCong2016(), election);
+                    log.setNewData(mapper.writeValueAsString(
+                            precinct.getCong2016()));
                     break;
                 case CONGRESSIONAL_2018:
                     log.setOldData(precinct.getCong2018() == null ? "" : mapper.writeValueAsString(
                             precinct.getCong2018()));
                     writeElection(precinct.getCong2018(), election);
+                    log.setNewData(mapper.writeValueAsString(
+                            precinct.getCong2018()));
                     break;
             }
 
@@ -242,6 +247,16 @@ public class PrecinctService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
+
+    @Transactional
+    public void generatePrecinct(String stateAbbr, String geojson) {
+        Precinct precinct = new Precinct();
+        precinctRepository.save(precinct);
+        precinct.setGeojson(geojson);
+        precinct.setName(Long.toString(precinct.getId()));
+        precinct.setCName(Long.toString(precinct.getId()));
+        precinct.setState(stateRepository.findByAbbr(stateAbbr));
     }
 
     private Geometry deflate(Geometry geom) {

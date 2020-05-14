@@ -77,4 +77,10 @@ public class PrecinctController {
         precinctService.editElection(id, election);
         return true;
     }
+
+    @PutMapping(path = "/{stateAbbr}")
+    public boolean generatePrecinct(@PathVariable String stateAbbr, @RequestBody String geojson) {
+        precinctService.generatePrecinct(stateAbbr, geojson);
+        return true;
+    }
 }
