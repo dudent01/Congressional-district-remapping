@@ -1,7 +1,7 @@
 import {
   REQUEST_PRECINCTS, RECEIVE_PRECINCTS, DELETE_PRECINCTS, SET_SELECTED_PRECINCT,
   REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA, SET_PRECINCT_GEOJSON,
-  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, SET_SECOND_SELECTED_PRECINCT, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT
+  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, SET_SECOND_SELECTED_PRECINCT, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION
 } from '../actions/types';
 
 const initialState = {
@@ -151,7 +151,14 @@ export default function precinctReducer(state = initialState, action) {
           ]
         }
       }
-
+    case UPDATE_ELECTION:
+      return {
+        ...state,
+        selectedPrecinct: {
+          ...state.selectedPrecinct,
+          election: action.election
+        }
+      }
     default:
       return state;
   }

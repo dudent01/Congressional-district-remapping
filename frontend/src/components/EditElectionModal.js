@@ -1,5 +1,6 @@
 import { Modal, Button, Form, Col } from "react-bootstrap"
 import React from "react"
+import axios from "axios"
 
 class EditElectionModal extends React.Component {
   constructor(props) {
@@ -7,7 +8,8 @@ class EditElectionModal extends React.Component {
     this.state = {
       election: {
         results: []
-      }
+      },
+      submitting: false
     }
   }
   handleClose() {
@@ -25,6 +27,24 @@ class EditElectionModal extends React.Component {
     let key = e.target.name;
     election.results[index][key] = value
     this.setState({ election })
+  }
+  handleSave() {
+    this.setState({submitting: true})
+
+    const election = this.state.election
+    delete election.id;
+    for(let result of election.results) {
+      delete result.id;
+    }
+
+    axios.patch(process.env.REACT_APP_API_URL + `/api/precinct/${this.props.precinct.id}/election`, election)
+    .then(() => {
+      this.props.updateElection(election);
+      this.handleClose();
+    })
+    .finally(() => {
+      this.setState({submitting: false})
+    })
   }
 
   render() {
@@ -61,7 +81,7 @@ class EditElectionModal extends React.Component {
 
           <Modal.Footer>
             <Button variant="secondary" onClick={() => this.handleClose()} >Close</Button>
-            <Button variant="primary">Save changes</Button>
+            <Button variant="primary" onClick={() => this.handleSave()} disabled={this.state.submitting}>Save changes</Button>
           </Modal.Footer>
         </Modal>
       </>

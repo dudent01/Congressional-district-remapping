@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container, Row, Col, Tooltip, OverlayTrigger } from "react-bootstrap"
 import { connect } from 'react-redux';
 import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, unsetTool } from '../actions/mapActions'
-import { updatePrecinct } from '../actions/precinctActions'
+import { updatePrecinct, updateElection } from '../actions/precinctActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
 import EditPrecinctModal from './EditPrecinctModal'
 import EditElectionModal from './EditElectionModal'
@@ -25,7 +25,8 @@ const mapDispatchToProps = dispatch => {
 		setToolDeleteNeighbor: () => dispatch(setToolDeleteNeighbor()),
 		setToolMergePrecincts: () => dispatch(setToolMergePrecincts()),
 		unsetTool: () => dispatch(unsetTool()),
-		updatePrecinct: (data) => dispatch(updatePrecinct(data))
+		updatePrecinct: (data) => dispatch(updatePrecinct(data)),
+		updateElection: (election) => dispatch(updateElection(election))
 	}
 }
 
@@ -88,7 +89,7 @@ class Sidebar extends React.Component {
 			if (this.props.selectedPrecinct.election) {
 				election = <>
 					<b className="text-center">{this.props.selectedPrecinct.election.type.replace("_", " ")}</b>
-					<EditElectionModal election={this.props.selectedPrecinct.election}  />
+					<EditElectionModal precinct={this.props.selectedPrecinct} election={this.props.selectedPrecinct.election} updateElection={(election) => this.props.updateElection(election)}  />
 					<Table hover variant="danger" bordered>
 						<tbody>
 							<tr>
