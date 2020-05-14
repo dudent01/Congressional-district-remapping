@@ -152,7 +152,6 @@ class StateMap extends React.Component {
 			click: e => {
 				let layer = e.target;
 				let { name, id } = layer.feature.properties;
-				console.log(id)
 				if (this.props.selectedPrecinct && this.props.selectedPrecinct.id === id) return;
 				if (this.props.toolAction) {
 					this.props.setSecondSelectedPrecinct(this.props.precincts.find(p => p.id === id))

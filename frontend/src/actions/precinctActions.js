@@ -63,6 +63,7 @@ export const fetchPrecinctData = (id, election, precincts) => {
       axios.get(process.env.REACT_APP_API_URL + `/api/precinct/${id}/${election}`),
       axios.get(process.env.REACT_APP_API_URL + `/api/precinct/${id}/neighbors`)
     ])
+    console.log(values)
     let data = values[0].data[0];
     let neighbors = values[1].data;
     dispatch(recieveSelectedPrecinctData(data, neighbors));
