@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container } from "react-bootstrap"
+import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container, Row, Col, Tooltip, OverlayTrigger } from "react-bootstrap"
 import { connect } from 'react-redux';
 import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, unsetTool } from '../actions/mapActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
@@ -32,6 +32,51 @@ class Sidebar extends React.Component {
 		super(props);
 		this.state = {
 			errorsCount: 0
+		}
+	}
+
+	renderTooltip(id) {
+		if (id === 0) {
+			return (
+				<Tooltip id="button-tooltip">
+					<ol className="text-left" style={{ paddingLeft: 15 }}>
+						<li>To Edit boundary data first select a precinct.</li>
+						<li>Next, click on the 'Edit layers' tool in the toolbar on the top left corner of the map.</li>
+						<li>Drag the edges around the polygon to change its shape.</li>
+						<li>When you are done, hit 'Save' next to the 'Edit layers' tool.</li>
+						<li>Confirm if you want to permanently save this change.</li>
+					</ol>
+				</Tooltip>
+			);
+		}
+		else if (id === 1) {
+			return (
+				<Tooltip id="button-tooltip">
+					<ol className="text-left" style={{ paddingLeft: 15 }}>
+						<li>First, click on the Add Neighbor button to the left.</li>
+						<li>To add a neighbor, simply click on a precinct that you want to add as a neighbor to the currently selected precinct.</li>
+					</ol>
+				</Tooltip>
+			);
+		} else if (id === 2) {
+			return (
+				<Tooltip id="button-tooltip">
+					<ol className="text-left" style={{ paddingLeft: 15 }}>
+						<li>First, click on the Delete Neighbor button to the left.</li>
+						<li>To delete a neighbor, simply click on a precinct that you want to delete from the currently selected precinct.</li>
+					</ol>
+				</Tooltip>
+			);
+		} else if (id === 3) {
+			return (
+				<Tooltip id="button-tooltip">
+					<ol className="text-left" style={{ paddingLeft: 15 }}>
+						<li>First, click on the Merge Precincts button to the left.</li>
+						<li>To merge two precincts, click on the precinct you want to merge with the one already selected.</li>
+						<li>You will have to confirm you want to do this action after selecting the precinct.</li>
+					</ol>
+				</Tooltip>
+			);
 		}
 	}
 
@@ -127,75 +172,120 @@ class Sidebar extends React.Component {
 							<h2>Precinct {this.props.selectedPrecinct.name}</h2>
 						}
 						<div className="mb-4">
-							<Button block className="text-left" disabled>
-								Edit Boundary Data
+							<Row>
+								<Col xs={10}>
+									<Button block className="text-left" disabled>
+										Edit Boundary Data
+									</Button>
+								</Col>
+								<Col xs={2}>
+									<OverlayTrigger
+										placement="right"
+										delay={{ show: 250, hide: 400 }}
+										overlay={this.renderTooltip(0)}
+									>
+										<Button block disabled>
+											?
 							</Button>
-							<ol>
-								<li>To Edit boundary data first select a precinct.</li>
-								<li>Next, click on the 'Edit layers' tool in the toolbar on the top left corner of the map.</li>
-								<li>Drag the edges around the polygon to change its shape.</li>
-								<li>When you are done, hit 'Save' next to the 'Edit layers' tool.</li>
-								<li>Confirm if you want to permanently save this change.</li>
-							</ol>
+									</OverlayTrigger>
+								</Col>
+							</Row>
 						</div>
 						<div className="mb-4">
-							<Button block className="text-left"
-								onClick={() => this.props.setToolAddNeighbor()}
-								disabled={this.props.toolAction !== null}
-							>
-								{this.props.toolAction === ADD_NEIGHBOR &&
-									<Spinner
-										as="span"
-										animation="grow"
-										size="sm"
-										role="status"
-										aria-hidden="true"
-									/>
-								}
+							<Row>
+								<Col xs={10}>
+									<Button block className="text-left"
+										onClick={() => this.props.setToolAddNeighbor()}
+										disabled={this.props.toolAction !== null}
+									>
+										{this.props.toolAction === ADD_NEIGHBOR &&
+											<Spinner
+												as="span"
+												animation="grow"
+												size="sm"
+												role="status"
+												aria-hidden="true"
+											/>
+										}
 								Add Neighbor
-							</Button>
-							<ol>
-								<li>Firstly, click on the Add Neighbor button above.</li>
-								<li>To Add a neighbor, simply click on a precinct that you want to add as a neighbor to the currently selected precinct.</li>
-							</ol>
+									</Button>
+								</Col>
+								<Col xs={2}>
+									<OverlayTrigger
+										placement="right"
+										delay={{ show: 250, hide: 400 }}
+										overlay={this.renderTooltip(1)}
+									>
+										<Button block disabled>
+											?
+									</Button>
+									</OverlayTrigger>
+								</Col>
+							</Row>
 						</div>
 						<div className="mb-4">
-							<Button block className="text-left"
-								onClick={() => this.props.setToolDeleteNeighbor()}
-								disabled={this.props.toolAction !== null}
-							>
-								{this.props.toolAction === DELETE_NEIGHBOR &&
-									<Spinner
-										as="span"
-										animation="grow"
-										size="sm"
-										role="status"
-										aria-hidden="true"
-									/>
-								}
+							<Row>
+								<Col xs={10}>
+									<Button block className="text-left"
+										onClick={() => this.props.setToolDeleteNeighbor()}
+										disabled={this.props.toolAction !== null}
+									>
+										{this.props.toolAction === DELETE_NEIGHBOR &&
+											<Spinner
+												as="span"
+												animation="grow"
+												size="sm"
+												role="status"
+												aria-hidden="true"
+											/>
+										}
 								Delete Neighbor
 								</Button>
-							<ol>
-								<li>Firstly, click on the Delete Neighbor button above.</li>
-								<li>To Delete a neighbor, simply click on a precinct that you want to delete from the currently selected precinct.</li>
-							</ol>
+								</Col>
+								<Col xs={2}>
+									<OverlayTrigger
+										placement="right"
+										delay={{ show: 250, hide: 400 }}
+										overlay={this.renderTooltip(2)}
+									>
+										<Button block disabled>
+											?
+							</Button>
+									</OverlayTrigger>
+								</Col>
+							</Row>
 						</div>
 						<div className="mb-4">
-							<Button block className="text-left"
-								onClick={() => this.props.setToolMergePrecincts()}
-								disabled={this.props.toolAction !== null}
-							>
-								{this.props.toolAction === MERGE_PRECINCTS &&
-									<Spinner
-										as="span"
-										animation="grow"
-										size="sm"
-										role="status"
-										aria-hidden="true"
-									/>
-								}
+							<Row>
+								<Col xs={10}>
+									<Button block className="text-left"
+										onClick={() => this.props.setToolMergePrecincts()}
+										disabled={this.props.toolAction !== null}
+									>
+										{this.props.toolAction === MERGE_PRECINCTS &&
+											<Spinner
+												as="span"
+												animation="grow"
+												size="sm"
+												role="status"
+												aria-hidden="true"
+											/>
+										}
 								Merge Precincts
 								</Button>
+								</Col>
+								<Col xs={2}>
+									<OverlayTrigger
+										placement="right"
+										delay={{ show: 250, hide: 400 }}
+										overlay={this.renderTooltip(3)}
+									>
+										<Button block disabled>
+											?
+							</Button>
+									</OverlayTrigger>
+								</Col>
+							</Row>
 						</div>
 						{this.props.toolAction &&
 							<div className="mb-4">
