@@ -48,7 +48,7 @@ class EditPrecinctModal extends React.Component {
     return (
       <>
         <Button variant="primary" size="sm" onClick={() => this.handleShow()} className="float-right" >
-          Edit Precinct
+          Edit Precinct Name
          </Button>
         <Modal show={this.state.show} onHide={() => this.handleClose()} onShow={() => this.handleOnShow()}>
           <Modal.Header closeButton>

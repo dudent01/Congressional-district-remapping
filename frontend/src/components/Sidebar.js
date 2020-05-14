@@ -42,6 +42,7 @@ class Sidebar extends React.Component {
 		if (id === 0) {
 			return (
 				<Tooltip id="button-tooltip">
+					<p>*NOTE: You cannot edit Multipolygons. You must create a new Polygon if you wish to edit the boundary.</p>
 					<ol className="text-left" style={{ paddingLeft: 15 }}>
 						<li>To Edit boundary data first select a precinct.</li>
 						<li>Next, click on the 'Edit layers' tool in the toolbar on the top left corner of the map.</li>
