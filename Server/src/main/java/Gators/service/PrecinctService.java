@@ -5,6 +5,7 @@ import Gators.model.Election.CandidateResult;
 import Gators.model.Election.Election;
 import Gators.model.Error.Log;
 import Gators.model.Precinct;
+import Gators.repository.ElectionRepository;
 import Gators.repository.LogRepository;
 import Gators.repository.PrecinctRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,11 +31,15 @@ import java.util.stream.Collectors;
 public class PrecinctService {
     private final PrecinctRepository precinctRepository;
     private final LogRepository logRepository;
+    private final ElectionRepository electionRepository;
+    private final ObjectMapper mapper;
 
     @Autowired
-    public PrecinctService(PrecinctRepository precinctRepository, LogRepository logRepository) {
+    public PrecinctService(PrecinctRepository precinctRepository, LogRepository logRepository, ElectionRepository electionRepository) {
         this.precinctRepository = precinctRepository;
         this.logRepository = logRepository;
+        this.electionRepository = electionRepository;
+        mapper = new ObjectMapper();
     }
 
     @Transactional
@@ -121,11 +126,9 @@ public class PrecinctService {
         Precinct precinct1 = precinctRepository.findById(id1).orElse(null);
         Precinct precinct2 = precinctRepository.findById(id2).orElse(null);
 
-        ObjectMapper mapper = new ObjectMapper();
-
         Log log = new Log(precinct1, "Merge Precincts");
         try {
-            log.setOldData(stringifyPrecinct(precinct2, mapper));
+            log.setOldData(stringifyPrecinct(precinct2));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -189,7 +192,7 @@ public class PrecinctService {
         precinct2.getNeighbors().clear();
 
         try {
-            log.setNewData(stringifyPrecinct(precinct1, mapper));
+            log.setNewData(stringifyPrecinct(precinct1));
 
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -271,12 +274,50 @@ public class PrecinctService {
         demographic1.setOtherPop(demographic1.getOtherPop() + demographic2.getOtherPop());
     }
 
-    private String stringifyPrecinct(Precinct precinct, ObjectMapper mapper) throws JsonProcessingException {
+    private String stringifyPrecinct(Precinct precinct) throws JsonProcessingException {
         return mapper.writeValueAsString(precinct) + "\nneighbors : " + precinct.getNeighbors().stream().map(
                 Precinct::getCName).collect(Collectors.toSet()).toString() + mapper.writeValueAsString(
                 precinct.getPres2016()) + mapper.writeValueAsString(
                 precinct.getCong2016()) + mapper.writeValueAsString(
                 precinct.getCong2018()) + mapper.writeValueAsString(
                 precinct.getDemographic()) + "\nstate : " + precinct.getState().getName();
+    }
+
+    public void editElection(long id, Election election) {
+        Precinct precinct = precinctRepository.findById(id).orElse(null);
+
+        Log log = new Log(precinct, "Edit Election");
+        try {
+            switch (election.getType()) {
+                case PRESIDENTIAL_2016:
+                    log.setOldData(mapper.writeValueAsString(
+                            precinct.getPres2016()));
+                    precinct.setPres2016(election);
+                    electionRepository.delete(precinct.getPres2016());
+                    break;
+                case CONGRESSIONAL_2016:
+                    log.setOldData(mapper.writeValueAsString(
+                            precinct.getCong2016()));
+                    precinct.setCong2016(election);
+                    electionRepository.delete(precinct.getCong2016());
+                    break;
+                case CONGRESSIONAL_2018:
+                    log.setOldData(mapper.writeValueAsString(
+                            precinct.getCong2018()));
+                    precinct.setCong2018(election);
+                    electionRepository.delete(precinct.getCong2018());
+                    break;
+            }
+
+            log.setNewData(mapper.writeValueAsString(
+                    election));
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        log.setOldData("name : " + precinct.getName() + "\ncName : " + precinct.getCName());
+
+        logRepository.save(log);
     }
 }
