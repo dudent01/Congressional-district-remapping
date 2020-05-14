@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { selectState, deselectState } from '../actions/stateActions';
 import {
 	fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson,
-	addNeighborAsync, deleteNeighborAsync, mergePrecinctsAsync, setSecondSelectedPrecinct, updateGeojsonKey
+	addNeighborAsync, deleteNeighborAsync, mergePrecinctsAsync, setSecondSelectedPrecinct, updateGeojsonKey, generatePrecinctAsync
 } from '../actions/precinctActions';
 import { setDrawPolygon, unsetTool } from '../actions/mapActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
@@ -78,6 +78,9 @@ const mapDispatchToProps = dispatch => {
 		},
 		updateGeojsonKey: () => {
 			dispatch(updateGeojsonKey())
+		},
+		addPrecinct: async (geojson, state) => {
+			await dispatch(generatePrecinctAsync(geojson, state))
 		}
 	};
 };
@@ -214,9 +217,12 @@ class StateMap extends React.Component {
 		if (e.layerType !== 'polygon' || !this.props.precincts) {
 			return;
 		}
+		let geojson = e.layer.toGeoJSON();
 		window.setTimeout(() => {
 			if (window.confirm(`Would you like to create a new Precinct from this boundary in State ${this.props.selectedState}?`)) {
-				// this.props.updatePrecinctGeojson(id, geojson).then(() => this.map.current.contextValue.map.removeLayer(e.layer))
+				this.props.addPrecinct(geojson, this.props.selectedState).then(() => {
+					this.refs.featuredGroup.contextValue.layerContainer.removeLayer(e.layer)
+				})
 			} else {
 				this.refs.featuredGroup.contextValue.layerContainer.removeLayer(e.layer)
 			}

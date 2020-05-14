@@ -1,7 +1,7 @@
 import {
   DELETE_PRECINCTS, REQUEST_PRECINCTS, RECEIVE_PRECINCTS, REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA,
   SET_SELECTED_PRECINCT, SET_SECOND_SELECTED_PRECINCT,
-  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION
+  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION, ADD_PRECINCT
 } from './types';
 import axios from 'axios';
 
@@ -47,7 +47,10 @@ export const updatePrecinct = (data) => {
   return { type: UPDATE_PRECINCT, data }
 }
 export const updateElection = (election) => {
-  return { type: UPDATE_ELECTION, election}
+  return { type: UPDATE_ELECTION, election }
+}
+export const addPrecinct = (precinct) => {
+  return { type: ADD_PRECINCT, precinct }
 }
 
 // Asynchronous actions
@@ -114,5 +117,11 @@ export const mergePrecinctsAsync = (id1, id2) => {
   return async (dispatch) => {
     let { data } = await axios.patch(process.env.REACT_APP_API_URL + `/api/precinct/${id1}/${id2}/merge`)
     dispatch(mergePrecincts(id1, id2, data))
+  }
+}
+export const generatePrecinctAsync = (geojson, state) => {
+  return async (dispatch) => {
+    let { data } = await axios.put(process.env.REACT_APP_API_URL + `/api/precinct/${state}`, geojson)
+    dispatch(addPrecinct(data))
   }
 }
