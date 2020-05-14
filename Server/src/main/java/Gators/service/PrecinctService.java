@@ -5,6 +5,7 @@ import Gators.model.Election.CandidateResult;
 import Gators.model.Election.Election;
 import Gators.model.Error.Log;
 import Gators.model.Precinct;
+import Gators.repository.CandidateResultRepository;
 import Gators.repository.ElectionRepository;
 import Gators.repository.LogRepository;
 import Gators.repository.PrecinctRepository;
@@ -32,13 +33,15 @@ public class PrecinctService {
     private final PrecinctRepository precinctRepository;
     private final LogRepository logRepository;
     private final ElectionRepository electionRepository;
+    private final CandidateResultRepository candidateResultRepository;
     private final ObjectMapper mapper;
 
     @Autowired
-    public PrecinctService(PrecinctRepository precinctRepository, LogRepository logRepository, ElectionRepository electionRepository) {
+    public PrecinctService(PrecinctRepository precinctRepository, LogRepository logRepository, ElectionRepository electionRepository, CandidateResultRepository candidateResultRepository) {
         this.precinctRepository = precinctRepository;
         this.logRepository = logRepository;
         this.electionRepository = electionRepository;
+        this.candidateResultRepository = candidateResultRepository;
         mapper = new ObjectMapper();
     }
 
@@ -219,6 +222,40 @@ public class PrecinctService {
         logRepository.save(log);
     }
 
+    @Transactional
+    public void editElection(long id, Election election) {
+        Precinct precinct = precinctRepository.findById(id).orElse(null);
+
+        Log log = new Log(precinct, "Edit Election");
+        try {
+            switch (election.getType()) {
+                case PRESIDENTIAL_2016:
+                    log.setOldData(mapper.writeValueAsString(
+                            precinct.getPres2016()));
+                    writeElection(precinct.getPres2016(), election);
+                    break;
+                case CONGRESSIONAL_2016:
+                    log.setOldData(mapper.writeValueAsString(
+                            precinct.getCong2016()));
+                    writeElection(precinct.getCong2016(), election);
+                    break;
+                case CONGRESSIONAL_2018:
+                    log.setOldData(mapper.writeValueAsString(
+                            precinct.getCong2018()));
+                    writeElection(precinct.getCong2018(), election);
+                    break;
+            }
+
+            log.setNewData(mapper.writeValueAsString(
+                    election));
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        logRepository.save(log);
+    }
+
     private Geometry deflate(Geometry geom) {
         BufferParameters bufferParameters = new BufferParameters();
         bufferParameters.setEndCapStyle(BufferParameters.CAP_ROUND);
@@ -283,41 +320,15 @@ public class PrecinctService {
                 precinct.getDemographic()) + "\nstate : " + precinct.getState().getName();
     }
 
-    public void editElection(long id, Election election) {
-        Precinct precinct = precinctRepository.findById(id).orElse(null);
-
-        Log log = new Log(precinct, "Edit Election");
-        try {
-            switch (election.getType()) {
-                case PRESIDENTIAL_2016:
-                    log.setOldData(mapper.writeValueAsString(
-                            precinct.getPres2016()));
-                    precinct.setPres2016(election);
-                    electionRepository.delete(precinct.getPres2016());
-                    break;
-                case CONGRESSIONAL_2016:
-                    log.setOldData(mapper.writeValueAsString(
-                            precinct.getCong2016()));
-                    precinct.setCong2016(election);
-                    electionRepository.delete(precinct.getCong2016());
-                    break;
-                case CONGRESSIONAL_2018:
-                    log.setOldData(mapper.writeValueAsString(
-                            precinct.getCong2018()));
-                    precinct.setCong2018(election);
-                    electionRepository.delete(precinct.getCong2018());
-                    break;
-            }
-
-            log.setNewData(mapper.writeValueAsString(
-                    election));
-
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+    private void writeElection(Election election1, Election election2) {
+        for (CandidateResult cr1 : election1.getResults()) {
+            candidateResultRepository.delete(cr1);
         }
 
-        log.setOldData("name : " + precinct.getName() + "\ncName : " + precinct.getCName());
-
-        logRepository.save(log);
+        for (CandidateResult cr2 : election2.getResults()) {
+            candidateResultRepository.save(cr2);
+            election1.getResults().add(cr2);
+            cr2.setElection(election1);
+        }
     }
 }
