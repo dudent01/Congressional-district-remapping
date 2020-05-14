@@ -203,8 +203,17 @@ public class PrecinctService {
     @Transactional
     public void editPrecinctNames(long id, String name, String cName) {
         Precinct precinct = precinctRepository.findById(id).orElse(null);
+
+        Log log = new Log(precinct, "Edit Precinct Names");
+
+        log.setOldData("name : " + precinct.getName() + "\ncName : " + precinct.getCName());
+
         precinct.setName(name);
         precinct.setCName(cName);
+
+        log.setOldData("name : " + precinct.getName() + "\ncName : " + precinct.getCName());
+
+        logRepository.save(log);
     }
 
     private Geometry deflate(Geometry geom) {

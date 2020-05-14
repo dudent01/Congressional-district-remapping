@@ -66,9 +66,14 @@ public class PrecinctController {
     }
 
     @PatchMapping(path = "/{id}/names")
-    public boolean editPrecinctNames(@PathVariable long id, @RequestBody JsonNode requestBody)
-    {
-        precinctService.editPrecinctNames(id, requestBody.get("name").asText(), requestBody.get("cName").asText());
+    public boolean editPrecinctNames(@PathVariable long id, @RequestBody JsonNode names) {
+        precinctService.editPrecinctNames(id, names.get("name").asText(), names.get("cname").asText());
+        return true;
+    }
+
+    @PatchMapping(path = "/{id}/presidential2016")
+    public boolean editPresidential16(@PathVariable long id, @RequestBody JsonNode presidential16) {
+        precinctService.editPrecinctNames(id, presidential16.get("name").asText(), presidential16.get("cName").asText());
         return true;
     }
 }
