@@ -193,21 +193,6 @@ class StateMap extends React.Component {
 	}
 	handleCheckBoxChange(e) {
 		this.setState({ showNationalParks: e.target.checked })
-		// if (e.target.id === "nationalParks") {
-		// 	if (e.target.checked === false) {
-		// 		console.log("National Parks Disabled");
-		// 		this.setState({ showNationalParks: false })
-		// 	} else {
-		// 		console.log("National Parks Enabled");
-		// 		this.setState({ showNationalParks: true })
-		// 	}
-		// } else if (e.target.id === "districtBounds") {
-		// 	if (e.target.checked === false) {
-		// 		console.log("Congressional Bounds Disabled");
-		// 	} else {
-		// 		console.log("Congressional Bounds Enabled");
-		// 	}
-		// }
 	}
 	handleLeafletEdit(e) {
 		if (!this.props.selectedPrecinct) {
@@ -273,10 +258,10 @@ class StateMap extends React.Component {
 					</Form>
 					<Form inline className="m-2">
 						<Form.Group className="mr-2" controlId="nationalParks">
-							<Form.Check type="checkbox" id="nationalParks" onClick={(e) => this.handleCheckBoxChange(e)} checked={this.state.showNationalParks} label="Toggle National Parks" />
+							<Form.Check type="checkbox" id="nationalParks" onClick={(e) => this.handleCheckBoxChange(e)} checked={this.state.showNationalParks} style={{fontSize:"15px"}} label="Toggle National Parks" />
 						</Form.Group>
 						<Form.Group controlId="districtBounds">
-							<Form.Check type="checkbox" id="districtBounds" disabled={!this.state.isStateSelected} onClick={() => { }} label="Toggle District Boundaries" />
+							<Form.Check type="checkbox" id="districtBounds" disabled={true} style={{fontSize:"15px"}}  onClick={() => { }} label="Toggle District Boundaries" />
 						</Form.Group></Form>
 				</div>
 				<FeatureGroup ref="featuredGroup">
