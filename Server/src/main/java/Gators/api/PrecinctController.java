@@ -45,8 +45,18 @@ public class PrecinctController {
     }
 
     @GetMapping(path = "/{id}/presidential2016")
-    public Collection getPresidentialElectionAndDemographicById(@PathVariable long id) {
+    public Collection<?> getPres2016AndDemographicById(@PathVariable long id) {
         return precinctService.getPres2016AndDemographicById(id);
+    }
+
+    @GetMapping(path = "/{id}/congressional2016")
+    public Collection<?> getCong2016AndDemographicById(@PathVariable long id) {
+        return precinctService.getCong2016AndDemographicById(id);
+    }
+
+    @GetMapping(path = "/{id}/congressional2018")
+    public Collection<?> getCong2018AndDemographicById(@PathVariable long id) {
+        return precinctService.getCong2018AndDemographicById(id);
     }
 
     @PutMapping(path = "/{id}/geojson")
@@ -81,5 +91,11 @@ public class PrecinctController {
     @PutMapping(path = "/{stateAbbr}")
     public Precinct generatePrecinct(@PathVariable String stateAbbr, @RequestBody String geojson) {
         return precinctService.generatePrecinct(stateAbbr, geojson);
+    }
+
+    @PatchMapping(path = "/{id}/demographic")
+    public boolean editDemographic(@PathVariable long id, @RequestBody Demographic demographic) {
+        precinctService.editDemographic(id, demographic);
+        return true;
     }
 }
