@@ -69,7 +69,7 @@ public class PrecinctService {
 
     public Set<Precinct> getPrecinctsByStateAbbr(String stateAbbr) {
         State state = stateRepository.findByAbbr(stateAbbr);
-        return precinctRepository.findByStateId(state.getId());
+        return precinctRepository.findByState(state);
     }
 
     public Demographic getDemographicById(long id) {
