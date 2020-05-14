@@ -250,13 +250,14 @@ public class PrecinctService {
     }
 
     @Transactional
-    public void generatePrecinct(String stateAbbr, String geojson) {
+    public Precinct generatePrecinct(String stateAbbr, String geojson) {
         Precinct precinct = new Precinct();
         precinctRepository.save(precinct);
         precinct.setGeojson(geojson);
         precinct.setName(Long.toString(precinct.getId()));
         precinct.setCName(Long.toString(precinct.getId()));
         precinct.setState(stateRepository.findByAbbr(stateAbbr));
+        return precinct;
     }
 
     private Geometry deflate(Geometry geom) {
