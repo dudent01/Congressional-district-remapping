@@ -365,11 +365,13 @@ public class PrecinctService {
 
     @SneakyThrows
     private String stringifyPrecinct(Precinct precinct) {
-        return mapper.writeValueAsString(precinct) + "\nneighbors : " + precinct.getNeighbors().stream().map(
-                Precinct::getCName).collect(Collectors.toSet()).toString() + mapper.writeValueAsString(
-                precinct.getPres2016()) + mapper.writeValueAsString(precinct.getCong2016()) + mapper.writeValueAsString(
-                precinct.getCong2018()) + mapper.writeValueAsString(
-                precinct.getDemographic()) + "\nstate : " + precinct.getState().getName();
+        return mapper.writeValueAsString(precinct) +
+                "\nneighbors : " + precinct.getNeighbors() == null ? "none" : precinct.getNeighbors().stream().map(Precinct::getCName).collect(Collectors.toSet()).toString() +
+                precinct.getPres2016() == null ? "No presidential2016 data\n" : mapper.writeValueAsString(precinct.getPres2016()) +
+                precinct.getCong2016() == null ? "No congressional2016 data\n" : mapper.writeValueAsString(precinct.getCong2016()) +
+                precinct.getCong2018() == null ? "No congressional2018 data\n" : mapper.writeValueAsString(precinct.getCong2018()) +
+                precinct.getDemographic() == null ? "No demographic data\n" : mapper.writeValueAsString(precinct.getDemographic()) +
+                "\nstate : " + precinct.getState().getName();
     }
 
     private void writeElection(Election election1, Election election2) {
