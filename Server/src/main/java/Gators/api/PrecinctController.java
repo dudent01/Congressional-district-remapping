@@ -1,6 +1,7 @@
 package Gators.api;
 
 import Gators.model.Demographic.Demographic;
+import Gators.model.Election.Election;
 import Gators.model.Precinct;
 import Gators.model.Territory;
 import Gators.service.PrecinctService;
@@ -71,9 +72,9 @@ public class PrecinctController {
         return true;
     }
 
-    @PatchMapping(path = "/{id}/presidential2016")
-    public boolean editPresidential16(@PathVariable long id, @RequestBody JsonNode presidential16) {
-        precinctService.editPrecinctNames(id, presidential16.get("name").asText(), presidential16.get("cName").asText());
+    @PatchMapping(path = "/{id}/election")
+    public boolean editElection(@PathVariable long id, @RequestBody Election election) {
+        precinctService.editElection(id, election);
         return true;
     }
 }
