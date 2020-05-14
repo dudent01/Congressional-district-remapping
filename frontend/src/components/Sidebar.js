@@ -2,6 +2,7 @@ import React from "react";
 import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container, Row, Col, Tooltip, OverlayTrigger } from "react-bootstrap"
 import { connect } from 'react-redux';
 import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, unsetTool } from '../actions/mapActions'
+import { updatePrecinct } from '../actions/precinctActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS } from '../actions/types'
 import EditPrecinctModal from './EditPrecinctModal'
 import EditElectionModal from './EditElectionModal'
@@ -23,7 +24,8 @@ const mapDispatchToProps = dispatch => {
 		setToolAddNeighbor: () => dispatch(setToolAddNeighbor()),
 		setToolDeleteNeighbor: () => dispatch(setToolDeleteNeighbor()),
 		setToolMergePrecincts: () => dispatch(setToolMergePrecincts()),
-		unsetTool: () => dispatch(unsetTool())
+		unsetTool: () => dispatch(unsetTool()),
+		updatePrecinct: (data) => dispatch(updatePrecinct(data))
 	}
 }
 
@@ -86,7 +88,7 @@ class Sidebar extends React.Component {
 			if (this.props.selectedPrecinct.election) {
 				election = <>
 					<b className="text-center">{this.props.selectedPrecinct.election.type.replace("_", " ")}</b>
-					<EditElectionModal results={this.props.selectedPrecinct.election.results} />
+					<EditElectionModal election={this.props.selectedPrecinct.election}  />
 					<Table hover variant="danger" bordered>
 						<tbody>
 							<tr>
@@ -119,7 +121,9 @@ class Sidebar extends React.Component {
 						{this.props.selectedPrecinct ?
 							<>
 								<div>
-									<h2>Precinct {this.props.selectedPrecinct.name} <EditPrecinctModal precinct={this.props.selectedPrecinct} /></h2>
+									<h2>Precinct {this.props.selectedPrecinct.name} 
+										<EditPrecinctModal precinct={this.props.selectedPrecinct} updatePrecinct={(data) => this.props.updatePrecinct(data)} />
+									</h2>
 								</div>
 								<Table striped hover>
 									<tbody>
@@ -146,6 +150,8 @@ class Sidebar extends React.Component {
 									{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.precinctsSource)}
 									<h5>Elections Data Source:</h5>
 									{this.props.states.filter(state => state.abbr === this.props.selectedState).map(state => state.electionsSource)}
+									<h5>State Boundary Source:</h5>
+									Data.gov
 								</div>
 								:
 								<div>
