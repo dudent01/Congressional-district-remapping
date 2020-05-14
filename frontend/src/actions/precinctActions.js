@@ -1,7 +1,7 @@
 import {
   DELETE_PRECINCTS, REQUEST_PRECINCTS, RECEIVE_PRECINCTS, REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA,
   SET_SELECTED_PRECINCT, SET_SECOND_SELECTED_PRECINCT,
-  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, UPDATE_GEOJSON_KEY
+  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION
 } from './types';
 import axios from 'axios';
 
@@ -42,6 +42,12 @@ export const deleteNeighbor = (neighborId) => {
 }
 export const mergePrecincts = (id1, id2, precinct) => {
   return { type: MERGE_PRECINCTS, id1, id2, precinct }
+}
+export const updatePrecinct = (data) => {
+  return { type: UPDATE_PRECINCT, data }
+}
+export const updateElection = (election) => {
+  return { type: UPDATE_ELECTION, election}
 }
 
 // Asynchronous actions

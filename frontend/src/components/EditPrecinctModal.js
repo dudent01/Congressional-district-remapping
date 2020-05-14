@@ -1,5 +1,6 @@
 import React from 'react'
 import { Modal, Button, Form } from 'react-bootstrap'
+import axios from 'axios'
 
 class EditPrecinctModal extends React.Component {
   constructor(props) {
@@ -8,12 +9,13 @@ class EditPrecinctModal extends React.Component {
       show: false,
       form: {
         name: "",
-        cname: ""
-      }
+        cName: ""
+      },
+      submitting: false
     }
   }
   handleClose() {
-    this.setState({ show: false, form: { name: "", cname: "" } })
+    this.setState({ show: false, form: { name: "", cName: "" } })
   }
   handleShow() {
     this.setState({ show: true })
@@ -21,7 +23,7 @@ class EditPrecinctModal extends React.Component {
   handleOnShow() {
     const form = this.state.form
     form.name = this.props.precinct.name;
-    form.cname = this.props.precinct.cname;
+    form.cName = this.props.precinct.cname;
     this.setState({ form })
   }
   handleChange(e) {
@@ -30,6 +32,17 @@ class EditPrecinctModal extends React.Component {
     let value = e.target.value;
     form[key] = value
     this.setState({ form })
+  }
+  handleSave() {
+    this.setState({ submitting: true })
+    axios.patch(process.env.REACT_APP_API_URL + `/api/precinct/${this.props.precinct.id}/names`, { ...this.state.form })
+      .then(() => {
+        this.props.updatePrecinct({ ...this.state.form, id: this.props.precinct.id })
+        this.handleClose()
+      })
+      .finally(() => {
+        this.setState({ submitting: false })
+      })
   }
   render() {
     return (
@@ -51,14 +64,14 @@ class EditPrecinctModal extends React.Component {
 
               <Form.Group>
                 <Form.Label>Canonical Name</Form.Label>
-                <Form.Control name="cname" type="text" value={this.state.form.cname} onChange={e => this.handleChange(e)} />
+                <Form.Control name="cName" type="text" value={this.state.form.cName} onChange={e => this.handleChange(e)} />
               </Form.Group>
             </Form>
           </Modal.Body>
 
           <Modal.Footer>
             <Button variant="secondary" onClick={() => this.handleClose()} >Close</Button>
-            <Button variant="primary">Save changes</Button>
+            <Button variant="primary" onClick={() => this.handleSave()} disabled={this.state.submitting}>Save changes</Button>
           </Modal.Footer>
         </Modal>
       </>
