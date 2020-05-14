@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Repository
 public interface PrecinctRepository extends JpaRepository<Precinct, Long> {
-    Set<Precinct> findByStateAbbr(String stateAbbr);
-
     Set<Precinct> findAllByNeighborsId(long id);
+
+    Set<Precinct> findByStateId(long stateId);
 }

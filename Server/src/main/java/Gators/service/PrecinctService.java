@@ -6,6 +6,7 @@ import Gators.model.Election.Election;
 import Gators.model.Election.ElectionType;
 import Gators.model.Error.Log;
 import Gators.model.Precinct;
+import Gators.model.State;
 import Gators.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -67,7 +68,8 @@ public class PrecinctService {
     }
 
     public Set<Precinct> getPrecinctsByStateAbbr(String stateAbbr) {
-        return precinctRepository.findByStateAbbr(stateAbbr);
+        State state = stateRepository.findByAbbr(stateAbbr);
+        return precinctRepository.findByStateId(state.getId());
     }
 
     public Demographic getDemographicById(long id) {
