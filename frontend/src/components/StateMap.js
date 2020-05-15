@@ -4,7 +4,7 @@ import { Map, GeoJSON, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw"
 import { Form, Button } from "react-bootstrap"
 import {
-	defaultMapCenter, defaultMapZoom, defaultElection, stateColor, precinctStyle, leafletDrawOptions, leafletEditOptions,
+	defaultMapCenter, defaultMapZoom, stateColor, precinctStyle, leafletDrawOptions, leafletEditOptions,
 	selectedPrecinctStyle, nationalParkStyle, neighborPrecinctStyle, secondSelectedPrecinctStyle
 } from "../config"
 import { connect } from 'react-redux';

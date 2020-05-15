@@ -2,7 +2,7 @@ import {
   REQUEST_PRECINCTS, RECEIVE_PRECINCTS, DELETE_PRECINCTS, SET_SELECTED_PRECINCT,
   REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA, SET_PRECINCT_GEOJSON,
   ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, SET_SECOND_SELECTED_PRECINCT, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION,
-  ADD_PRECINCT, RECEIVE_ERRORS,
+  ADD_PRECINCT, RECEIVE_ERRORS, REMOVE_ERROR,
   UPDATE_DEMOGRAPHICS
 } from '../actions/types';
 
@@ -194,6 +194,41 @@ export default function precinctReducer(state = initialState, action) {
           features: [...state.geojson.features, geojson]
         },
         geojsonKey: state.geojsonKey + 1
+      }
+    }
+    case REMOVE_ERROR: {
+      let { id, errorType } = action
+      let index;
+      let keyName;
+      switch(errorType) {
+        case "OVERLAPPING":
+          keyName = "Overlapping Errors"
+          break;
+        case "MAP_COVERAGE":
+          keyName = "Map Coverage Errors"
+          break;
+        case "ENCLOSED":
+          keyName = "Enclosed Errors"
+          break;
+        case "MULTIPOLYGON":
+          keyName = "Multi Polygon Errors"
+          break;
+        case "ANOMALOUS_DATA":
+          keyName = "Anomalous Data Errors"
+          break;
+        case "UNCLOSED":
+          keyName = "Unclosed Errors"
+          break;
+        default:
+          return state;
+      }
+      index = state.errors[keyName].findIndex(e => e.id === id)
+      return {
+        ...state,
+        errors: {
+          ...state.errors,
+          [keyName]: [...state.errors[keyName].slice(0, index), ...state.errors[keyName].slice(index + 1)]
+        }
       }
     }
     default:

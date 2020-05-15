@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container, Row, Col, Tooltip, OverlayTrigger, Accordion, Card, ListGroupItem } from "react-bootstrap"
 import { connect } from 'react-redux';
 import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, setToolDrawNewBoundary, unsetTool } from '../actions/mapActions'
-import { updatePrecinct, updateElection, updateDemographics, fetchPrecinctData } from '../actions/precinctActions'
+import { updatePrecinct, updateElection, updateDemographics, fetchPrecinctData, setErrorFixedAsync } from '../actions/precinctActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, DRAW_NEW_BOUNDARY } from '../actions/types'
 import EditPrecinctModal from './EditPrecinctModal'
 import EditElectionModal from './EditElectionModal'
@@ -43,6 +43,9 @@ const mapDispatchToProps = dispatch => {
 		onSelectPrecinct: (id, election, precincts) => {
 			dispatch(fetchPrecinctData(id, election, precincts))
 		},
+		handleFixed: (id, errorType) => {
+			dispatch(setErrorFixedAsync(id, errorType))
+		}
 	}
 }
 
@@ -63,6 +66,9 @@ class Sidebar extends React.Component {
 	componentWillReceiveProps(nextProps) {
 		if (!nextProps.selectedPrecinct) {
 			this.setState({ key: "info" })
+		}
+		if (nextProps.precincts.length === 0) {
+			this.setState({activeKey: -1})
 		}
 	}
 	handleZoomInterestPoints(interestPoints) {
@@ -91,12 +97,16 @@ class Sidebar extends React.Component {
 		console.log(leafletGeojson._layers[layers[0]]._bounds)
 		this.props.map.fitBounds(leafletGeojson._layers[layers[0]]._bounds)
 	}
+	handleFixed(id, errorType) {
+		if (window.confirm("Would you like to remove this error from the list?"))
+			this.props.handleFixed(id, errorType);
+	}
 	toggleAccordion(index) {
 		if (this.state.activeKey === index) {
-			this.setState({activeKey: -1})
+			this.setState({ activeKey: -1 })
 		}
 		else {
-			this.setState({activeKey: index})
+			this.setState({ activeKey: index })
 		}
 	}
 	renderTooltip(id) {
@@ -302,42 +312,66 @@ class Sidebar extends React.Component {
 									return (
 										<Card key={errorType}>
 											<Card.Header>
-												<Accordion.Toggle as={Button} variant="link" eventKey={index} onClick={() =>  this.toggleAccordion(index)}>
-													{errorType} 
+												<Accordion.Toggle as={Button} variant="link" eventKey={index} onClick={() => this.toggleAccordion(index)}>
+													{errorType}
 												</Accordion.Toggle><Badge variant="danger">{this.props.errors[errorType].length}</Badge>
 											</Card.Header>
-											<Accordion.Collapse eventKey={index}> 
+											<Accordion.Collapse eventKey={index}>
 												<ListGroup>
 													{this.props.errors[errorType].map(error => {
 														if (this.state.activeKey === index)
-															switch(errorType) {
+															switch (errorType) {
 																case 'Overlapping Errors':
 																	return (
 																		<ListGroupItem key={error.id}>
-																			Overlapping No.{error.id}
-																			<Button onClick={this.handleZoomInterestPoints.bind(this, error.interestPoints)}>View On Map</Button>
+																			<strong>Overlapping No. {error.id}</strong>
+																			<div>
+																				<span className="link" onClick={this.handleZoomPrecinct.bind(this, error.precinct1Id)}>Precinct ID: {error.precinct1Id}</span>
+																				<Button className="float-right ml-2" variant="info" onClick={() => this.handleFixed(error.id, error.type)}>Fixed?</Button>
+																				<Button className="float-right" onClick={this.handleZoomInterestPoints.bind(this, error.interestPoints)}>View On Map</Button>
+																			</div>
+																			<div>
+																				<span className="link" onClick={this.handleZoomPrecinct.bind(this, error.precinct2Id)}>Precinct ID: {error.precinct2Id}</span>
+																			</div>
 																		</ListGroupItem>
 																	)
 																case 'Enclosed Errors':
 																	return (
 																		<ListGroupItem key={error.id}>
-																			Enclosed No.{error.id}<br/>
-																			<span className="link" onClick={this.handleZoomPrecinct.bind(this, error.containerPrecinctId)}>Precinct ID: {error.containerPrecinctId}</span><br/>
-																			<span className="link" onClick={this.handleZoomPrecinct.bind(this, error.enclosedPrecinctId)}>Precinct ID: {error.enclosedPrecinctId}</span><br/>
-																			<Button onClick={this.handleZoomInterestPoints.bind(this, error.interestPoints)}>View On Map</Button>
+																			<strong>Enclosed No. {error.id}</strong>
+																			<div>
+																				<span className="link" onClick={this.handleZoomPrecinct.bind(this, error.enclosedPrecinctId)}>Precinct ID: {error.enclosedPrecinctId}</span><br />
+																				<Button className="float-right ml-2" variant="info" onClick={() => this.handleFixed(error.id, error.type)}>Fixed?</Button>
+																				<Button className="float-right" onClick={this.handleZoomInterestPoints.bind(this, error.interestPoints)}>View On Map</Button>
+																			</div>
+																			<div>
+																				<span className="link" onClick={this.handleZoomPrecinct.bind(this, error.containerPrecinctId)}>Precinct ID: {error.containerPrecinctId}</span><br />
+																			</div>
 																		</ListGroupItem>
 																	)
 																case 'Unclosed Errors':
 																	break;
 																case 'Anomalous Data Errors':
+																	return (
+																		<ListGroupItem key={error.id}>
+																			<strong>Anomalous Data No. {error.id}</strong>
+																			<div>
+																				<Button className="float-right ml-2" variant="info" onClick={() => this.handleFixed(error.id, error.type)}>Fixed?</Button>
+																				<Button className="float-right" onClick={this.handleZoomPrecinct.bind(this, error.precinctId)}>View On Map</Button>
+																			</div>
+																		</ListGroupItem>
+																	)
 																	break;
 																case 'Map Coverage Errors':
 																	break;
 																case 'Multi Polygon Errors':
 																	return (
 																		<ListGroupItem key={error.id}>
-																			Multi Polygon No.{error.id}
-																			<Button onClick={this.handleZoomPrecinct.bind(this, error.precinctId)}>View On Map</Button>
+																			<strong>Multi Polygon No. {error.id}</strong>
+																			<div>
+																				<Button className="float-right ml-2" variant="info" onClick={() => this.handleFixed(error.id, error.type)}>Fixed?</Button>
+																				<Button className="float-right" onClick={this.handleZoomPrecinct.bind(this, error.precinctId)}>View On Map</Button>
+																			</div>
 																		</ListGroupItem>
 																	)
 																default:

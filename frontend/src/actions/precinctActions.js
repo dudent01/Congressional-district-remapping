@@ -1,7 +1,8 @@
 import {
   DELETE_PRECINCTS, REQUEST_PRECINCTS, RECEIVE_PRECINCTS, REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA,
   SET_SELECTED_PRECINCT, SET_SECOND_SELECTED_PRECINCT, SET_PRECINCT_GEOJSON,
-  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION, UPDATE_DEMOGRAPHICS,ADD_PRECINCT, RECEIVE_ERRORS
+  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION, UPDATE_DEMOGRAPHICS, ADD_PRECINCT, RECEIVE_ERRORS,
+  REMOVE_ERROR
 } from './types';
 import axios from 'axios';
 
@@ -61,7 +62,9 @@ export const updateDemographics = (demographics) => {
 export const addPrecinct = (precinct) => {
   return { type: ADD_PRECINCT, precinct }
 }
-
+export const removeError = (id, errorType) => {
+  return { type: REMOVE_ERROR, id, errorType }
+}
 // Asynchronous actions
 export const fetchPrecinctData = (id, election, precincts) => {
   return async (dispatch) => {
@@ -140,5 +143,12 @@ export const generatePrecinctAsync = (geojson, state) => {
   return async (dispatch) => {
     let { data } = await axios.put(process.env.REACT_APP_API_URL + `/api/precinct/${state}`, geojson)
     dispatch(addPrecinct(data))
+  }
+}
+export const setErrorFixedAsync = (id, errorType) => {
+  return async (dispatch) => {
+    await axios.patch(process.env.REACT_APP_API_URL + `/api/error/${id}/fix`, JSON.stringify(errorType),
+      { headers: {'Content-Type': 'application/json'} })
+    dispatch(removeError(id, errorType))
   }
 }
