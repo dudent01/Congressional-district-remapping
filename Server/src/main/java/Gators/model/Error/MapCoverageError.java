@@ -15,6 +15,9 @@ public class MapCoverageError extends Error {
     @Column
     private String geojson;
 
+    @Column
+    private String mapCoverageType;
+
     //    @ManyToMany
     //    private Set<Precinct> neighbors;
 }
