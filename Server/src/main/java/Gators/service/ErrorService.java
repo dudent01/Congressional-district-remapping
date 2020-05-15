@@ -37,12 +37,12 @@ public class ErrorService {
     public HashMap<String, Set<? extends SparseError>> getErrorsByStateAbbr(String stateAbbr) {
         State state = stateRepository.findByAbbr(stateAbbr);
         HashMap<String, Set<? extends SparseError>> errors = new HashMap<>();
-        errors.put("Anomalous Data Errors", anomalousDataErrorRepository.findByState(state));
-        errors.put("Enclosed Errors", enclosedErrorRepository.findByState(state));
-        errors.put("Map Coverage Errors", mapCoverageErrorRepository.findByState(state));
-        errors.put("Multi Polygon Errors", multiPolygonErrorRepository.findByState(state));
-        errors.put("Overlapping Errors", overlappingErrorRepository.findByState(state));
-        errors.put("Unclosed Errors", unclosedErrorRepository.findByState(state));
+        errors.put("Anomalous Data Errors", anomalousDataErrorRepository.findByStateAndFixed(state, false));
+        errors.put("Enclosed Errors", enclosedErrorRepository.findByStateAndFixed(state, false));
+        errors.put("Map Coverage Errors", mapCoverageErrorRepository.findByStateAndFixed(state, false));
+        errors.put("Multi Polygon Errors", multiPolygonErrorRepository.findByStateAndFixed(state, false));
+        errors.put("Overlapping Errors", overlappingErrorRepository.findByStateAndFixed(state, false));
+        errors.put("Unclosed Errors", unclosedErrorRepository.findByStateAndFixed(state, false));
         return errors;
     }
 
