@@ -10,10 +10,10 @@ import {
 import { connect } from 'react-redux';
 import { selectState, deselectState } from '../actions/stateActions';
 import {
-	fetchPrecinctsByState, deletePrecincts, fetchPrecinctData, updatePrecinctGeojson,
+	deletePrecincts, fetchPrecinctData, updatePrecinctGeojson,
 	addNeighborAsync, deleteNeighborAsync, mergePrecinctsAsync, setSecondSelectedPrecinct, updateGeojsonKey, generatePrecinctAsync
 } from '../actions/precinctActions';
-import { setDrawPolygon, unsetTool } from '../actions/mapActions'
+import { setDrawPolygon, unsetTool, setMap, setElectionType } from '../actions/mapActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, DRAW_NEW_BOUNDARY } from '../actions/types'
 import L from 'leaflet'
 import nationalParksGeojson from '../assets/simplified_national_parks.json'
@@ -29,9 +29,11 @@ const mapStateToProps = s => {
 		precincts: s.precincts.precincts,
 		selectedPrecinct: s.precincts.selectedPrecinct,
 		secondSelectedPrecinct: s.precincts.secondSelectedPrecinct,
+		isFetching: s.precincts.isFetching,
 
 		drawPolygon: s.map.drawPolygon,
-		toolAction: s.map.toolAction
+		toolAction: s.map.toolAction,
+		electionType: s.map.electionType
 	}
 }
 const mapDispatchToProps = dispatch => {
@@ -39,7 +41,6 @@ const mapDispatchToProps = dispatch => {
 		onSelectState: abbr => {
 			dispatch(deletePrecincts());
 			dispatch(selectState(abbr));
-			dispatch(fetchPrecinctsByState(abbr));
 		},
 		removePrecincts: () => {
 			dispatch(deletePrecincts())
@@ -81,6 +82,12 @@ const mapDispatchToProps = dispatch => {
 		},
 		addPrecinct: async (geojson, state) => {
 			await dispatch(generatePrecinctAsync(geojson, state))
+		},
+		setMap: (map) => {
+			dispatch(setMap(map))
+		},
+		setElectionType: (electionType) => {
+			dispatch(setElectionType(electionType))
 		}
 	};
 };
@@ -94,7 +101,6 @@ class StateMap extends React.Component {
 			center: defaultMapCenter,
 			zoom: defaultMapZoom,
 			viewport: {},
-			election: defaultElection,
 			isStateSelected: false,
 			isPrecinctSelected: false,
 			showNationalParks: false
@@ -102,6 +108,7 @@ class StateMap extends React.Component {
 	}
 	componentDidMount() {
 		this.props.setDrawPolygon(new L.Draw.Polygon(this.map.current.leafletElement, leafletDrawOptions.polygon))
+		this.props.setMap(this.map.current.leafletElement)
 	}
 	handleSelectState(abbr) {
 		this.props.onSelectState(abbr);
@@ -153,7 +160,7 @@ class StateMap extends React.Component {
 				let layer = e.target;
 				let { name, id } = layer.feature.properties;
 				if (this.props.selectedPrecinct && this.props.selectedPrecinct.id === id) return;
-				if (this.props.toolAction) {
+				if (this.props.toolAction && this.props.toolAction !== DRAW_NEW_BOUNDARY) {
 					this.props.setSecondSelectedPrecinct(this.props.precincts.find(p => p.id === id))
 					window.setTimeout(() => { // set timeout of 0 to add to end of event queue
 						switch (this.props.toolAction) {
@@ -191,7 +198,7 @@ class StateMap extends React.Component {
 					else {
 						console.log(layer.feature.geometry.type)
 					}
-					this.props.onSelectPrecinct(id, this.state.election, this.props.precincts)
+					this.props.onSelectPrecinct(id, this.props.electionType, this.props.precincts)
 				}
 			}
 		});
@@ -278,16 +285,16 @@ class StateMap extends React.Component {
 							{stateSelectOptions}
 						</Form.Control>
 						<Form.Control as="select" className="mr-2"
-							onChange={e => this.setState({ election: e.target.value })}
-							value={this.state.election}
+							onChange={e => this.props.setElectionType(e.target.value )}
+							value={this.props.electionType}
 						>
 							<option value="" disabled>Select Election</option>
 							<option value="presidential2016">2016 Presidential</option>
 							<option value="congressional2016">2016 Congressional</option>
 							<option value="congressional2018">2018 Congressional</option>
 						</Form.Control>
-						<Button className="ml-auto" onClick={this.handleResetClicked.bind(this)}>Reset</Button>
-						<Button onClick={() => this.props.updateGeojsonKey()}>Update map</Button>
+						<Button className="ml-auto" onClick={this.handleResetClicked.bind(this)} disabled={this.props.isFetching}>Reset</Button>
+						{/* <Button onClick={() => this.props.updateGeojsonKey()}>Update map</Button> */}
 					</Form>
 					<Form inline className="m-2">
 						<Form.Group className="mr-2" controlId="nationalParks">

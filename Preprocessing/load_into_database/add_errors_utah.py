@@ -31,6 +31,8 @@ for precinct in utah['features']:
         for error_type in precinct["properties"]["errors"]:
             for error in precinct["properties"]["errors"][error_type]:
                 for key, value in error.items():
+                    if value["interest points"]:
+                        value["interest points"].append(value["interest points"][0])
                     if error_type == 'Overlapping precinct':
                         value["precincts"].sort()
                         err_string = "".join(value["precincts"])
@@ -38,9 +40,9 @@ for precinct in utah['features']:
                             continue
                         else:
                             overlap.append("".join(value["precincts"]))
-                        sql = "INSERT INTO overlapping_error (fixed, interest_points, type, state_id, container_precinct_id, enclosed_precinct_id) VALUES (%s,%s,%s,%s,%s,%s,)"
-                        val = (False, value["interest points"], "OVERLAPPING", state_id, map_cname_to_id[value["precincts"][0]], map_cname_to_id[value["precincts"][1]] )
-                        mycursor.execute(sql)
+                        sql = "INSERT INTO overlapping_error (fixed, interest_points, type, state_id, precinct1_id, precinct2_id) VALUES (%s,%s,%s,%s,%s,%s)"
+                        val = (False, json.dumps(value["interest points"]), "OVERLAPPING", state_id, map_cname_to_id[value["precincts"][0]], map_cname_to_id[value["precincts"][1]] )
+                        mycursor.execute(sql, val)
                     elif error_type == 'Enclosed precinct':
                         value["precincts"].sort()
                         err_string = "".join(value["precincts"])
@@ -48,17 +50,17 @@ for precinct in utah['features']:
                             continue
                         else:
                             enclosed.append("".join(value["precincts"]))
-                        sql = "INSERT INTO enclosed_error (fixed, interest_points, type, state_id, precinct1_id, precinct2_id) VALUES (%s,%s,%s,%s,%s,%s,)"
-                        val = (False, value["interest points"], "ENCLOSED", state_id, map_cname_to_id[value["precincts"][0]], map_cname_to_id[value["precincts"][1]] )
-                        mycursor.execute(sql)
+                        sql = "INSERT INTO enclosed_error (fixed, interest_points, type, state_id, container_precinct_id, enclosed_precinct_id) VALUES (%s,%s,%s,%s,%s,%s)"
+                        val = (False, json.dumps(value["interest points"]), "ENCLOSED", state_id, map_cname_to_id[value["precincts"][0]], map_cname_to_id[value["precincts"][1]] )
+                        mycursor.execute(sql, val)
                     elif error_type == 'Multipolygon':
-                        sql = "INSERT INTO multi_polygon_error (fixed, interest_points, type, state_id, precinct_id) VALUES (%s,%s,%s,%s,%s,%s,)"
-                        val = (False, value["interest points"], "MULTIPOLYGON", state_id, map_cname_to_id[value["precincts"]])
-                        mycursor.execute(sql)
+                        sql = "INSERT INTO multi_polygon_error (fixed, interest_points, type, state_id, precinct_id) VALUES (%s,%s,%s,%s,%s)"
+                        val = (False, json.dumps(value["interest points"]), "MULTIPOLYGON", state_id, map_cname_to_id[value["precincts"]])
+                        mycursor.execute(sql, val)
                     elif error_type == 'Unclosed precinct':
-                        sql = "INSERT INTO unclosed_error (fixed, interest_points, type, state_id, precinct_id) VALUES (%s,%s,%s,%s,%s,%s,)"
-                        val = (False, value["interest points"], "UNCLOSED", state_id, map_cname_to_id[value["precincts"]])
-                        mycursor.execute(sql)
+                        sql = "INSERT INTO unclosed_error (fixed, interest_points, type, state_id, precinct_id) VALUES (%s,%s,%s,%s,%s)"
+                        val = (False, json.dumps(value["interest points"]), "UNCLOSED", state_id, map_cname_to_id[value["precincts"]])
+                        mycursor.execute(sql, val)
                     elif error_type == 'Anomalous data':
                         continue
 print(len(overlap))

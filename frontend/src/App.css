@@ -10,10 +10,16 @@
 }
 .sidebar {
     overflow-y: auto;
-    overflow-wrap: break-word;
     max-height: 100%;
 }
-
+.link {
+    color: #007bff;
+}
+.link:hover {
+    text-decoration: underline;
+    cursor: pointer;
+    color: #0056b3;
+}
 html,
 body,
 #root {
