@@ -1,10 +1,12 @@
 package Gators.service;
 
+import Gators.model.Error.ErrorType;
 import Gators.model.Error.SparseError;
 import Gators.model.State;
 import Gators.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -35,12 +37,36 @@ public class ErrorService {
     public HashMap<String, Set<? extends SparseError>> getErrorsByStateAbbr(String stateAbbr) {
         State state = stateRepository.findByAbbr(stateAbbr);
         HashMap<String, Set<? extends SparseError>> errors = new HashMap<>();
-        errors.put("Anomalous Data Errors", anomalousDataErrorRepository.findByState(state));
-        errors.put("Enclosed Errors", enclosedErrorRepository.findByState(state));
-        errors.put("Map Coverage Errors", mapCoverageErrorRepository.findByState(state));
-        errors.put("Multi Polygon Errors", multiPolygonErrorRepository.findByState(state));
-        errors.put("Overlapping Errors", overlappingErrorRepository.findByState(state));
-        errors.put("Unclosed Errors", unclosedErrorRepository.findByState(state));
+        errors.put("Anomalous Data Errors", anomalousDataErrorRepository.findByStateAndFixed(state, false));
+        errors.put("Enclosed Errors", enclosedErrorRepository.findByStateAndFixed(state, false));
+        errors.put("Map Coverage Errors", mapCoverageErrorRepository.findByStateAndFixed(state, false));
+        errors.put("Multi Polygon Errors", multiPolygonErrorRepository.findByStateAndFixed(state, false));
+        errors.put("Overlapping Errors", overlappingErrorRepository.findByStateAndFixed(state, false));
+        errors.put("Unclosed Errors", unclosedErrorRepository.findByStateAndFixed(state, false));
         return errors;
+    }
+
+    @Transactional
+    public void setFixed(long id, ErrorType errorType) {
+        switch (errorType) {
+        case ANOMALOUS_DATA:
+            anomalousDataErrorRepository.getOne(id).setFixed(true);
+            break;
+        case ENCLOSED:
+            enclosedErrorRepository.getOne(id).setFixed(true);
+            break;
+        case MAP_COVERAGE:
+            mapCoverageErrorRepository.getOne(id).setFixed(true);
+            break;
+        case MULTIPOLYGON:
+            multiPolygonErrorRepository.getOne(id).setFixed(true);
+            break;
+        case OVERLAPPING:
+            overlappingErrorRepository.getOne(id).setFixed(true);
+            break;
+        case UNCLOSED:
+            unclosedErrorRepository.getOne(id).setFixed(true);
+            break;
+        }
     }
 }

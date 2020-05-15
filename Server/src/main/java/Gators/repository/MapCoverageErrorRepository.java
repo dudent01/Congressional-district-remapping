@@ -1,8 +1,6 @@
 package Gators.repository;
 
-import Gators.model.Error.Error;
 import Gators.model.Error.MapCoverageError;
-import Gators.model.Error.SparseEnclosedError;
 import Gators.model.Error.SparseMapCoverageError;
 import Gators.model.State;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,5 +10,5 @@ import java.util.Set;
 
 @Repository
 public interface MapCoverageErrorRepository extends JpaRepository<MapCoverageError, Long> {
-    Set<SparseMapCoverageError> findByState(State state);
+    Set<SparseMapCoverageError> findByStateAndFixed(State state, boolean fixed);
 }

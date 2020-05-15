@@ -1,6 +1,5 @@
 package Gators.repository;
 
-import Gators.model.Error.Error;
 import Gators.model.Error.MultiPolygonError;
 import Gators.model.Error.SparseMultiPolygonError;
 import Gators.model.State;
@@ -11,5 +10,5 @@ import java.util.Set;
 
 @Repository
 public interface MultiPolygonErrorRepository extends JpaRepository<MultiPolygonError, Long> {
-    Set<SparseMultiPolygonError> findByState(State state);
+    Set<SparseMultiPolygonError> findByStateAndFixed(State state, boolean fixed);
 }

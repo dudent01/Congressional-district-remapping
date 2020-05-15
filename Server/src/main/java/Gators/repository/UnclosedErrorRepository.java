@@ -1,6 +1,5 @@
 package Gators.repository;
 
-import Gators.model.Error.Error;
 import Gators.model.Error.SparseUnclosedError;
 import Gators.model.Error.UnclosedError;
 import Gators.model.State;
@@ -11,5 +10,5 @@ import java.util.Set;
 
 @Repository
 public interface UnclosedErrorRepository extends JpaRepository<UnclosedError, Long> {
-    Set<SparseUnclosedError> findByState(State state);
+    Set<SparseUnclosedError> findByStateAndFixed(State state, boolean fixed);
 }
