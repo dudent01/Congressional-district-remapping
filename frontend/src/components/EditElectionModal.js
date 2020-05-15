@@ -22,7 +22,6 @@ class EditElectionModal extends React.Component {
     this.setState({ election: JSON.parse(JSON.stringify(this.props.election)) })
   }
   handleChange(e, index) {
-    console.log(e)
     const election = this.state.election
     let value = e.target.value;
     let key = e.target.name;

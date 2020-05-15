@@ -1,23 +1,30 @@
 import React from "react";
-import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container, Row, Col, Tooltip, OverlayTrigger } from "react-bootstrap"
+import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container, Row, Col, Tooltip, OverlayTrigger, Accordion, Card, ListGroupItem } from "react-bootstrap"
 import { connect } from 'react-redux';
 import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, setToolDrawNewBoundary, unsetTool } from '../actions/mapActions'
-import { updatePrecinct, updateElection, updateDemographics } from '../actions/precinctActions'
+import { updatePrecinct, updateElection, updateDemographics, fetchPrecinctData } from '../actions/precinctActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, DRAW_NEW_BOUNDARY } from '../actions/types'
 import EditPrecinctModal from './EditPrecinctModal'
 import EditElectionModal from './EditElectionModal'
 import EditDemographicsModal from './EditDemographicsModal'
 import numeral from 'numeral'
+import L from 'leaflet'
 
 const mapStateToProps = s => {
 	return {
 		selectedPrecinct: s.precincts.selectedPrecinct,
 		isFetchingSelectedPrecinct: s.precincts.isFetchingSelectedPrecinct,
 		isFetching: s.precincts.isFetching,
+		errors: s.precincts.errors,
+		precinctGeojson: s.precincts.geojson,
+		precincts: s.precincts.precincts,
+
 		selectedState: s.states.selectedState,
 		states: s.states.states,
 
-		toolAction: s.map.toolAction
+		toolAction: s.map.toolAction,
+		map: s.map.map,
+		electionType: s.map.electionType
 	}
 }
 const mapDispatchToProps = dispatch => {
@@ -31,7 +38,11 @@ const mapDispatchToProps = dispatch => {
 		unsetTool: () => dispatch(unsetTool()),
 		updatePrecinct: (data) => dispatch(updatePrecinct(data)),
 		updateElection: (election) => dispatch(updateElection(election)),
-		updateDemographics: (demographics) => dispatch(updateDemographics(demographics))
+		updateDemographics: (demographics) => dispatch(updateDemographics(demographics)),
+
+		onSelectPrecinct: (id, election, precincts) => {
+			dispatch(fetchPrecinctData(id, election, precincts))
+		},
 	}
 }
 
@@ -45,12 +56,47 @@ class Sidebar extends React.Component {
 				UT: "Utah",
 				CA: "California",
 				WV: "West Virginia"
-			}
+			},
+			activeKey: -1
 		}
 	}
 	componentWillReceiveProps(nextProps) {
 		if (!nextProps.selectedPrecinct) {
 			this.setState({ key: "info" })
+		}
+	}
+	handleZoomInterestPoints(interestPoints) {
+		let coordinates = JSON.parse(interestPoints)
+		let geojson = {
+			type: "Feature",
+			geometry: {
+				type: "Polygon",
+				coordinates: [coordinates]
+			},
+			properties: {}
+		}
+		// console.log(this.props.map.getBounds())
+		let leafletGeojson = new L.GeoJSON(geojson)
+		let layers = Object.keys(leafletGeojson._layers)
+		console.log(leafletGeojson._layers[layers[0]]._bounds)
+		this.props.map.fitBounds(leafletGeojson._layers[layers[0]]._bounds)
+	}
+	handleZoomPrecinct(id) {
+		this.props.onSelectPrecinct(id, this.props.electionType, this.props.precincts)
+		let geojson = this.props.precinctGeojson.features.find(p => p.properties.id === id)
+		console.log(geojson)
+		let leafletGeojson = new L.GeoJSON(geojson)
+		let layers = Object.keys(leafletGeojson._layers)
+		console.log(leafletGeojson)
+		console.log(leafletGeojson._layers[layers[0]]._bounds)
+		this.props.map.fitBounds(leafletGeojson._layers[layers[0]]._bounds)
+	}
+	toggleAccordion(index) {
+		if (this.state.activeKey === index) {
+			this.setState({activeKey: -1})
+		}
+		else {
+			this.setState({activeKey: index})
 		}
 	}
 	renderTooltip(id) {
@@ -248,13 +294,64 @@ class Sidebar extends React.Component {
 						{demographics}
 					</Container>
 				</Tab>
-				<Tab eventKey="err" disabled={this.props.selectedState === ""} title={<div>Errors <Badge variant="danger">{this.state.errorsCount}</Badge></div>}>
+				<Tab eventKey="err" disabled={this.props.selectedState === ""} title={<div>Errors</div>}>
 					<div>
-						{this.state.precinctErrors ?
-							<ListGroup>
-								{this.state.precinctErrors}
-							</ListGroup>
-							: <span>There are no known errors in the selected state.</span>
+						{this.props.errors &&
+							<Accordion defaultActiveKey="0" activeKey={this.state.activeKey}>
+								{Object.keys(this.props.errors).map((errorType, index) => {
+									return (
+										<Card key={errorType}>
+											<Card.Header>
+												<Accordion.Toggle as={Button} variant="link" eventKey={index} onClick={() =>  this.toggleAccordion(index)}>
+													{errorType} 
+												</Accordion.Toggle><Badge variant="danger">{this.props.errors[errorType].length}</Badge>
+											</Card.Header>
+											<Accordion.Collapse eventKey={index}> 
+												<ListGroup>
+													{this.props.errors[errorType].map(error => {
+														if (this.state.activeKey === index)
+															switch(errorType) {
+																case 'Overlapping Errors':
+																	return (
+																		<ListGroupItem key={error.id}>
+																			Overlapping No.{error.id}
+																			<Button onClick={this.handleZoomInterestPoints.bind(this, error.interestPoints)}>View On Map</Button>
+																		</ListGroupItem>
+																	)
+																case 'Enclosed Errors':
+																	return (
+																		<ListGroupItem key={error.id}>
+																			Enclosed No.{error.id}<br/>
+																			<span className="link" onClick={this.handleZoomPrecinct.bind(this, error.containerPrecinctId)}>Precinct ID: {error.containerPrecinctId}</span><br/>
+																			<span className="link" onClick={this.handleZoomPrecinct.bind(this, error.enclosedPrecinctId)}>Precinct ID: {error.enclosedPrecinctId}</span><br/>
+																			<Button onClick={this.handleZoomInterestPoints.bind(this, error.interestPoints)}>View On Map</Button>
+																		</ListGroupItem>
+																	)
+																case 'Unclosed Errors':
+																	break;
+																case 'Anomalous Data Errors':
+																	break;
+																case 'Map Coverage Errors':
+																	break;
+																case 'Multi Polygon Errors':
+																	return (
+																		<ListGroupItem key={error.id}>
+																			Multi Polygon No.{error.id}
+																			<Button onClick={this.handleZoomPrecinct.bind(this, error.precinctId)}>View On Map</Button>
+																		</ListGroupItem>
+																	)
+																default:
+																	return null
+															}
+														else
+															return null
+													})}
+												</ListGroup>
+											</Accordion.Collapse>
+										</Card>
+									)
+								})}
+							</Accordion>
 						}
 					</div>
 				</Tab>
@@ -263,7 +360,7 @@ class Sidebar extends React.Component {
 						{this.props.selectedPrecinct &&
 							<h2>Precinct {this.props.selectedPrecinct.name}</h2>
 						}
-						<h5 className ="my-4 text-info">
+						<h5 className="my-4 text-info">
 							*Click on a button to begin an action on the currently selected precinct.
 						</h5>
 						<div className="mb-4">

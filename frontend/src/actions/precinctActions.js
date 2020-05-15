@@ -1,7 +1,7 @@
 import {
   DELETE_PRECINCTS, REQUEST_PRECINCTS, RECEIVE_PRECINCTS, REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA,
   SET_SELECTED_PRECINCT, SET_SECOND_SELECTED_PRECINCT, SET_PRECINCT_GEOJSON,
-  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION, UPDATE_DEMOGRAPHICS,ADD_PRECINCT
+  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION, UPDATE_DEMOGRAPHICS,ADD_PRECINCT, RECEIVE_ERRORS
 } from './types';
 import axios from 'axios';
 
@@ -32,6 +32,12 @@ export const recievePrecincts = (precincts, geojson) => {
     type: RECEIVE_PRECINCTS,
     precincts,
     geojson
+  }
+}
+export const recieveErrors = (errors) => {
+  return {
+    type: RECEIVE_ERRORS,
+    errors
   }
 }
 export const addNeighbor = (neighborId) => {
@@ -66,7 +72,6 @@ export const fetchPrecinctData = (id, election, precincts) => {
       axios.get(process.env.REACT_APP_API_URL + `/api/precinct/${id}/${election}`),
       axios.get(process.env.REACT_APP_API_URL + `/api/precinct/${id}/neighbors`)
     ])
-    console.log(values)
     let electionData = values[0].data[0];
     let demographics = values[0].data[1]
     let neighbors = values[1].data;
@@ -77,7 +82,12 @@ export const fetchPrecinctsByState = (abbr) => {
   return async (dispatch) => {
     dispatch(requestPrecincts());
     try {
-      const { data } = await axios.get(process.env.REACT_APP_API_URL + `/api/precinct/state/${abbr}`);
+      let values = await Promise.all([
+        axios.get(process.env.REACT_APP_API_URL + `/api/precinct/state/${abbr}`),
+        axios.get(process.env.REACT_APP_API_URL + `/api/error/state/${abbr}`)
+      ])
+      const data = values[0].data
+      const errors = values[1].data
       let features = [];
       for (let precinct of data) {
         if (!precinct.geojson) {
@@ -96,6 +106,7 @@ export const fetchPrecinctsByState = (abbr) => {
       }
       let geojson = { type: "FeatureCollection", features };
       dispatch(recievePrecincts(data, geojson));
+      dispatch(recieveErrors(errors))
     } catch (error) {
       throw (error);
     }
