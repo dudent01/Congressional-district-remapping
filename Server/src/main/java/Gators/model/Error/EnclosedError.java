@@ -13,11 +13,11 @@ import javax.persistence.*;
 @Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class EnclosedError extends Error {
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Precinct enclosedPrecinct;
+//    @JsonIgnore
+//    @ManyToOne(fetch = FetchType.LAZY)
+    private long enclosedPrecinctId;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Precinct containerPrecinct;
+//    @JsonIgnore
+//    @ManyToOne(fetch = FetchType.LAZY)
+    private long containerPrecinctId;
 }

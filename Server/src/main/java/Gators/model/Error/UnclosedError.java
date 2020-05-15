@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 @Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class UnclosedError extends Error {
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Precinct precinct;
+//    @JsonIgnore
+//    @ManyToOne(fetch = FetchType.LAZY)
+    private long precinctId;
 }

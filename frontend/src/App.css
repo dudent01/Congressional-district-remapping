@@ -4,9 +4,6 @@
 }
 
 #sidebar {
-    overflow-y: auto;
-    overflow-wrap: break-word;
-    max-height: 100%;
 }
 .sidebar {
     overflow-y: auto;
@@ -19,6 +16,17 @@
     text-decoration: underline;
     cursor: pointer;
     color: #0056b3;
+}
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    background: white;
+    width: 32%;
+}
+.tab-content {
+    margin-top: 50px;
 }
 html,
 body,

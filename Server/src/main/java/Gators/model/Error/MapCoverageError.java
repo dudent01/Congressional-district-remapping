@@ -12,7 +12,7 @@ import javax.persistence.Entity;
 @Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class MapCoverageError extends Error {
-    @Column
+    @Column(name = "geojson", columnDefinition = "MEDIUMTEXT")
     private String geojson;
 
     @Column

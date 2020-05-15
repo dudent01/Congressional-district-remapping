@@ -16,8 +16,8 @@ with open('../California.json') as f:
     california = json.load(f)
 
 map_cname_to_id = {}
-#
-# #Adding Election and Precinct Data
+
+#Adding Election and Precinct Data
 # print("Adding Precincts and Election")
 # for precinct in california['features']:
 #     if "presidential" in precinct["properties"]:
@@ -54,6 +54,8 @@ map_cname_to_id = {}
 #     map_cname_to_id[cname] = mycursor.lastrowid
 
 #Adding Neighbors
+# with open('../California.json') as f:
+#     california = json.load(f)
 sql = "SELECT c_name, id FROM precinct WHERE state_id = 1"
 mycursor.execute(sql)
 for result in mycursor.fetchall():

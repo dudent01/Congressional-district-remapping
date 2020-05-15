@@ -60,7 +60,9 @@ class Sidebar extends React.Component {
 				CA: "California",
 				WV: "West Virginia"
 			},
-			activeKey: -1
+			activeKey: -1,
+			scrollTop: 0,
+			limit: 200
 		}
 	}
 	componentWillReceiveProps(nextProps) {
@@ -68,7 +70,7 @@ class Sidebar extends React.Component {
 			this.setState({ key: "info" })
 		}
 		if (nextProps.precincts.length === 0) {
-			this.setState({activeKey: -1})
+			this.setState({ activeKey: -1 })
 		}
 	}
 	handleZoomInterestPoints(interestPoints) {
@@ -90,20 +92,27 @@ class Sidebar extends React.Component {
 	handleZoomPrecinct(id) {
 		this.props.onSelectPrecinct(id, this.props.electionType, this.props.precincts)
 		let geojson = this.props.precinctGeojson.features.find(p => p.properties.id === id)
-		console.log(geojson)
 		let leafletGeojson = new L.GeoJSON(geojson)
 		let layers = Object.keys(leafletGeojson._layers)
-		console.log(leafletGeojson)
-		console.log(leafletGeojson._layers[layers[0]]._bounds)
 		this.props.map.fitBounds(leafletGeojson._layers[layers[0]]._bounds)
 	}
 	handleFixed(id, errorType) {
 		if (window.confirm("Would you like to remove this error from the list?"))
 			this.props.handleFixed(id, errorType);
 	}
+	handleTabSelect(key) {
+		if (this.state.key === 'err')
+			this.setState({ scrollTop: document.getElementById("sidebar").scrollTop })
+		if (key === 'err') {
+			window.setTimeout(() => {
+				document.getElementById("sidebar").scrollTop = this.state.scrollTop
+			}, 0)
+		}
+		this.setState({ key })
+	}
 	toggleAccordion(index) {
 		if (this.state.activeKey === index) {
-			this.setState({ activeKey: -1 })
+			this.setState({ activeKey: -1, limit: 200 })
 		}
 		else {
 			this.setState({ activeKey: index })
@@ -236,7 +245,7 @@ class Sidebar extends React.Component {
 			}
 		}
 		return (
-			<Tabs id="sidebar" activeKey={this.state.key} onSelect={key => this.setState({ key })} transition={false} className="mb-2">
+			<Tabs id="sidebar" activeKey={this.state.key} onSelect={(key) => this.handleTabSelect(key)} transition={false} className="mb-2">
 				<Tab eventKey="info" title="Information" >
 					<Container>
 						{this.props.selectedPrecinct ?
@@ -318,10 +327,14 @@ class Sidebar extends React.Component {
 											</Card.Header>
 											<Accordion.Collapse eventKey={index}>
 												<ListGroup>
-													{this.props.errors[errorType].map(error => {
+													{this.props.errors[errorType].map((error,i) => {
+														if (i == this.state.limit) return (
+															<div class="link text-right" onClick={() => this.setState({limit: this.state.limit + 100})}>See more...</div>
+														)
+														else if (i > this.state.limit) return null
 														if (this.state.activeKey === index)
 															switch (errorType) {
-																case 'Overlapping Errors':
+																case 'Overlapping Errors': {
 																	return (
 																		<ListGroupItem key={error.id}>
 																			<strong>Overlapping No. {error.id}</strong>
@@ -335,6 +348,7 @@ class Sidebar extends React.Component {
 																			</div>
 																		</ListGroupItem>
 																	)
+																}
 																case 'Enclosed Errors':
 																	return (
 																		<ListGroupItem key={error.id}>
@@ -363,14 +377,14 @@ class Sidebar extends React.Component {
 																	)
 																case 'Map Coverage Errors':
 																	return (
-																	<ListGroupItem key={error.id}>
-																		<strong>Map Coverage No. {error.id}</strong>
-																		<div>
-																			Type: {error.mapCoverageType}
-																			<Button className="float-right ml-2" variant="info" onClick={() => this.handleFixed(error.id, error.type)}>Fixed?</Button>
-																			<Button className="float-right" onClick={this.handleZoomInterestPoints.bind(this, error.interestPoints)}>View On Map</Button>
-																		</div>
-																	</ListGroupItem>
+																		<ListGroupItem key={error.id}>
+																			<strong>Map Coverage No. {error.id}</strong>
+																			<div>
+																				Type: {error.mapCoverageType}
+																				<Button className="float-right ml-2" variant="info" onClick={() => this.handleFixed(error.id, error.type)}>Fixed?</Button>
+																				<Button className="float-right" onClick={this.handleZoomInterestPoints.bind(this, error.interestPoints)}>View On Map</Button>
+																			</div>
+																		</ListGroupItem>
 																	)
 																case 'Multi Polygon Errors':
 																	return (

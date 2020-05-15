@@ -15,11 +15,11 @@ import javax.persistence.ManyToOne;
 @Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class OverlappingError extends Error {
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Precinct precinct1;
+//    @JsonIgnore
+//    @ManyToOne(fetch = FetchType.LAZY)
+    private long precinct1Id;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Precinct precinct2;
+//    @JsonIgnore
+//    @ManyToOne(fetch = FetchType.LAZY)
+    private long precinct2Id;
 }

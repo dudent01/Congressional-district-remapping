@@ -13,9 +13,9 @@ import javax.persistence.*;
 @Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class AnomalousDataError extends Error {
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Precinct precinct;
+//    @JsonIgnore
+//    @ManyToOne(fetch = FetchType.LAZY)
+    private long precinctId;
 
     @Enumerated(EnumType.STRING)
     private DataCategory dataCategory;
