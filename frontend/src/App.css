@@ -8,6 +8,11 @@
     overflow-wrap: break-word;
     max-height: 100%;
 }
+.sidebar {
+    overflow-y: auto;
+    overflow-wrap: break-word;
+    max-height: 100%;
+}
 
 html,
 body,

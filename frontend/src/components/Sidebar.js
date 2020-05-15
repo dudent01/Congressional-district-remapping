@@ -12,6 +12,7 @@ const mapStateToProps = s => {
 	return {
 		selectedPrecinct: s.precincts.selectedPrecinct,
 		isFetchingSelectedPrecinct: s.precincts.isFetchingSelectedPrecinct,
+		isFetching: s.precincts.isFetching,
 		selectedState: s.states.selectedState,
 		states: s.states.states,
 
@@ -110,6 +111,7 @@ class Sidebar extends React.Component {
 
 	render() {
 		let election = null;
+		let demographics = null;
 		if (this.props.selectedPrecinct) {
 			if (this.props.selectedPrecinct.election) {
 				election = <>
@@ -138,6 +140,40 @@ class Sidebar extends React.Component {
 				election = <div className="text-center"><Spinner animation="border" /></div>
 			} else if (!this.props.isFetchingSelectedPrecinct) {
 				election = <div>This precinct has no election data.</div>
+			}
+
+			if (this.props.selectedPrecinct.demographics) {
+				demographics = <>
+					<b className="text-center">Demographics</b>
+					<Table hover variant="primary" bordered>
+						<tbody>
+							<tr>
+								<th>Race</th>
+								<th>Population</th>
+							</tr>
+							<tr>
+								<td>White</td>
+								<td>{numeral(this.props.selectedPrecinct.demographics.whitePop).format('0,0')}</td>
+							</tr>
+							<tr>
+								<td>Black</td>
+								<td>{numeral(this.props.selectedPrecinct.demographics.blackPop).format('0,0')}</td>
+							</tr>
+							<tr>
+								<td>Hispanic</td>
+								<td>{numeral(this.props.selectedPrecinct.demographics.hispanicPop).format('0,0')}</td>
+							</tr>
+							<tr>
+								<td>Asian</td>
+								<td>{numeral(this.props.selectedPrecinct.demographics.asianPop).format('0,0')}</td>
+							</tr>
+							<tr>
+								<td>Other</td>
+								<td>{numeral(this.props.selectedPrecinct.demographics.otherPop).format('0,0')}</td>
+							</tr>
+						</tbody>
+					</Table>
+				</>
 			}
 		}
 		return (
@@ -192,6 +228,12 @@ class Sidebar extends React.Component {
 											</tr>
 										</tbody>
 									</Table>
+									{this.props.isFetching &&
+										<div className="text-center">
+											<Spinner animation="border" variant="primary" />
+											<h2>Loading Precincts...</h2>
+										</div>
+									}
 								</>
 								:
 								<div>
@@ -200,6 +242,7 @@ class Sidebar extends React.Component {
 							</div>
 						}
 						{election}
+						{demographics}
 					</Container>
 				</Tab>
 				<Tab eventKey="err" disabled={this.props.selectedState === ""} title={<div>Errors <Badge variant="danger">{this.state.errorsCount}</Badge></div>}>

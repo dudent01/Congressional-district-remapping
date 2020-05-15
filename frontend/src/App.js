@@ -8,7 +8,7 @@ class App extends Component {
   render() {
     return (
       <Row className="h-100" noGutters={true}>
-        <Col xs={4} className="p-1">
+        <Col xs={4} className="p-1 sidebar">
           <Sidebar></Sidebar>
         </Col>
         <Col xs={8} className="h-100">

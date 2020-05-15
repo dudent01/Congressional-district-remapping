@@ -14,7 +14,7 @@ export const updateGeojsonKey = () => {
 export const deletePrecincts = () => ({ type: DELETE_PRECINCTS })
 export const requestPrecincts = () => ({ type: REQUEST_PRECINCTS })
 export const requestSelectedPrecinctData = () => ({ type: REQUEST_SELECTED_PRECINCT_DATA })
-export const recieveSelectedPrecinctData = (election, neighbors) => ({ type: RECIEVE_SELECTED_PRECINCT_DATA, election, neighbors })
+export const recieveSelectedPrecinctData = (election, demographics, neighbors) => ({ type: RECIEVE_SELECTED_PRECINCT_DATA, election, neighbors, demographics })
 export const setSelectedPrecinct = precinct => {
   return {
     type: SET_SELECTED_PRECINCT,
@@ -64,13 +64,15 @@ export const fetchPrecinctData = (id, election, precincts) => {
       axios.get(process.env.REACT_APP_API_URL + `/api/precinct/${id}/neighbors`)
     ])
     console.log(values)
-    let data = values[0].data[0];
+    let electionData = values[0].data[0];
+    let demographics = values[0].data[1]
     let neighbors = values[1].data;
-    dispatch(recieveSelectedPrecinctData(data, neighbors));
+    dispatch(recieveSelectedPrecinctData(electionData, demographics, neighbors));
   }
 }
 export const fetchPrecinctsByState = (abbr) => {
   return async (dispatch) => {
+    dispatch(requestPrecincts());
     try {
       const { data } = await axios.get(process.env.REACT_APP_API_URL + `/api/precinct/state/${abbr}`);
       let features = [];

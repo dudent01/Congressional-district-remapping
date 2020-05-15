@@ -34,8 +34,12 @@ export default function precinctReducer(state = initialState, action) {
         precincts: action.precincts,
         geojson: action.geojson
       }
-    case DELETE_PRECINCTS:
-      return initialState
+    case DELETE_PRECINCTS:{
+      return {
+        ...initialState,
+        geojsonKey: state.geojsonKey
+      }
+    }
     case REQUEST_SELECTED_PRECINCT_DATA:
       return {
         ...state,
@@ -47,7 +51,8 @@ export default function precinctReducer(state = initialState, action) {
         selectedPrecinct: {
           ...state.selectedPrecinct,
           election: action.election,
-          neighbors: action.neighbors
+          neighbors: action.neighbors,
+          demographics: action.demographics
         },
         isFetchingSelectedPrecinct: false
       }
