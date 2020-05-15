@@ -2,10 +2,11 @@ import React from "react";
 import { Button, Tabs, Tab, Table, ListGroup, Badge, Spinner, Container, Row, Col, Tooltip, OverlayTrigger } from "react-bootstrap"
 import { connect } from 'react-redux';
 import { enableDrawPolygon, setToolAddNeighbor, setToolDeleteNeighbor, setToolMergePrecincts, setToolDrawNewBoundary, unsetTool } from '../actions/mapActions'
-import { updatePrecinct, updateElection } from '../actions/precinctActions'
+import { updatePrecinct, updateElection, updateDemographics } from '../actions/precinctActions'
 import { ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, DRAW_NEW_BOUNDARY } from '../actions/types'
 import EditPrecinctModal from './EditPrecinctModal'
 import EditElectionModal from './EditElectionModal'
+import EditDemographicsModal from './EditDemographicsModal'
 import numeral from 'numeral'
 
 const mapStateToProps = s => {
@@ -29,7 +30,8 @@ const mapDispatchToProps = dispatch => {
 		setToolDrawNewBoundary: () => dispatch(setToolDrawNewBoundary()),
 		unsetTool: () => dispatch(unsetTool()),
 		updatePrecinct: (data) => dispatch(updatePrecinct(data)),
-		updateElection: (election) => dispatch(updateElection(election))
+		updateElection: (election) => dispatch(updateElection(election)),
+		updateDemographics: (demographics) => dispatch(updateDemographics(demographics))
 	}
 }
 
@@ -145,6 +147,7 @@ class Sidebar extends React.Component {
 			if (this.props.selectedPrecinct.demographics) {
 				demographics = <>
 					<b className="text-center">Demographics</b>
+					<EditDemographicsModal precinct={this.props.selectedPrecinct} demographics={this.props.selectedPrecinct.demographics} updateDemographics={(demographics) => this.props.updateDemographics(demographics)} />
 					<Table hover variant="primary" bordered>
 						<tbody>
 							<tr>

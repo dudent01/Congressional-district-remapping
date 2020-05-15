@@ -44,7 +44,7 @@ for precinct in utah['features']:
     mycursor.execute(sql, val)
     demographic_id = mycursor.lastrowid
 
-    id = precinct['properties']['ID']
+    id = precinct['properties']['precinctId']
     cname = precinct['properties']['cname']
     precinct["properties"] = {}
 
@@ -53,6 +53,8 @@ for precinct in utah['features']:
     mycursor.execute(sql, val)
     map_cname_to_id[precinct['properties']['cname']] = mycursor.lastrowid
 
+with open('Utah.json') as f:
+    utah = json.load(f)
 # Adding Neighbors
 print("Adding Neighbors")
 for precinct in utah['features']:

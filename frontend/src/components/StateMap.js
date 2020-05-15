@@ -188,6 +188,9 @@ class StateMap extends React.Component {
 					if (layer.feature.geometry.type === 'Polygon') { // Only enable editing for Polygons
 						this.refs.featuredGroup.contextValue.layerContainer.addLayer(layer)
 					}
+					else {
+						console.log(layer.feature.geometry.type)
+					}
 					this.props.onSelectPrecinct(id, this.state.election, this.props.precincts)
 				}
 			}

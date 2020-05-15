@@ -1,7 +1,7 @@
 import {
   DELETE_PRECINCTS, REQUEST_PRECINCTS, RECEIVE_PRECINCTS, REQUEST_SELECTED_PRECINCT_DATA, RECIEVE_SELECTED_PRECINCT_DATA,
   SET_SELECTED_PRECINCT, SET_SECOND_SELECTED_PRECINCT, SET_PRECINCT_GEOJSON,
-  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION, ADD_PRECINCT
+  ADD_NEIGHBOR, DELETE_NEIGHBOR, MERGE_PRECINCTS, UPDATE_GEOJSON_KEY, UPDATE_PRECINCT, UPDATE_ELECTION, UPDATE_DEMOGRAPHICS,ADD_PRECINCT
 } from './types';
 import axios from 'axios';
 
@@ -48,6 +48,9 @@ export const updatePrecinct = (data) => {
 }
 export const updateElection = (election) => {
   return { type: UPDATE_ELECTION, election }
+}
+export const updateDemographics = (demographics) => {
+  return { type: UPDATE_DEMOGRAPHICS, demographics }
 }
 export const addPrecinct = (precinct) => {
   return { type: ADD_PRECINCT, precinct }

@@ -1,6 +1,6 @@
 import json
 
-with open('../California.json') as f:
+with open('../Utah.json') as f:
     data = json.load(f)
 
 enclosed_precincts = {
