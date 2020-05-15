@@ -1,6 +1,7 @@
 package Gators.service;
 
 import Gators.model.Error.Log;
+import Gators.model.Error.SparseLog;
 import Gators.repository.LogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,8 @@ public class LogService {
         this.logRepository = logRepository;
     }
 
-    public List<Log> getLogs() {
-        return logRepository.findAll();
+    public List<SparseLog> getLogs() {
+        return logRepository.findAllBy();
     }
 
 }

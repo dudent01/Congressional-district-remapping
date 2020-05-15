@@ -1,9 +1,10 @@
 package Gators.service;
 
-import Gators.model.Error.ErrorType;
-import Gators.model.Error.SparseError;
+import Gators.model.Error.*;
 import Gators.model.State;
 import Gators.repository.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +21,14 @@ public class ErrorService {
     private final OverlappingErrorRepository overlappingErrorRepository;
     private final UnclosedErrorRepository unclosedErrorRepository;
     private final StateRepository stateRepository;
+    private final LogRepository logRepository;
+    private final ObjectMapper mapper;
 
     @Autowired
     public ErrorService(AnomalousDataErrorRepository anomalousDataErrorRepository, EnclosedErrorRepository enclosedErrorRepository,
                         MapCoverageErrorRepository mapCoverageErrorRepository, MultiPolygonErrorRepository multiPolygonErrorRepository,
-                        OverlappingErrorRepository overlappingErrorRepository, UnclosedErrorRepository unclosedErrorRepository, StateRepository stateRepository) {
+                        OverlappingErrorRepository overlappingErrorRepository, UnclosedErrorRepository unclosedErrorRepository, StateRepository stateRepository,
+                        LogRepository logRepository) {
         this.anomalousDataErrorRepository = anomalousDataErrorRepository;
         this.enclosedErrorRepository = enclosedErrorRepository;
         this.mapCoverageErrorRepository = mapCoverageErrorRepository;
@@ -32,6 +36,8 @@ public class ErrorService {
         this.overlappingErrorRepository = overlappingErrorRepository;
         this.unclosedErrorRepository = unclosedErrorRepository;
         this.stateRepository = stateRepository;
+        this.logRepository = logRepository;
+        mapper = new ObjectMapper();
     }
 
     public HashMap<String, Set<? extends SparseError>> getErrorsByStateAbbr(String stateAbbr) {
@@ -46,26 +52,47 @@ public class ErrorService {
         return errors;
     }
 
+    @SneakyThrows
     @Transactional
     public void setFixed(long id, ErrorType errorType) {
+        Log log = new Log(errorType, "Fixed Error");
+        logRepository.save(log);
         switch (errorType) {
         case ANOMALOUS_DATA:
-            anomalousDataErrorRepository.getOne(id).setFixed(true);
+            AnomalousDataError anomalousDataError = anomalousDataErrorRepository.getOne(id);
+            log.setOldData(mapper.writeValueAsString(anomalousDataError));
+            anomalousDataError.setFixed(true);
+            log.setNewData(mapper.writeValueAsString(anomalousDataError));
             break;
         case ENCLOSED:
-            enclosedErrorRepository.getOne(id).setFixed(true);
+            EnclosedError enclosedError = enclosedErrorRepository.getOne(id);
+            log.setOldData(mapper.writeValueAsString(enclosedError));
+            enclosedError.setFixed(true);
+            log.setNewData(mapper.writeValueAsString(enclosedError));
             break;
         case MAP_COVERAGE:
-            mapCoverageErrorRepository.getOne(id).setFixed(true);
+            MapCoverageError mapCoverageError = mapCoverageErrorRepository.getOne(id);
+            log.setOldData(mapper.writeValueAsString(mapCoverageError));
+            mapCoverageError.setFixed(true);
+            log.setNewData(mapper.writeValueAsString(mapCoverageError));
             break;
         case MULTIPOLYGON:
-            multiPolygonErrorRepository.getOne(id).setFixed(true);
+            MultiPolygonError multiPolygonError = multiPolygonErrorRepository.getOne(id);
+            log.setOldData(mapper.writeValueAsString(multiPolygonError));
+            multiPolygonError.setFixed(true);
+            log.setNewData(mapper.writeValueAsString(multiPolygonError));
             break;
         case OVERLAPPING:
-            overlappingErrorRepository.getOne(id).setFixed(true);
+            OverlappingError overlappingError = overlappingErrorRepository.getOne(id);
+            log.setOldData(mapper.writeValueAsString(overlappingError));
+            overlappingError.setFixed(true);
+            log.setNewData(mapper.writeValueAsString(overlappingError));
             break;
         case UNCLOSED:
-            unclosedErrorRepository.getOne(id).setFixed(true);
+            UnclosedError unclosedError = unclosedErrorRepository.getOne(id);
+            log.setOldData(mapper.writeValueAsString(unclosedError));
+            unclosedError.setFixed(true);
+            log.setNewData(mapper.writeValueAsString(unclosedError));
             break;
         }
     }
