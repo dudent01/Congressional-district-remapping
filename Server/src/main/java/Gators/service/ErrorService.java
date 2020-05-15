@@ -6,7 +6,8 @@ import Gators.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 @Service
 public class ErrorService {
@@ -31,15 +32,15 @@ public class ErrorService {
         this.stateRepository = stateRepository;
     }
 
-    public ArrayList<SparseError> getErrorsByStateAbbr(String stateAbbr) {
+    public HashMap<String, Set<? extends SparseError>> getErrorsByStateAbbr(String stateAbbr) {
         State state = stateRepository.findByAbbr(stateAbbr);
-        ArrayList<SparseError> errors = new ArrayList<>();
-        errors.addAll(anomalousDataErrorRepository.findByState(state));
-        errors.addAll(enclosedErrorRepository.findByState(state));
-        errors.addAll(mapCoverageErrorRepository.findByState(state));
-        errors.addAll(multiPolygonErrorRepository.findByState(state));
-        errors.addAll(overlappingErrorRepository.findByState(state));
-        errors.addAll(unclosedErrorRepository.findByState(state));
+        HashMap<String, Set<? extends SparseError>> errors = new HashMap<>();
+        errors.put("Anomalous Data Errors", anomalousDataErrorRepository.findByState(state));
+        errors.put("Enclosed Errors", enclosedErrorRepository.findByState(state));
+        errors.put("Map Coverage Errors", mapCoverageErrorRepository.findByState(state));
+        errors.put("Multi Polygon Errors", multiPolygonErrorRepository.findByState(state));
+        errors.put("Overlapping Errors", overlappingErrorRepository.findByState(state));
+        errors.put("Unclosed Errors", unclosedErrorRepository.findByState(state));
         return errors;
     }
 }

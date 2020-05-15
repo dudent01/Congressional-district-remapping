@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 @RequestMapping("api/error")
 @RestController
@@ -21,7 +22,7 @@ public class ErrorController {
     }
 
     @GetMapping(path = "/state/{stateAbbr}")
-    public ArrayList<SparseError> getErrorsByStateAbbr(@PathVariable String stateAbbr) {
+    public HashMap<String, Set<? extends SparseError>> getErrorsByStateAbbr(@PathVariable String stateAbbr) {
         return errorService.getErrorsByStateAbbr(stateAbbr);
     }
 }
