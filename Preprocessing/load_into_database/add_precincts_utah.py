@@ -12,49 +12,53 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 
-with open('Utah.json') as f:
+with open('../Utah.json') as f:
     utah = json.load(f)
 
 map_cname_to_id = {}
+#
+# # Adding Election and Precinct Data
+# print("Adding Precincts and Election")
+# for precinct in utah['features']:
+#     if "presidential" in precinct["properties"]:
+#         sql = "INSERT INTO election (type) VALUES (%s)"
+#         val = ("PRESIDENTIAL_2016",)
+#         mycursor.execute(sql, val)
+#         pres2016_id = mycursor.lastrowid
+#
+#         vals = []
+#         for name, value in precinct["properties"]["presidential"].items():
+#             sql = "INSERT INTO candidate_result (name, party, votes, election_id) VALUES (%s,%s,%s,%s)"
+#             vals.append((name, value["party"].upper(), value["votes"], pres2016_id))
+#         mycursor.executemany(sql, vals)
+#         del precinct["properties"]["presidential"]
+#     else:
+#         pres2016_id = None
+#
+#     sql = "INSERT INTO demographic (asian_pop, black_pop, hispanic_pop, other_pop, white_pop) VALUES (%s,%s,%s," \
+#           "%s,%s) "
+#     if "demographics" in precinct["properties"]:
+#         val = (0, 0, 0, 0, 0)
+#     else:
+#         val = (0, 0, 0, 0, 0)
+#     mycursor.execute(sql, val)
+#     demographic_id = mycursor.lastrowid
+#
+#     id = precinct['properties']['precinctid']
+#     cname = precinct['properties']['cname']
+#     precinct["properties"] = {}
+#
+#     sql = "INSERT INTO precinct (name, state_id, pres2016_id, demographic_id, c_name, geojson) VALUES (%s,%s,%s,%s,%s,%s)"
+#     val = (id, 2, pres2016_id, demographic_id, cname, json.dumps(precinct))
+#     mycursor.execute(sql, val)
+#     map_cname_to_id[cname] = mycursor.lastrowid
 
-# Adding Election and Precinct Data
-print("Adding Precincts and Election")
-for precinct in utah['features']:
-    if "presidential" in precinct["properties"]:
-        sql = "INSERT INTO election (type) VALUES (%s)"
-        val = ("PRESIDENTIAL_2016",)
-        mycursor.execute(sql, val)
-        pres2016_id = mycursor.lastrowid
-
-        vals = []
-        for name, value in precinct["properties"]["presidential"].items():
-            sql = "INSERT INTO candidate_result (name, party, votes, election_id) VALUES (%s,%s,%s,%s)"
-            vals.append((name, value["party"].upper(), value["votes"], pres2016_id))
-        mycursor.executemany(sql, vals)
-        del precinct["properties"]["presidential"]
-    else:
-        pres2016_id = None
-
-    sql = "INSERT INTO demographic (asian_pop, black_pop, hispanic_pop, other_pop, white_pop) VALUES (%s,%s,%s," \
-          "%s,%s) "
-    if "demographics" in precinct["properties"]:
-        val = (0, 0, 0, 0, 0)
-    else:
-        val = (0, 0, 0, 0, 0)
-    mycursor.execute(sql, val)
-    demographic_id = mycursor.lastrowid
-
-    id = precinct['properties']['precinctId']
-    cname = precinct['properties']['cname']
-    precinct["properties"] = {}
-
-    sql = "INSERT INTO precinct (name, state_id, pres2016_id, demographic_id, c_name, geojson) VALUES (%s,%s,%s,%s,%s)"
-    val = (id, 2, pres2016_id, demographic_id, cname, json.dumps(precinct))
-    mycursor.execute(sql, val)
-    map_cname_to_id[precinct['properties']['cname']] = mycursor.lastrowid
-
-with open('Utah.json') as f:
+with open('../Utah.json') as f:
     utah = json.load(f)
+sql = "SELECT c_name, id FROM precinct WHERE state_id = 2"
+mycursor.execute(sql)
+for result in mycursor.fetchall():
+    map_cname_to_id[result[0]] = result[1]
 # Adding Neighbors
 print("Adding Neighbors")
 for precinct in utah['features']:
@@ -62,5 +66,8 @@ for precinct in utah['features']:
         for neighbor in precinct["properties"]["neighbors"]:
             sql = "INSERT INTO precinct_neighbors VALUES (%s,%s)"
             val = (map_cname_to_id[precinct["properties"]["cname"]], map_cname_to_id[neighbor])
-            mycursor.execute(sql, val)
+            try:
+                mycursor.execute(sql, val)
+            except:
+                continue
 mydb.commit()

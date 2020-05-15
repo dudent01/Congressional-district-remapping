@@ -72,7 +72,7 @@ class EditDemographicsModal extends React.Component {
                 <Form.Control value="White" disabled />
               </Col>
               <Col>
-                <Form.Control name="whitePop" value={this.state.demographics.whitePop} onChange={e => this.handleChange(e)} />
+                <Form.Control type="number" name="whitePop" value={this.state.demographics.whitePop} onChange={e => this.handleChange(e)} />
               </Col>
             </Form.Row>
             <Form.Row className="mb-2">
@@ -80,7 +80,7 @@ class EditDemographicsModal extends React.Component {
                 <Form.Control value="Black" disabled />
               </Col>
               <Col>
-                <Form.Control name="blackPop" value={this.state.demographics.blackPop} onChange={e => this.handleChange(e)} />
+                <Form.Control type="number" name="blackPop" value={this.state.demographics.blackPop} onChange={e => this.handleChange(e)} />
               </Col>
             </Form.Row>
             <Form.Row className="mb-2">
@@ -88,7 +88,7 @@ class EditDemographicsModal extends React.Component {
                 <Form.Control value="Hispanic" disabled />
               </Col>
               <Col>
-                <Form.Control name="hispanicPop" value={this.state.demographics.hispanicPop} onChange={e => this.handleChange(e)} />
+                <Form.Control type="number" name="hispanicPop" value={this.state.demographics.hispanicPop} onChange={e => this.handleChange(e)} />
               </Col>
             </Form.Row>
             <Form.Row className="mb-2">
@@ -96,7 +96,7 @@ class EditDemographicsModal extends React.Component {
                 <Form.Control value="Asian" disabled />
               </Col>
               <Col>
-                <Form.Control name="asianPop" value={this.state.demographics.asianPop} onChange={e => this.handleChange(e)} />
+                <Form.Control type="number" name="asianPop" value={this.state.demographics.asianPop} onChange={e => this.handleChange(e)} />
               </Col>
             </Form.Row>
             <Form.Row className="mb-2">
@@ -104,7 +104,7 @@ class EditDemographicsModal extends React.Component {
                 <Form.Control value="Other" disabled />
               </Col>
               <Col>
-                <Form.Control name="otherPop" value={this.state.demographics.otherPop} onChange={e => this.handleChange(e)} />
+                <Form.Control type="number" name="otherPop" value={this.state.demographics.otherPop} onChange={e => this.handleChange(e)} />
               </Col>
             </Form.Row>
           </Modal.Body>

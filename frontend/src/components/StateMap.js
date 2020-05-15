@@ -29,6 +29,7 @@ const mapStateToProps = s => {
 		precincts: s.precincts.precincts,
 		selectedPrecinct: s.precincts.selectedPrecinct,
 		secondSelectedPrecinct: s.precincts.secondSelectedPrecinct,
+		isFetching: s.precincts.isFetching,
 
 		drawPolygon: s.map.drawPolygon,
 		toolAction: s.map.toolAction
@@ -151,9 +152,10 @@ class StateMap extends React.Component {
 		layer.on({
 			click: e => {
 				let layer = e.target;
+				console.log(layer)
 				let { name, id } = layer.feature.properties;
 				if (this.props.selectedPrecinct && this.props.selectedPrecinct.id === id) return;
-				if (this.props.toolAction) {
+				if (this.props.toolAction && this.props.toolAction !== DRAW_NEW_BOUNDARY) {
 					this.props.setSecondSelectedPrecinct(this.props.precincts.find(p => p.id === id))
 					window.setTimeout(() => { // set timeout of 0 to add to end of event queue
 						switch (this.props.toolAction) {
@@ -286,8 +288,8 @@ class StateMap extends React.Component {
 							<option value="congressional2016">2016 Congressional</option>
 							<option value="congressional2018">2018 Congressional</option>
 						</Form.Control>
-						<Button className="ml-auto" onClick={this.handleResetClicked.bind(this)}>Reset</Button>
-						<Button onClick={() => this.props.updateGeojsonKey()}>Update map</Button>
+						<Button className="ml-auto" onClick={this.handleResetClicked.bind(this)} disabled={this.props.isFetching}>Reset</Button>
+						{/* <Button onClick={() => this.props.updateGeojsonKey()}>Update map</Button> */}
 					</Form>
 					<Form inline className="m-2">
 						<Form.Group className="mr-2" controlId="nationalParks">

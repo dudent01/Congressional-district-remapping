@@ -263,6 +263,9 @@ class Sidebar extends React.Component {
 						{this.props.selectedPrecinct &&
 							<h2>Precinct {this.props.selectedPrecinct.name}</h2>
 						}
+						<h5 className ="my-4 text-info">
+							*Click on a button to begin an action on the currently selected precinct.
+						</h5>
 						<div className="mb-4">
 							<Row>
 								<Col xs={10}>
@@ -285,7 +288,7 @@ class Sidebar extends React.Component {
 								</Col>
 								<Col xs={2}>
 									<OverlayTrigger
-										placement="right"
+										placement="left"
 										delay={{ show: 250, hide: 400 }}
 										overlay={this.renderTooltip(4)}
 									>
@@ -305,7 +308,7 @@ class Sidebar extends React.Component {
 								</Col>
 								<Col xs={2}>
 									<OverlayTrigger
-										placement="right"
+										placement="left"
 										delay={{ show: 250, hide: 400 }}
 										overlay={this.renderTooltip(0)}
 									>
@@ -337,7 +340,7 @@ class Sidebar extends React.Component {
 								</Col>
 								<Col xs={2}>
 									<OverlayTrigger
-										placement="right"
+										placement="left"
 										delay={{ show: 250, hide: 400 }}
 										overlay={this.renderTooltip(1)}
 									>
@@ -369,7 +372,7 @@ class Sidebar extends React.Component {
 								</Col>
 								<Col xs={2}>
 									<OverlayTrigger
-										placement="right"
+										placement="left"
 										delay={{ show: 250, hide: 400 }}
 										overlay={this.renderTooltip(2)}
 									>
@@ -401,7 +404,7 @@ class Sidebar extends React.Component {
 								</Col>
 								<Col xs={2}>
 									<OverlayTrigger
-										placement="right"
+										placement="left"
 										delay={{ show: 250, hide: 400 }}
 										overlay={this.renderTooltip(3)}
 									>
