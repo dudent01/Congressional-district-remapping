@@ -1,6 +1,8 @@
 package Gators.model.Error;
 
 import Gators.model.State;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +12,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @MappedSuperclass
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public abstract class Error {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +28,7 @@ public abstract class Error {
     @Column(columnDefinition = "MEDIUMTEXT")
     private String interestPoints;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private State state;
 }

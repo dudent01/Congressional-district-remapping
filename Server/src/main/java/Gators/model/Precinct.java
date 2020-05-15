@@ -3,6 +3,7 @@ package Gators.model;
 import Gators.model.Demographic.Demographic;
 import Gators.model.Election.Election;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Precinct extends Territory {
     @Column(unique = true, length = 250)
     private String cName;
