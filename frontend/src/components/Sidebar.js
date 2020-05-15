@@ -361,9 +361,17 @@ class Sidebar extends React.Component {
 																			</div>
 																		</ListGroupItem>
 																	)
-																	break;
 																case 'Map Coverage Errors':
-																	break;
+																	return (
+																	<ListGroupItem key={error.id}>
+																		<strong>Map Coverage No. {error.id}</strong>
+																		<div>
+																			Type: {error.mapCoverageType}
+																			<Button className="float-right ml-2" variant="info" onClick={() => this.handleFixed(error.id, error.type)}>Fixed?</Button>
+																			<Button className="float-right" onClick={this.handleZoomInterestPoints.bind(this, error.interestPoints)}>View On Map</Button>
+																		</div>
+																	</ListGroupItem>
+																	)
 																case 'Multi Polygon Errors':
 																	return (
 																		<ListGroupItem key={error.id}>
