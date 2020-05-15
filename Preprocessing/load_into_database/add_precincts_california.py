@@ -54,7 +54,7 @@ map_cname_to_id = {}
 #     map_cname_to_id[cname] = mycursor.lastrowid
 
 #Adding Neighbors
-sql = "SELECT c_name, id FROM precinct"
+sql = "SELECT c_name, id FROM precinct WHERE state_id = 1"
 mycursor.execute(sql)
 for result in mycursor.fetchall():
     map_cname_to_id[result[0]] = result[1]
