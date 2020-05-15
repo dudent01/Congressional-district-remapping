@@ -1,10 +1,12 @@
 package Gators.service;
 
+import Gators.model.Error.ErrorType;
 import Gators.model.Error.SparseError;
 import Gators.model.State;
 import Gators.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -42,5 +44,29 @@ public class ErrorService {
         errors.put("Overlapping Errors", overlappingErrorRepository.findByState(state));
         errors.put("Unclosed Errors", unclosedErrorRepository.findByState(state));
         return errors;
+    }
+
+    @Transactional
+    public void setFixed(long id, ErrorType errorType) {
+        switch (errorType) {
+        case ANOMALOUS_DATA:
+            anomalousDataErrorRepository.getOne(id).setFixed(true);
+            break;
+        case ENCLOSED:
+            enclosedErrorRepository.getOne(id).setFixed(true);
+            break;
+        case MAP_COVERAGE:
+            mapCoverageErrorRepository.getOne(id).setFixed(true);
+            break;
+        case MULTIPOLYGON:
+            multiPolygonErrorRepository.getOne(id).setFixed(true);
+            break;
+        case OVERLAPPING:
+            overlappingErrorRepository.getOne(id).setFixed(true);
+            break;
+        case UNCLOSED:
+            unclosedErrorRepository.getOne(id).setFixed(true);
+            break;
+        }
     }
 }
