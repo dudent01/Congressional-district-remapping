@@ -8,6 +8,4 @@ public interface SparseError {
     boolean isFixed();
 
     String getInterestPoints();
-
-    long getStateId();
 }
