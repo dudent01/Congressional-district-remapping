@@ -1,6 +1,6 @@
 package Gators.api;
 
-import Gators.model.Error.Log;
+import Gators.model.Error.SparseLog;
 import Gators.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +20,7 @@ public class LogController {
     }
 
     @GetMapping
-    public List<Log> getLogs() {
+    public List<SparseLog> getLogs() {
         return logService.getLogs();
     }
 }

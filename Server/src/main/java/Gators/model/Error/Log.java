@@ -1,6 +1,7 @@
 package Gators.model.Error;
 
 import Gators.model.Precinct;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +31,7 @@ public class Log {
     @Column(columnDefinition = "TEXT")
     private String changeType;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Precinct precinct;
 
@@ -39,6 +41,12 @@ public class Log {
     public Log(Precinct precinct, String changeType) {
         logDate = new Date();
         this.precinct = precinct;
+        this.changeType = changeType;
+    }
+
+    public Log(ErrorType errorType, String changeType) {
+        logDate = new Date();
+        this.errorType = errorType;
         this.changeType = changeType;
     }
 }
