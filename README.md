@@ -11,7 +11,7 @@ Some of the errors that our code identifies are:
 * Multipolygons (precincts that consist of multiple disconnected areas)
 * Unclosed precincts (precincts with a boundary that is not closed - a curve, not a polygon)
 * Map coverage errors (areas on the map that do not belong to any precinct that is defined in the dataset)
-* Anamolous data (data about the precinct that contains a clear error - percentages not adding up)
+* Anomalous data (data about the precinct that contains a clear error - percentages not adding up)
 
 These errors are identified by our preprocessing scripts that clean and analyze precinct boundary and voting data.
 
